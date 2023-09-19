@@ -1,0 +1,20 @@
+:root {
+    --button-default {
+        background-color: var(--color-green-lighter);
+        border-radius: 0.25rem;
+        color: var(--color-green);
+        font-size: 0.875rem;
+        font-weight: bold;
+        padding: 0.5rem 1rem;
+        text-decoration: none;
+        text-transform: uppercase;
+
+        &:focus, &:hover {
+            background-color: var(--color-orange);
+        }
+    }
+}
+
+.button-default {
+    @apply --button-default;
+}

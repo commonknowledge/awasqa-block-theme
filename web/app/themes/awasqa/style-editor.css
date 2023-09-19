@@ -1,0 +1,10 @@
+.cf-block__fields {
+    margin-top: 0;
+    margin-left: 0;
+}
+
+.cf-block__fields .cf-separator h3 {
+    font-size: 1.5rem;
+    font-weight: normal;
+    margin: 0;
+}

@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "watch": "postcss --verbose -w -o awasqa/style.css awasqa/awasqa.css"
   },
   "husky": {
     "hooks": {
@@ -21,14 +21,21 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "@typescript-eslint/eslint-plugin": "^6.0.0",
-    "@typescript-eslint/parser": "^6.0.0",
+    "@typescript-eslint/eslint-plugin": "^5.25.0",
+    "@typescript-eslint/parser": "^5.25.0",
+    "autoprefixer": "^10.4.14",
     "eslint": "^8.15.0",
-    "eslint-config-prettier": "^9.0.0",
-    "eslint-plugin-prettier": "^5.0.0",
+    "eslint-config-prettier": "^8.5.0",
+    "eslint-plugin-prettier": "^4.0.0",
     "eslint-plugin-react": "^7.30.0",
     "husky": "^8.0.1",
-    "lint-staged": "^14.0.0",
-    "prettier": "3.0.3"
+    "lint-staged": "^12.4.1",
+    "postcss": "^8.4.23",
+    "postcss-apply": "^0.12.0",
+    "postcss-cli": "^10.1.0",
+    "postcss-each": "^1.1.0",
+    "postcss-import": "^15.1.0",
+    "postcss-nested": "^6.0.1",
+    "prettier": "2.6.2"
   }
 }

@@ -2,7 +2,7 @@ version: "3.6"
 services:
   nginx:
     image: nginx:latest
-    container_name: wordpress-starter-template-nginx
+    container_name: awasqa-nginx
     ports:
       - "8082:80"
     volumes:
@@ -15,18 +15,18 @@ services:
 
   mysql:
     image: mariadb
-    container_name: wordpress-starter-template-mysql
+    container_name: awasqa-mysql
     volumes:
-      - wordpress-starter-template-mysql:/var/lib/mysql
+      - awasqa-mysql:/var/lib/mysql
     environment:
       - MYSQL_ROOT_PASSWORD=password
-      - MYSQL_DATABASE=wordpress-starter-template
+      - MYSQL_DATABASE=awasqa
     restart: always
     ports:
       - "3308:3306"
 
   wordpress:
-    container_name: wordpress-starter-template-wordpress
+    container_name: awasqa-wordpress
     build:
       context: .
       dockerfile: Dockerfile
@@ -34,7 +34,7 @@ services:
       - ./:/var/www/html:rw,cached
       - ./docker/wordpress/php.ini:/usr/local/etc/php/conf.d/php.ini
     environment:
-      - WORDPRESS_DB_NAME=wordpress-starter-template
+      - WORDPRESS_DB_NAME=awasqa
       - WORDPRESS_TABLE_PREFIX=wp_
       - WORDPRESS_DB_HOST=mysql
       - WORDPRESS_DB_PASSWORD=password
@@ -54,4 +54,4 @@ services:
       - ./:/var/www/html:rw,cached
 
 volumes:
-  wordpress-starter-template-mysql:
+  awasqa-mysql:

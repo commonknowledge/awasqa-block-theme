@@ -1,8 +1,8 @@
 {
-  "name": "commonknowledge/wordpress-starter-template",
+  "name": "commonknowledge/awasqa",
   "type": "project",
   "license": "MIT",
-  "description": "A WordPress starter template for organisers and campaigns, using Bedrock and Docker Compose",
+  "description": "WordPress project for Awasqa",
   "repositories": [
     {
       "type": "composer",
@@ -25,7 +25,10 @@
     "roots/wp-password-bcrypt": "1.1.0",
     "wpackagist-plugin/wordpress-importer": "^0.8.0",
     "wpackagist-plugin/wordfence": "^7.10",
-    "wpackagist-plugin/safe-svg": "^2.1.1"
+    "wpackagist-plugin/safe-svg": "^2.1.1",
+    "htmlburger/carbon-fields": "^3.6",
+    "mnsami/composer-custom-directory-installer": "^2.0",
+    "wpackagist-plugin/bbpress": "^2.6"
   },
   "require-dev": {
     "squizlabs/php_codesniffer": "^3.7.2",
@@ -41,7 +44,8 @@
     "preferred-install": "dist",
     "allow-plugins": {
       "composer/installers": true,
-      "roots/wordpress-core-installer": true
+      "roots/wordpress-core-installer": true,
+      "mnsami/composer-custom-directory-installer": true
     }
   },
   "minimum-stability": "dev",
@@ -56,6 +60,9 @@
       ],
       "web/app/themes/{$name}/": [
         "type:wordpress-theme"
+      ],
+      "web/app/vendor/{$vendor}/{$name}": [
+        "htmlburger/carbon-fields"
       ]
     },
     "wordpress-install-dir": "web/wp"

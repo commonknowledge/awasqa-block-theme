@@ -1,0 +1,43 @@
+:root {
+    --color-orange: #FDA700;
+    --color-yellow: #F7FFCE;
+    --color-green: #465300;
+    --color-green-lighter: #4653001F;
+
+    --font-size-large: 2.75rem;
+}
+.button-default {
+  background-color: var(--color-green-lighter);
+  border-radius: 0.25rem;
+  color: var(--color-green);
+  font-size: 0.875rem;
+  font-weight: bold;
+  padding: 0.5rem 1rem;
+  text-decoration: none;
+  text-transform: uppercase;
+}
+.button-default:focus, .button-default:hover {
+  background-color: var(--color-orange);
+        }
+.wp-block-categories {
+    display: block;
+    list-style: none;
+    padding-left: 0;
+}
+.wp-block-categories li {
+        display: inline-block;
+        margin-right: 0.25rem;
+    }
+.wp-block-categories a {
+  background-color: var(--color-green-lighter);
+  border-radius: 0.25rem;
+  color: var(--color-green);
+  font-size: 0.875rem;
+  font-weight: bold;
+  padding: 0.5rem 1rem;
+  text-decoration: none;
+  text-transform: uppercase;
+    }
+.wp-block-categories a:focus, .wp-block-categories a:hover {
+  background-color: var(--color-orange);
+        }
