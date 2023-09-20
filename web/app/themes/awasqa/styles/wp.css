@@ -1,14 +1,20 @@
 .wp-block-categories {
-    display: block;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
     list-style: none;
+    margin-bottom: 6rem;
     padding-left: 0;
-
-    li {
-        display: inline-block;
-        margin-right: 0.25rem;
-    }
 
     a {
         @apply --button-default;
+    }
+}
+
+.wp-block-post-featured-image {
+    margin-bottom: 0.875rem;
+
+    img {
+        border-radius: 0.5rem;
     }
 }

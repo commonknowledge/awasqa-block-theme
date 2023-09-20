@@ -4,12 +4,18 @@
     --color-green: #465300;
     --color-green-lighter: #4653001F;
 
+    --font-family-serif: 'Instrument Serif', serif;
+    --font-family-sans-serif: 'Aktiv Grotesk', sans-serif;
     --font-size-large: 2.75rem;
+}
+strong {
+    font-family: var(--font-family-sans-serif);
 }
 .button-default {
   background-color: var(--color-green-lighter);
   border-radius: 0.25rem;
   color: var(--color-green);
+  display: inline-block;
   font-size: 0.875rem;
   font-weight: bold;
   padding: 0.5rem 1rem;
@@ -19,19 +25,59 @@
 .button-default:focus, .button-default:hover {
   background-color: var(--color-orange);
         }
+.button-outline {
+  background-color: var(--color-green-lighter);
+  border-radius: 0.25rem;
+  color: var(--color-green);
+  display: inline-block;
+  font-size: 0.875rem;
+  font-weight: bold;
+  padding: 0.5rem 1rem;
+  text-decoration: none;
+  text-transform: uppercase;
+}
+.button-outline:focus, .button-outline:hover {
+  background-color: var(--color-orange);
+        }
+header nav:first-of-type {
+        margin: 0 auto;
+    }
+header nav:last-of-type {
+        border-left: 1px solid var(--color-green-lighter);
+        padding: 0.5rem 0 0.5rem 2.5rem;
+    }
+h6 {
+    align-items: center;
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 3.125rem;
+}
+h6::before {
+        content: "";
+        align-items: center;
+        background-image: url("/app/themes/awasqa/assets/images/awasqa-symbol.svg");
+        background-size: cover;
+        height: 25px;
+        width: 25px;
+    }
+h6::after {
+        content: "";
+        border-top: 1px solid var(--color-orange);
+        flex-grow: 1;
+    }
 .wp-block-categories {
-    display: block;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
     list-style: none;
+    margin-bottom: 6rem;
     padding-left: 0;
 }
-.wp-block-categories li {
-        display: inline-block;
-        margin-right: 0.25rem;
-    }
 .wp-block-categories a {
   background-color: var(--color-green-lighter);
   border-radius: 0.25rem;
   color: var(--color-green);
+  display: inline-block;
   font-size: 0.875rem;
   font-weight: bold;
   padding: 0.5rem 1rem;
@@ -40,4 +86,151 @@
     }
 .wp-block-categories a:focus, .wp-block-categories a:hover {
   background-color: var(--color-orange);
+        }
+.wp-block-post-featured-image {
+    margin-bottom: 0.875rem;
+}
+.wp-block-post-featured-image img {
+        border-radius: 0.5rem;
+    }
+.awasqa-authors {
+    display: flex;
+    list-style: none;
+    padding: 0;
+}
+.awasqa-authors li:not(:last-child) {
+        align-items: center;
+        display: flex;
+    }
+.awasqa-authors li:not(:last-child)::after {
+            background-color: var(--color-orange);
+            border-radius: 100%;
+            content: "";
+            display: inline-block;
+            height: 0.5rem;
+            margin-right: 0.5rem;
+            width: 0.5rem;
+        }
+.awasqa-authors li:not(:last-child) a {
+            margin-right: 0.5rem;
+        }
+.awasqa-authors a {
+        text-decoration: none;
+    }
+.awasqa-authors a:hover,.awasqa-authors a:focus {
+            text-decoration: underline;
+        }
+.awasqa-issue-link {
+  background-color: var(--color-green-lighter);
+  border-radius: 0.25rem;
+  color: var(--color-green);
+  display: inline-block;
+  font-size: 0.875rem;
+  font-weight: bold;
+  padding: 0.5rem 1rem;
+  text-decoration: none;
+  text-transform: uppercase;
+}
+.awasqa-issue-link:focus, .awasqa-issue-link:hover {
+  background-color: var(--color-orange);
+        }
+.awasqa-issue-link {
+    align-items: center;
+    display: flex;
+}
+.awasqa-issue-link__title {
+    margin-right: auto;
+}
+.awasqa-issue-link__more {
+    margin-right: 0.5rem;
+    text-transform: none;
+}
+.awasqa-join-us a {
+  border: 1px solid var(--color-green);
+  border-radius: 0.25rem;
+  color: var(--color-green);
+  display: inline-block;
+  font-size: 0.875rem;
+  padding: 0.5rem 1rem;
+  text-decoration: none;
+    }
+.awasqa-join-us a:focus, .awasqa-join-us a:hover {
+  background-color: var(--color-green-lighter);
+        }
+.awasqa-join-us p {
+        margin-top: 0.625rem;
+    }
+.awasqa_organisation .wp-block-post-featured-image {
+        background-color: #fff;
+        border-radius: 0.5rem;
+        box-sizing: border-box;
+        display: flex;
+        height: 75px;
+        padding: 0.5rem;
+        width: 75px;
+    }
+.awasqa_organisation .wp-block-post-featured-image img {
+            border-radius: 0;
+            margin: auto;
+        }
+.awasqa_organisation .wp-block-post-excerpt__more-link {
+        align-items: center;
+        display: inline-flex;
+    }
+.awasqa_organisation .wp-block-post-excerpt__more-link::after {
+            content: "";
+            background-image: url("/app/themes/awasqa/assets/images/arrow-right.svg");
+            height: 0.75rem;
+            margin-left: 0.5rem;
+            width: 1rem;
+        }
+.awasqa-radical-resilience .wp-block-column:first-child {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+.awasqa-radical-resilience .wp-block-column:last-child {
+        display: flex;
+        flex-direction: column;
+    }
+.awasqa-radical-resilience .wp-block-column:last-child figure {
+            display: flex;
+            flex: 1 0 0;
+            flex-direction: column;
+        }
+.awasqa-radical-resilience .wp-block-column:last-child img {
+            flex: 1 0 0;
+            min-height: 0;
+            -o-object-fit: cover;
+               object-fit: cover;
+            width: 100%;
+        }
+.awasqa-radical-resilience a:first-child {
+  border: 1px solid var(--color-green);
+  border-radius: 0.25rem;
+  color: var(--color-green);
+  display: inline-block;
+  font-size: 0.875rem;
+  padding: 0.5rem 1rem;
+  text-decoration: none;
+    }
+.awasqa-radical-resilience a:first-child:focus, .awasqa-radical-resilience a:first-child:hover {
+  background-color: var(--color-green-lighter);
+        }
+.awasqa-radical-resilience a:first-child {
+        margin-right: 1.25rem;
+}
+.awasqa-radical-resilience a:last-child {
+  border: 1px solid var(--color-green);
+  background-color: var(--color-green);
+  border-radius: 0.25rem;
+  color: var(--color-yellow);
+  display: inline-block;
+  font-size: 0.875rem;
+  padding: 0.5rem 1rem;
+  text-decoration: none;
+    }
+.awasqa-radical-resilience a:last-child:focus, .awasqa-radical-resilience a:last-child:hover {
+  background-color: var(--color-green-lighter);
+  color: var(--color-green);
         }

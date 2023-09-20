@@ -1,14 +1,22 @@
 <!-- wp:template-part {"slug":"header","tagName":"header"} /-->
 
-<!-- wp:columns -->
-<div class="wp-block-columns"><!-- wp:column {"width":"66.66%"} -->
-<div class="wp-block-column" style="flex-basis:66.66%"><!-- wp:query {"queryId":23,"query":{"perPage":"1","pages":0,"offset":0,"postType":"post","order":"desc","orderBy":"date","author":"","search":"","exclude":[],"sticky":"","inherit":false},"layout":{"type":"default"}} -->
+<!-- wp:columns {"style":{"spacing":{"padding":{"top":"0","bottom":"0","left":"var:preset|spacing|50","right":"var:preset|spacing|50"},"blockGap":{"left":"var:preset|spacing|70"}}}} -->
+<div class="wp-block-columns" style="padding-top:0;padding-right:var(--wp--preset--spacing--50);padding-bottom:0;padding-left:var(--wp--preset--spacing--50)"><!-- wp:column {"width":"66.66%"} -->
+<div class="wp-block-column" style="flex-basis:66.66%"><!-- wp:heading {"level":6} -->
+<h6 class="wp-block-heading">Featured</h6>
+<!-- /wp:heading -->
+
+<!-- wp:query {"queryId":23,"query":{"perPage":"1","pages":0,"offset":0,"postType":"post","order":"desc","orderBy":"date","author":"","search":"","exclude":[],"sticky":"only","inherit":false},"layout":{"type":"default"}} -->
 <div class="wp-block-query"><!-- wp:post-template -->
 <!-- wp:post-featured-image /-->
 
-<!-- wp:post-date /-->
+<!-- wp:group {"layout":{"type":"flex","flexWrap":"nowrap","justifyContent":"space-between"}} -->
+<div class="wp-block-group"><!-- wp:post-date /-->
 
-<!-- wp:post-title /-->
+<!-- wp:carbon-fields/authors /--></div>
+<!-- /wp:group -->
+
+<!-- wp:post-title {"isLink":true,"fontSize":"xx-large"} /-->
 <!-- /wp:post-template --></div>
 <!-- /wp:query --></div>
 <!-- /wp:column -->
@@ -24,57 +32,104 @@
 <h6 class="wp-block-heading">Filter by Countries</h6>
 <!-- /wp:heading -->
 
-<!-- wp:carbon-fields/countries-list /--></div>
+<!-- wp:carbon-fields/countries-list /-->
+
+<!-- wp:group {"className":"awasqa-join-us","layout":{"type":"default"}} -->
+<div class="wp-block-group awasqa-join-us"><!-- wp:heading {"level":6} -->
+<h6 class="wp-block-heading">Join Us</h6>
+<!-- /wp:heading -->
+
+<!-- wp:paragraph -->
+<p>We bring together and amplify indigenous voices and organisations. Are you looking to contribute?</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
+<p><a href="/join-us/" data-type="page" data-id="26">Learn more</a></p>
+<!-- /wp:paragraph --></div>
+<!-- /wp:group -->
+
+<!-- wp:paragraph -->
+<p></p>
+<!-- /wp:paragraph --></div>
 <!-- /wp:column --></div>
 <!-- /wp:columns -->
 
-<!-- wp:group {"tagName":"main","style":{"spacing":{"margin":{"top":"var:preset|spacing|50","bottom":"var:preset|spacing|70"}}},"layout":{"type":"constrained"}} -->
-<main class="wp-block-group" style="margin-top:var(--wp--preset--spacing--50);margin-bottom:var(--wp--preset--spacing--70)"><!-- wp:query {"queryId":2,"query":{"pages":0,"offset":0,"postType":"post","order":"desc","orderBy":"date","author":"","search":"","exclude":[],"sticky":"","inherit":true,"perPage":10},"align":"wide","layout":{"type":"constrained"}} -->
-<div class="wp-block-query alignwide"><!-- wp:post-template {"align":"wide","layout":{"type":"grid","columnCount":3}} -->
-<!-- wp:post-featured-image {"isLink":true,"width":"100%","height":"clamp(15vw, 30vh, 400px)","align":"wide"} /-->
+<!-- wp:group {"style":{"spacing":{"padding":{"right":"var:preset|spacing|50","left":"var:preset|spacing|50"}}},"layout":{"type":"default"}} -->
+<div class="wp-block-group" style="padding-right:var(--wp--preset--spacing--50);padding-left:var(--wp--preset--spacing--50)"><!-- wp:heading {"level":6} -->
+<h6 class="wp-block-heading">Latest</h6>
+<!-- /wp:heading -->
+
+<!-- wp:query {"queryId":13,"query":{"perPage":"8","pages":0,"offset":0,"postType":"post","order":"desc","orderBy":"date","author":"","search":"","exclude":[],"sticky":"exclude","inherit":false}} -->
+<div class="wp-block-query"><!-- wp:post-template {"layout":{"type":"grid","columnCount":3}} -->
+<!-- wp:post-featured-image /-->
 
 <!-- wp:post-title {"isLink":true} /-->
+<!-- /wp:post-template --></div>
+<!-- /wp:query --></div>
+<!-- /wp:group -->
 
-<!-- wp:post-excerpt /-->
+<!-- wp:group {"style":{"spacing":{"padding":{"right":"var:preset|spacing|50","left":"var:preset|spacing|50"}}},"layout":{"type":"default"}} -->
+<div class="wp-block-group" style="padding-right:var(--wp--preset--spacing--50);padding-left:var(--wp--preset--spacing--50)"><!-- wp:heading {"level":6} -->
+<h6 class="wp-block-heading">View by issues</h6>
+<!-- /wp:heading -->
 
-<!-- wp:post-date {"isLink":true} /-->
+<!-- wp:columns -->
+<div class="wp-block-columns"><!-- wp:column -->
+<div class="wp-block-column"><!-- wp:carbon-fields/issue-link {"data":{"crb_separator":"","category":"arts-and-culture"}} /-->
 
-<!-- wp:spacer {"height":"var(--wp--preset--spacing--40)"} -->
-<div style="height:var(--wp--preset--spacing--40)" aria-hidden="true" class="wp-block-spacer"></div>
-<!-- /wp:spacer -->
-<!-- /wp:post-template -->
+<!-- wp:query {"queryId":2,"query":{"perPage":3,"pages":0,"offset":0,"postType":"post","order":"desc","orderBy":"date","author":"","search":"","exclude":[],"sticky":"","inherit":false,"taxQuery":{"category":[6]}}} -->
+<div class="wp-block-query"><!-- wp:post-template -->
+<!-- wp:post-featured-image /-->
 
-<!-- wp:query-pagination {"paginationArrow":"arrow","align":"wide","layout":{"type":"flex","justifyContent":"space-between"}} -->
-<!-- wp:query-pagination-previous {"label":"Newer Posts"} /-->
-
-<!-- wp:query-pagination-next {"label":"Older Posts"} /-->
-<!-- /wp:query-pagination --></div>
-<!-- /wp:query -->
-
-<!-- wp:spacer {"height":"var(--wp--preset--spacing--60)"} -->
-<div style="height:var(--wp--preset--spacing--60)" aria-hidden="true" class="wp-block-spacer"></div>
-<!-- /wp:spacer -->
-
-<!-- wp:columns {"align":"wide"} -->
-<div class="wp-block-columns alignwide"><!-- wp:column -->
-<div class="wp-block-column"><!-- wp:paragraph {"style":{"typography":{"lineHeight":"1.2"}},"fontSize":"x-large"} -->
-<p class="has-x-large-font-size" style="line-height:1.2">Got any book recommendations? </p>
-<!-- /wp:paragraph -->
-
-<!-- wp:buttons -->
-<div class="wp-block-buttons"><!-- wp:button {"fontSize":"small"} -->
-<div class="wp-block-button has-custom-font-size has-small-font-size"><a class="wp-block-button__link wp-element-button">
-                        Get In Touch </a></div>
-<!-- /wp:button --></div>
-<!-- /wp:buttons --></div>
+<!-- wp:post-title {"isLink":true} /-->
+<!-- /wp:post-template --></div>
+<!-- /wp:query --></div>
 <!-- /wp:column -->
 
 <!-- wp:column -->
-<div class="wp-block-column"><!-- wp:separator {"className":"is-style-wide"} -->
-<hr class="wp-block-separator has-alpha-channel-opacity is-style-wide"/>
-<!-- /wp:separator --></div>
+<div class="wp-block-column"><!-- wp:carbon-fields/issue-link {"data":{"crb_separator":"","category":"science"}} /-->
+
+<!-- wp:query {"queryId":4,"query":{"perPage":3,"pages":0,"offset":0,"postType":"post","order":"desc","orderBy":"date","author":"","search":"","exclude":[],"sticky":"","inherit":false,"taxQuery":{"category":[7]}}} -->
+<div class="wp-block-query"><!-- wp:post-template -->
+<!-- wp:post-featured-image /-->
+
+<!-- wp:post-title {"isLink":true} /-->
+<!-- /wp:post-template --></div>
+<!-- /wp:query --></div>
+<!-- /wp:column -->
+
+<!-- wp:column -->
+<div class="wp-block-column"><!-- wp:carbon-fields/issue-link {"data":{"crb_separator":"","category":"health"}} /-->
+
+<!-- wp:query {"queryId":4,"query":{"perPage":3,"pages":0,"offset":0,"postType":"post","order":"desc","orderBy":"date","author":"","search":"","exclude":[],"sticky":"","inherit":false,"taxQuery":{"category":[8]}}} -->
+<div class="wp-block-query"><!-- wp:post-template -->
+<!-- wp:post-featured-image /-->
+
+<!-- wp:post-title {"isLink":true} /-->
+<!-- /wp:post-template --></div>
+<!-- /wp:query --></div>
 <!-- /wp:column --></div>
-<!-- /wp:columns --></main>
+<!-- /wp:columns --></div>
+<!-- /wp:group -->
+
+<!-- wp:template-part {"slug":"radical-resilience"} /-->
+
+<!-- wp:group {"style":{"spacing":{"padding":{"right":"var:preset|spacing|50","left":"var:preset|spacing|50"}}},"layout":{"type":"default"}} -->
+<div class="wp-block-group" style="padding-right:var(--wp--preset--spacing--50);padding-left:var(--wp--preset--spacing--50)"><!-- wp:heading {"level":3} -->
+<h3 class="wp-block-heading">Organisations</h3>
+<!-- /wp:heading -->
+
+<!-- wp:query {"queryId":14,"query":{"perPage":100,"pages":0,"offset":0,"postType":"awasqa_organisation","order":"desc","orderBy":"date","author":"","search":"","exclude":[],"sticky":"","inherit":false,"parents":[]}} -->
+<div class="wp-block-query"><!-- wp:post-template {"layout":{"type":"grid","columnCount":3}} -->
+<!-- wp:group {"layout":{"type":"flex","flexWrap":"nowrap"}} -->
+<div class="wp-block-group"><!-- wp:post-featured-image /-->
+
+<!-- wp:post-title /--></div>
+<!-- /wp:group -->
+
+<!-- wp:post-excerpt {"moreText":"Visit Organisation Profile"} /-->
+<!-- /wp:post-template --></div>
+<!-- /wp:query --></div>
 <!-- /wp:group -->
 
 <!-- wp:template-part {"slug":"footer","tagName":"footer"} /-->

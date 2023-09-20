@@ -1,0 +1,8 @@
+.awasqa-join-us {
+    a {
+        @apply --button-outline;
+    }
+    p {
+        margin-top: 0.625rem;
+    }
+}

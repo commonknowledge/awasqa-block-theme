@@ -7,9 +7,9 @@ License URL: https://scripts.sil.org/OFL
 Source: www.fragtypefoundry.xyz
 -- End of Instrument Serif Font credits --
 
-Sofia Sans Condensed Font
-Copyright 2019 The Sofia Sans Project Authors (https://github.com/lettersoup/Sofia-Sans) 
-This Font Software is licensed under the SIL Open Font License, Version 1.1. This license is available with a FAQ at: https://scripts.sil.org/OFL 
-License URL: https://scripts.sil.org/OFL 
-Source: http://lettersoup.de
--- End of Sofia Sans Condensed Font credits --
+Aktiv Grotesk Trial Font
+Copyright 2019-2020 Dalton Maag Ltd. Modification of this file requires prior written permission from Dalton Maag Ltd. 
+ 
+License URL: http://www.daltonmaag.com/eula 
+Source: http://www.daltonmaag.com/
+-- End of Aktiv Grotesk Trial Font credits --

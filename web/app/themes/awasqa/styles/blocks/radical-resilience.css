@@ -1,0 +1,31 @@
+.awasqa-radical-resilience {
+    .wp-block-column:first-child {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+    .wp-block-column:last-child {
+        display: flex;
+        flex-direction: column;
+
+        figure {
+            display: flex;
+            flex: 1 0 0;
+            flex-direction: column;
+        }
+
+        img {
+            flex: 1 0 0;
+            min-height: 0;
+            object-fit: cover;
+            width: 100%;
+        }
+    }
+    a:first-child {
+        @apply --button-outline;
+        margin-right: 1.25rem;
+    }
+    a:last-child {
+        @apply --button-inverse;
+    }
+}

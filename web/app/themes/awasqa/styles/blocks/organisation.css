@@ -1,0 +1,28 @@
+.awasqa_organisation {
+    .wp-block-post-featured-image {
+        background-color: #fff;
+        border-radius: 0.5rem;
+        box-sizing: border-box;
+        display: flex;
+        height: 75px;
+        padding: 0.5rem;
+        width: 75px;
+
+        img {
+            border-radius: 0;
+            margin: auto;
+        }
+    }
+    .wp-block-post-excerpt__more-link {
+        align-items: center;
+        display: inline-flex;
+
+        &::after {
+            content: "";
+            background-image: url("/app/themes/awasqa/assets/images/arrow-right.svg");
+            height: 0.75rem;
+            margin-left: 0.5rem;
+            width: 1rem;
+        }
+    }
+}

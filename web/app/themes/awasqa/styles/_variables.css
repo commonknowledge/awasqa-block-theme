@@ -4,5 +4,7 @@
     --color-green: #465300;
     --color-green-lighter: #4653001F;
 
+    --font-family-serif: 'Instrument Serif', serif;
+    --font-family-sans-serif: 'Aktiv Grotesk', sans-serif;
     --font-size-large: 2.75rem;
 }

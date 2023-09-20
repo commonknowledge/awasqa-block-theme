@@ -1,0 +1,14 @@
+.awasqa-issue-link {
+    @apply --button-default;
+    align-items: center;
+    display: flex;
+}
+
+.awasqa-issue-link__title {
+    margin-right: auto;
+}
+
+.awasqa-issue-link__more {
+    margin-right: 0.5rem;
+    text-transform: none;
+}

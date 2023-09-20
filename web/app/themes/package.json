@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "watch": "postcss --verbose -w -o awasqa/style.css awasqa/awasqa.css"
+    "watch": "postcss --verbose -w -o awasqa/style.css awasqa/styles/awasqa.css"
   },
   "husky": {
     "hooks": {

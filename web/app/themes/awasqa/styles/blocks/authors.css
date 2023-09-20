@@ -1,0 +1,32 @@
+.awasqa-authors {
+    display: flex;
+    list-style: none;
+    padding: 0;
+
+    li:not(:last-child) {
+        align-items: center;
+        display: flex;
+
+        &::after {
+            background-color: var(--color-orange);
+            border-radius: 100%;
+            content: "";
+            display: inline-block;
+            height: 0.5rem;
+            margin-right: 0.5rem;
+            width: 0.5rem;
+        }
+
+        a {
+            margin-right: 0.5rem;
+        }
+    }
+
+    a {
+        text-decoration: none;
+
+        &:hover,&:focus {
+            text-decoration: underline;
+        }
+    }
+}
