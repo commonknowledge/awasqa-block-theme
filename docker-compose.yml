@@ -16,6 +16,7 @@ services:
   mysql:
     image: mariadb
     container_name: awasqa-mysql
+    command: --general-log=1 --general-log-file=/tmp/mysql.log
     volumes:
       - awasqa-mysql:/var/lib/mysql
     environment:

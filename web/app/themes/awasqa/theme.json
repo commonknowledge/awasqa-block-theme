@@ -631,7 +631,7 @@
 		"spacing": {
 			"blockGap": "1.5rem",
 			"padding": {
-				"bottom": "var(--wp--preset--spacing--40)",
+				"bottom": "0px",
 				"left": "var(--wp--preset--spacing--30)",
 				"right": "var(--wp--preset--spacing--30)",
 				"top": "var(--wp--preset--spacing--40)"

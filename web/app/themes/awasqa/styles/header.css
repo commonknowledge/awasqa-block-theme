@@ -1,9 +1,12 @@
 header {
     nav:first-of-type {
-        margin: 0 auto;
+        margin: 0 0.5rem 0 auto;
     }
     nav:last-of-type {
         border-left: 1px solid var(--color-green-lighter);
         padding: 0.5rem 0 0.5rem 2.5rem;
+    }
+    .nav-language-switcher {
+        margin-right: auto;
     }
 }

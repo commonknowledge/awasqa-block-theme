@@ -1,0 +1,18 @@
+.awasqa-heading-link {
+    a {
+        text-decoration: none;
+
+        &:hover,&:focus {
+            text-decoration: underline;
+        }
+
+        &::after {
+            content: "";
+            display: inline-block;
+            background-image: url("/app/themes/awasqa/assets/images/arrow-right.svg");
+            height: 0.75rem;
+            margin-left: 0.5rem;
+            width: 1rem;
+        }
+    }
+}

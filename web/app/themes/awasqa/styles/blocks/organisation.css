@@ -10,12 +10,15 @@
 
         img {
             border-radius: 0;
+            height: 100%;
             margin: auto;
+            object-fit: contain !important;
         }
     }
     .wp-block-post-excerpt__more-link {
         align-items: center;
         display: inline-flex;
+        text-decoration: none;
 
         &::after {
             content: "";
@@ -23,6 +26,10 @@
             height: 0.75rem;
             margin-left: 0.5rem;
             width: 1rem;
+        }
+
+        &:hover,&:focus {
+            text-decoration: underline;
         }
     }
 }

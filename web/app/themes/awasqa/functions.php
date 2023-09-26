@@ -64,8 +64,8 @@ add_action('carbon_fields_register_fields', function () {
         <ul class="wp-block-categories">
             <?php foreach ($countries as $country) : ?>
                 <li>
-                    <a href="/country/<?= $country->slug ?>/">
-                        <?= $country->name ?>
+                    <a href="<?= get_term_link($country->name, 'awasqa_country') ?>">
+                        <?= __($country->name) ?>
                     </a>
                 </li>
             <?php endforeach; ?>
@@ -98,7 +98,7 @@ add_action('carbon_fields_register_fields', function () {
             ?>
         <a class="awasqa-issue-link" href="/category/<?= $category->slug ?>">
             <span class="awasqa-issue-link__title"><?= $category->name ?></span>
-            <span class="awasqa-issue-link__more">More</span>
+            <span class="awasqa-issue-link__more"><?= __('More') ?></span>
             <img src="/app/themes/awasqa/assets/images/arrow-right.svg">
         </a>
             <?php
@@ -117,9 +117,10 @@ add_action('carbon_fields_register_fields', function () {
             }
             $author_data = [];
             foreach ($authors as $author) {
+                $name = get_the_author_meta("display_name", $author->ID) ?: get_the_author_meta("user_nicename", $author->ID);
                 $author_data[] = [
                     "link" => get_author_posts_url($author->ID),
-                    "name" => get_the_author_meta("user_nicename", $author->ID)
+                    "name" => $name
                 ];
             }
             ?>
@@ -152,3 +153,20 @@ add_filter('bbp_template_include_theme_compat', function ($template) {
     }
     return $template;
 });
+
+// The default User Agent is 'WordPress/6.3.1; $SITE_URL'
+// This fails if the SITE_URL is http://localhost:8082
+add_filter('http_headers_useragent', function ($user_agent) {
+    return 'WordPress/6.3.1';
+});
+
+add_filter('get_the_date', function ($the_date, $format, $post) {
+    return $the_date;
+}, 10, 3);
+
+add_filter('render_block', function ($block_content, $block) {
+    if ($block['blockName'] === 'core/navigation') {
+        $a = 3;
+    }
+    return $block_content;
+}, 10, 2);

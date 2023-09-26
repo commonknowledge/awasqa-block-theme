@@ -1,3 +1,5 @@
+const LOCALE = document.documentElement.lang || 'en-GB'
+
 // Apply orange filter to Radical Resilience block
 document.querySelectorAll(".awasqa-radical-resilience").forEach((block) => {
     const figure = block.querySelector("figure")
@@ -13,6 +15,12 @@ document.querySelectorAll(".awasqa-radical-resilience").forEach((block) => {
         figure.style.backgroundBlendMode = "multiply"
         figure.style.mixBlendMode = "multiply"
     }
+})
+
+// Internationalise post dates
+document.querySelectorAll(".wp-block-post-date").forEach(block => {
+    const datetime = block.querySelector("time")?.getAttribute("datetime")
+    block.innerText = (new Date(datetime)).toLocaleDateString(LOCALE, { month: "short", day: "numeric", year: "numeric" })
 })
 
 // Display content (hidden by pre-script.js)

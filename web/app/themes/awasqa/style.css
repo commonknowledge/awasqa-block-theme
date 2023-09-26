@@ -40,11 +40,14 @@ strong {
   background-color: var(--color-orange);
         }
 header nav:first-of-type {
-        margin: 0 auto;
+        margin: 0 0.5rem 0 auto;
     }
 header nav:last-of-type {
         border-left: 1px solid var(--color-green-lighter);
         padding: 0.5rem 0 0.5rem 2.5rem;
+    }
+header .nav-language-switcher {
+        margin-right: auto;
     }
 h6 {
     align-items: center;
@@ -120,6 +123,23 @@ h6::after {
 .awasqa-authors a:hover,.awasqa-authors a:focus {
             text-decoration: underline;
         }
+footer .wp-block-image img {
+            vertical-align: middle;
+        }
+.awasqa-heading-link a {
+        text-decoration: none;
+    }
+.awasqa-heading-link a:hover,.awasqa-heading-link a:focus {
+            text-decoration: underline;
+        }
+.awasqa-heading-link a::after {
+            content: "";
+            display: inline-block;
+            background-image: url("/app/themes/awasqa/assets/images/arrow-right.svg");
+            height: 0.75rem;
+            margin-left: 0.5rem;
+            width: 1rem;
+        }
 .awasqa-issue-link {
   background-color: var(--color-green-lighter);
   border-radius: 0.25rem;
@@ -171,11 +191,15 @@ h6::after {
     }
 .awasqa_organisation .wp-block-post-featured-image img {
             border-radius: 0;
+            height: 100%;
             margin: auto;
+            -o-object-fit: contain !important;
+               object-fit: contain !important;
         }
 .awasqa_organisation .wp-block-post-excerpt__more-link {
         align-items: center;
         display: inline-flex;
+        text-decoration: none;
     }
 .awasqa_organisation .wp-block-post-excerpt__more-link::after {
             content: "";
@@ -183,6 +207,9 @@ h6::after {
             height: 0.75rem;
             margin-left: 0.5rem;
             width: 1rem;
+        }
+.awasqa_organisation .wp-block-post-excerpt__more-link:hover,.awasqa_organisation .wp-block-post-excerpt__more-link:focus {
+            text-decoration: underline;
         }
 .awasqa-radical-resilience .wp-block-column:first-child {
         display: flex;

@@ -6,6 +6,8 @@
 @import "wp.css";
 
 @import "blocks/authors.css";
+@import "blocks/footer.css";
+@import "blocks/heading-link.css";
 @import "blocks/issue-link.css";
 @import "blocks/join-us.css";
 @import "blocks/organisation.css";
