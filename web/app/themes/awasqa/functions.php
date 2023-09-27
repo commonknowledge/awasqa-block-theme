@@ -1,6 +1,7 @@
 <?php
 
 use Carbon_Fields\Block;
+use Carbon_Fields\Container;
 use Carbon_Fields\Field;
 
 add_action('init', function () {
@@ -50,6 +51,17 @@ add_action('wp_enqueue_scripts', function () {
 });
 
 add_action('carbon_fields_register_fields', function () {
+    Container::make('post_meta', 'Members')
+        ->where('post_type', '=', 'awasqa_organisation')
+        ->add_fields(array(
+            Field::make('association', 'members', 'Members')
+                ->set_types([
+                    [
+                        'type'      => 'user',
+                    ]
+                ])
+        ));
+
     Block::make(__('Countries List'))
         ->set_icon('admin-site')
         ->add_fields(array(
@@ -165,8 +177,31 @@ add_filter('get_the_date', function ($the_date, $format, $post) {
 }, 10, 3);
 
 add_filter('render_block', function ($block_content, $block) {
-    if ($block['blockName'] === 'core/navigation') {
-        $a = 3;
+    if ($block['blockName'] === 'core/heading') {
+        global $post;
+        $title = get_the_title($post);
+        $block_content = str_replace('[post_title]', $title, $block_content);
     }
     return $block_content;
 }, 10, 2);
+
+add_filter("query_loop_block_query_vars", function ($query) {
+    global $post;
+    if ($post->post_type === "awasqa_organisation") {
+        $members = carbon_get_post_meta($post->ID, 'members');
+        $post_ids = [];
+        foreach ($members as $member) {
+            $author_query = new \WP_Query(['author' => $member['id']]);
+            foreach ($author_query->posts as $post) {
+                $post_ids[] = $post->ID;
+            }
+        }
+        if (!$post_ids) {
+            $post_ids = [0];
+        }
+        $query['post__in'] = $post_ids;
+        # Prevent sticky posts from always appearing
+        $query['ignore_sticky_posts'] = 1;
+    }
+    return $query;
+});
