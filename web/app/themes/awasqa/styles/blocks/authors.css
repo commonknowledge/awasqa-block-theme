@@ -1,6 +1,7 @@
 .awasqa-authors {
     display: flex;
     list-style: none;
+    margin-bottom: 0.75rem;
     padding: 0;
 
     li:not(:last-child) {

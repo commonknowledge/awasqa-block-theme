@@ -17,12 +17,15 @@
     }
     .wp-block-post-excerpt__more-link {
         align-items: center;
+        color: var(--color-green-lighter);
         display: inline-flex;
         text-decoration: none;
 
         &::after {
             content: "";
-            background-image: url("/app/themes/awasqa/assets/images/arrow-right.svg");
+            background-image: url("/app/themes/awasqa/assets/images/arrow-right-lighter.svg");
+            background-position: center;
+            background-repeat: no-repeat;
             height: 0.75rem;
             margin-left: 0.5rem;
             width: 1rem;

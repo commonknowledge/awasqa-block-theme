@@ -1,0 +1,9 @@
+.awasqa-organisation-authors {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+
+    li {
+        margin-bottom: 2.25rem;
+    }
+}

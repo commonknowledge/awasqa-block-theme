@@ -1,0 +1,43 @@
+.awasqa-org-contact-details {
+    margin: 5rem 0;
+
+    h3 {
+        font-size: 1.125rem;
+        margin: 0;
+        text-transform: none;
+    }
+
+    a {
+        align-items: center;
+        display: flex;
+        text-decoration: none;
+
+        &:focus,
+        &:hover {
+            text-decoration: underline;
+        }
+    }
+}
+
+.awasqa-org-contact-details__email {
+    margin: 1rem 0 2.5rem;
+}
+
+.awasqa-org-contact-details__facebook,.awasqa-org-contact-details__twitter {
+    &::before {
+        content: "";
+        background-image: url('/app/themes/awasqa/assets/images/facebook.svg');
+        background-position: center;
+        background-repeat: no-repeat;
+        height: 24px;
+        margin-right: 0.25rem;
+        width: 24px;
+    }
+    margin: 1rem 0;
+}
+
+.awasqa-org-contact-details__twitter {
+    &::before {
+        background-image: url('/app/themes/awasqa/assets/images/twitter.svg');
+    }
+}

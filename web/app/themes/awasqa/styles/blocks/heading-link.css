@@ -10,6 +10,8 @@
             content: "";
             display: inline-block;
             background-image: url("/app/themes/awasqa/assets/images/arrow-right.svg");
+            background-position: center;
+            background-repeat: no-repeat;
             height: 0.75rem;
             margin-left: 0.5rem;
             width: 1rem;

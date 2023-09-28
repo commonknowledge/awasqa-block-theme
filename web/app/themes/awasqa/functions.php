@@ -1,8 +1,63 @@
 <?php
 
+namespace CommonKnowledge\WordPress\Awasqa;
+
 use Carbon_Fields\Block;
 use Carbon_Fields\Container;
 use Carbon_Fields\Field;
+
+/**
+ * $author should be an array:
+ *
+ * [
+ *     'link' => '/author/...',
+ *     'name' => 'Alex',
+ *     'bio' => 'Lorem ipsum dolor sit...',
+ *     'image_url' => '/app/uploads/...jpg'
+ * ]
+ */
+function render_author_column($author, $show_visit_link = true)
+{
+    ?>
+    <div class="awasqa-author-column">
+        <a class="awasqa-author-column__heading" href="<?= $author['link'] ?>">
+            <?php if ($author['image_url']) : ?>
+                <img alt="<?= $author['name'] ?>" src="<?= $author['image_url'] ?>">
+            <?php endif; ?>
+            <h2><?= $author['name'] ?></h2>
+        </a>
+        <p>
+            <?= $author['bio'] ?>
+        </p>
+        <?php if ($show_visit_link) : ?>
+            <a class="awasqa-author-column__visit" href="<?= $author['link'] ?>">
+                <?= __('Visit author profile') ?>
+            </a>
+        <?php endif; ?>
+    </div>
+    <?php
+}
+
+function get_author_organisations($author_id)
+{
+    $org_query = new \WP_Query([
+        'post_type' => 'awasqa_organisation',
+        'meta_query' => [
+            [
+                'key' => 'members',
+                'carbon_field_property' => 'id',
+                'compare' => '==',
+                'value' => $author_id
+            ],
+        ],
+    ]);
+    return $org_query->posts ?: [];
+}
+
+function awasqa_get_author_name($author_id)
+{
+    return get_the_author_meta("display_name", $author_id) ?: get_the_author_meta("user_nicename", $author_id);
+}
 
 add_action('init', function () {
     register_taxonomy('awasqa_country', ['post', 'awasqa_organisation'], [
@@ -51,10 +106,18 @@ add_action('wp_enqueue_scripts', function () {
 });
 
 add_action('carbon_fields_register_fields', function () {
+    Container::make('post_meta', 'Contact')
+        ->where('post_type', '=', 'awasqa_organisation')
+        ->add_fields(array(
+            Field::make('text', 'email', 'Email address')->set_attribute('type', 'email'),
+            Field::make('text', 'twitter', 'Twitter URL')->set_attribute('type', 'url'),
+            Field::make('text', 'facebook', 'Facebook URL')->set_attribute('type', 'url'),
+        ));
+
     Container::make('post_meta', 'Members')
         ->where('post_type', '=', 'awasqa_organisation')
         ->add_fields(array(
-            Field::make('association', 'members', 'Members')
+            Field::make('association', 'members', 'Authors')
                 ->set_types([
                     [
                         'type'      => 'user',
@@ -100,7 +163,7 @@ add_action('carbon_fields_register_fields', function () {
         ->add_fields(array(
             Field::make('separator', 'crb_separator', __('Issue Link')),
             Field::make('select', 'category', __('Issue'))
-                ->add_options('get_issue_options')
+                ->add_options('CommonKnowledge\WordPress\Awasqa\get_issue_options')
                 ->set_default_value("uncategorized")
         ))
         ->set_render_callback(function ($fields, $attributes, $inner_blocks) {
@@ -129,7 +192,7 @@ add_action('carbon_fields_register_fields', function () {
             }
             $author_data = [];
             foreach ($authors as $author) {
-                $name = get_the_author_meta("display_name", $author->ID) ?: get_the_author_meta("user_nicename", $author->ID);
+                $name = awasqa_get_author_name($author->ID);
                 $author_data[] = [
                     "link" => get_author_posts_url($author->ID),
                     "name" => $name
@@ -143,6 +206,153 @@ add_action('carbon_fields_register_fields', function () {
                 </li>
             <?php endforeach; ?>
         </ul>
+            <?php
+        });
+
+    Block::make(__('Organisation Contact Details'))
+        ->set_icon('megaphone')
+        ->add_fields(array(
+            Field::make('separator', 'crb_separator', __('Organisation Contact Details'))
+        ))
+        ->set_render_callback(function ($fields, $attributes, $inner_blocks) {
+            if (is_author()) {
+                $author = get_queried_object();
+                if (!$author) {
+                    return;
+                }
+                $orgs = get_author_organisations($author->ID);
+                if (!$orgs) {
+                    return;
+                }
+                $org = $orgs[0];
+            } else {
+                $org = get_post();
+            }
+            $email = carbon_get_post_meta($org->ID, 'email');
+            $twitter = carbon_get_post_meta($org->ID, 'twitter');
+            $facebook = carbon_get_post_meta($org->ID, 'facebook');
+            ?>
+            <?php if ($email || $twitter || $facebook) : ?>
+            <div class="awasqa-org-contact-details">
+                <?php if ($email) : ?>
+                    <h3><?= __('Email') ?></h3>
+                    <a class="awasqa-org-contact-details__email" href="mailto:<?= $email ?>">
+                        <?= $email ?>
+                    </a>
+                <?php endif; ?>
+                <?php if ($twitter || $facebook) : ?>
+                    <h3><?= __('Social Media') ?></h3>
+                    <?php if ($twitter) : ?>
+                        <a class="awasqa-org-contact-details__twitter" href="<?= $twitter ?>">
+                            Twitter
+                        </a>
+                    <?php endif; ?>
+                    <?php if ($facebook) : ?>
+                        <a class="awasqa-org-contact-details__facebook" href="<?= $facebook ?>">
+                            Facebook
+                        </a>
+                    <?php endif; ?>
+                <?php endif; ?>
+            </div>
+            <?php endif; ?>
+
+            <?php
+        });
+
+    Block::make(__('Organisation Authors'))
+        ->set_icon('groups')
+        ->add_fields(array(
+            Field::make('separator', 'crb_separator', __('Organisation Authors'))
+        ))
+        ->set_render_callback(function ($fields, $attributes, $inner_blocks) {
+            $post = get_post();
+            $members = carbon_get_post_meta($post->ID, 'members');
+            $author_data = [];
+            foreach ($members as $member) {
+                $user_id = $member['id'];
+                $meta = get_user_meta($user_id);
+                $name = awasqa_get_author_name($user_id);
+                $image_id = $meta['awasqa_profile_pic_id'][0] ?? 0;
+                $image_url = $image_id ? wp_get_attachment_image_src($image_id) : null;
+                $author_data[] = [
+                    "link" => get_author_posts_url($user_id),
+                    "name" => $name,
+                    "bio" => $meta['description'][0] ?? "",
+                    "image_url" => $image_url[0] ?? null
+                ];
+            }
+            ?>
+        <ul class="awasqa-organisation-authors">
+            <?php foreach ($author_data as $author) : ?>
+                <li>
+                    <?php render_author_column($author); ?>
+                </li>
+            <?php endforeach; ?>
+        </ul>
+            <?php
+        });
+
+    Block::make(__('Author Column'))
+        ->set_icon('admin-users')
+        ->add_fields(array(
+            Field::make('separator', 'crb_separator', __('Author Column'))
+        ))
+        ->set_render_callback(function ($fields, $attributes, $inner_blocks) {
+            $author = get_queried_object();
+            if (!$author) {
+                return;
+            }
+            $author_id = $author->data->ID;
+            $author_name = $author->data->display_name ?: $author->data->user_nicename;
+
+            $meta = get_user_meta($author_id);
+            $image_id = $meta['awasqa_profile_pic_id'][0] ?? null;
+            $image_url = $image_id ? wp_get_attachment_image_src($image_id) : null;
+            $author_data = [
+                "link" => get_author_posts_url($author_id),
+                "name" => $author_name,
+                "bio" => $meta['description'][0] ?? null,
+                "image_url" => $image_url[0] ?? null
+            ];
+
+            render_author_column($author_data, show_visit_link: false);
+        });
+
+    Block::make(__('Account Details Form'))
+        ->set_icon('admin-users')
+        ->add_fields(array(
+            Field::make('separator', 'crb_separator', __('Account Details Form'))
+        ))
+        ->set_render_callback(function ($fields, $attributes, $inner_blocks) {
+            $user_id = get_current_user_id();
+            if (!$user_id) {
+                return;
+            }
+            $name = get_the_author_meta("display_name", $user_id);
+            $meta = get_user_meta($user_id);
+            $bio = $meta['description'][0] ?? "";
+            $image_id = $meta['awasqa_profile_pic_id'][0] ?? 0;
+            $image_url = $image_id ? wp_get_attachment_image_src($image_id) : null;
+            ?>
+        <form class="awasqa-account-details-form" method="post" enctype="multipart/form-data">
+            <input name="form-nonce" type="hidden" value="<?= wp_create_nonce('awasqa_account_details_form') ?>" />
+            <div class="awasqa-account-details-form__row">
+                <label for="name"><?= __('Name') ?></label>
+                <input id="name" name="form-name" type="text" value="<?= $name ?>">
+            </div>
+            <div class="awasqa-account-details-form__row">
+                <label for="profile-pic"><?= __('Profile pic') ?></label>
+                <?php if ($image_url) : ?>
+                    <img src="<?= $image_url[0] ?>">
+                <?php endif; ?>
+                <input id="profile-pic" name="form-profile-pic" type="file">
+            </div>
+            <div class="awasqa-account-details-form__row">
+                <label for="bio"><?= __('Bio') ?></label>
+                <textarea id="bio" name="form-bio"><?= $bio ?></textarea>
+            </div>
+            <button><?= __('Submit') ?></button>
+        </form>
             <?php
         });
 });
@@ -180,7 +390,17 @@ add_filter('render_block', function ($block_content, $block) {
     if ($block['blockName'] === 'core/heading') {
         global $post;
         $title = get_the_title($post);
-        $block_content = str_replace('[post_title]', $title, $block_content);
+        $block_content = preg_replace('#\[post_title\]#i', $title, $block_content);
+
+        if (is_author()) {
+            $author = get_queried_object();
+            if ($author) {
+                $author_name = $author->data->display_name ?: $author->data->user_nicename;
+            } else {
+                $author_name = __('Unknown author');
+            }
+            $block_content = preg_replace('#\[author_archives_author_name\]#i', $author_name, $block_content);
+        }
     }
     return $block_content;
 }, 10, 2);
@@ -203,5 +423,137 @@ add_filter("query_loop_block_query_vars", function ($query) {
         # Prevent sticky posts from always appearing
         $query['ignore_sticky_posts'] = 1;
     }
+    if (is_author() && $query['post_type'] === "awasqa_organisation") {
+        $author = get_queried_object();
+        if ($author) {
+            $query['meta_query'] = [
+                [
+                    'key' => 'members',
+                    'carbon_field_property' => 'id',
+                    'compare' => '==',
+                    'value' => $author->ID
+                ],
+            ];
+        }
+    }
     return $query;
+});
+
+add_filter('wpseo_title', function ($title) {
+    if (is_author()) {
+        $author = get_queried_object();
+        if (!$author) {
+            return;
+        }
+        $orgs = get_author_organisations($author->ID);
+        if (!$orgs) {
+            return $title;
+        }
+        $org = $orgs[0];
+        $title = awasqa_get_author_name($author->ID) . ', ' . __('author at') . ' ' . $org->post_title;
+    }
+    return $title;
+});
+
+/**
+ * Get english slug of a page
+ */
+function get_en_page_slug($page)
+{
+    if (!$page) {
+        return null;
+    }
+    $post_id = apply_filters('wpml_object_id', $page->ID, 'page', true, 'en');
+    $original_post = get_post($post_id);
+    return $original_post ? $original_post->post_name : $page->post_name;
+}
+
+/**
+ * Add original slug to the possible templates, so translated pages
+ * match the templates of their original versions.
+ *
+ * Note: the templates must themselves be translated before
+ * they can be used for translated pages.
+ */
+add_filter('page_template_hierarchy', function ($templates) {
+    global $post;
+    $slug = get_en_page_slug($post);
+    $template = 'page-' . $slug . '.php';
+    if (!in_array($template, $templates)) {
+        array_unshift($templates, $template);
+    }
+    return $templates;
+});
+
+add_action('template_redirect', function () {
+    if (!is_user_logged_in()) {
+        $protected_paths = ['/account', '/forums'];
+        foreach ($protected_paths as $path) {
+            if (str_starts_with($_SERVER['REQUEST_URI'], $path)) {
+                auth_redirect();
+                exit;
+            }
+        }
+    }
+
+    global $post;
+    $slug = get_en_page_slug($post);
+    if ($slug === "account") {
+        if (empty($_POST)) {
+            return;
+        }
+        $user_id = get_current_user_id();
+        if (!$user_id) {
+            return;
+        }
+        if (!wp_verify_nonce($_POST['form-nonce'], 'awasqa_account_details_form')) {
+            return;
+        }
+        $dislay_name = $_POST['form-name'];
+        $description = $_POST['form-bio'];
+        $userdata = array(
+            'ID' => $user_id,
+            'display_name' => $dislay_name,
+            'description' => $description
+        );
+        wp_update_user($userdata);
+
+        if (!empty($_FILES['form-profile-pic'])) {
+            $FILE = $_FILES['form-profile-pic'];
+
+            $upload_dir = wp_upload_dir();
+
+            $filename = $FILE['name'];
+
+            if (wp_mkdir_p($upload_dir['path'])) {
+                $dest = $upload_dir['path'] . '/' . $filename;
+            } else {
+                $dest = $upload_dir['basedir'] . '/' . $filename;
+            }
+
+            $tmp_filepath = $FILE['tmp_name'];
+
+            $mimetype = mime_content_type($tmp_filepath);
+
+            if (!$mimetype || !str_starts_with($mimetype, 'image')) {
+                return;
+            }
+
+            copy($tmp_filepath, $dest);
+
+            $attachment = array(
+                'post_mime_type' => $mimetype,
+                'post_title' => sanitize_file_name($filename),
+                'post_content' => '',
+                'post_status' => 'inherit'
+            );
+
+            $attach_id = wp_insert_attachment($attachment, $dest);
+            require_once(ABSPATH . 'wp-admin/includes/image.php');
+            $attach_data = wp_generate_attachment_metadata($attach_id, $dest);
+            wp_update_attachment_metadata($attach_id, $attach_data);
+
+            add_user_meta($user_id, meta_key: "awasqa_profile_pic_id", meta_value: $attach_id, unique: true);
+        }
+    }
 });

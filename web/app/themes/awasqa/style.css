@@ -2,7 +2,8 @@
     --color-orange: #FDA700;
     --color-yellow: #F7FFCE;
     --color-green: #465300;
-    --color-green-lighter: #4653001F;
+    --color-green-lighter: #465300B2;
+    --color-green-lightest: #4653001F;
 
     --font-family-serif: 'Instrument Serif', serif;
     --font-family-sans-serif: 'Aktiv Grotesk', sans-serif;
@@ -12,7 +13,7 @@ strong {
     font-family: var(--font-family-sans-serif);
 }
 .button-default {
-  background-color: var(--color-green-lighter);
+  background-color: var(--color-green-lightest);
   border-radius: 0.25rem;
   color: var(--color-green);
   display: inline-block;
@@ -26,7 +27,7 @@ strong {
   background-color: var(--color-orange);
         }
 .button-outline {
-  background-color: var(--color-green-lighter);
+  background-color: var(--color-green-lightest);
   border-radius: 0.25rem;
   color: var(--color-green);
   display: inline-block;
@@ -39,27 +40,35 @@ strong {
 .button-outline:focus, .button-outline:hover {
   background-color: var(--color-orange);
         }
+header {
+    height: 6rem;
+    position: relative;
+    z-index: 1;
+}
 header nav:first-of-type {
         margin: 0 0.5rem 0 auto;
     }
 header nav:last-of-type {
-        border-left: 1px solid var(--color-green-lighter);
+        border-left: 1px solid var(--color-green-lightest);
         padding: 0.5rem 0 0.5rem 2.5rem;
     }
 header .nav-language-switcher {
         margin-right: auto;
     }
+.single-post header a {
+            color: var(--color-yellow) !important;
+        }
 h6 {
     align-items: center;
     display: flex;
     gap: 0.5rem;
-    margin-bottom: 3.125rem;
 }
 h6::before {
         content: "";
         align-items: center;
         background-image: url("/app/themes/awasqa/assets/images/awasqa-symbol.svg");
-        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
         height: 25px;
         width: 25px;
     }
@@ -68,6 +77,14 @@ h6::after {
         border-top: 1px solid var(--color-orange);
         flex-grow: 1;
     }
+/* Remove margin-top on first block after the navbar */
+.wp-site-blocks header + * {
+        margin-top: 0;
+    }
+/* Home page *does* have spacing after the navbar */
+.home .wp-site-blocks header + * {
+            margin-top: 1.25rem;
+        }
 .wp-block-categories {
     display: flex;
     flex-wrap: wrap;
@@ -77,7 +94,7 @@ h6::after {
     padding-left: 0;
 }
 .wp-block-categories a {
-  background-color: var(--color-green-lighter);
+  background-color: var(--color-green-lightest);
   border-radius: 0.25rem;
   color: var(--color-green);
   display: inline-block;
@@ -96,9 +113,51 @@ h6::after {
 .wp-block-post-featured-image img {
         border-radius: 0.5rem;
     }
+.wp-block-post-excerpt__more-text {
+    margin-top: 0.875rem;
+}
+.awasqa-author-column p {
+        margin: 0 0 0.875rem 0;
+    }
+.awasqa-author-column a {
+        text-decoration: none;
+    }
+.awasqa-author-column a:focus,.awasqa-author-column a:hover {
+            text-decoration: underline;
+        }
+.awasqa-author-column__heading {
+    align-items: center;
+    display: inline-flex;
+    margin-bottom: 0.875rem;
+}
+.awasqa-author-column__heading img {
+        border-radius: 100%;
+        height: 76px;
+        margin-right: 1.25rem;
+        width: 76px;
+    }
+.awasqa-author-column__heading h2 {
+        font-size: 1.875rem;
+        margin: 0;
+    }
+.awasqa-author-column__visit {
+    align-items: center;
+    color: var(--color-green-lighter);
+    display: inline-flex;
+}
+.awasqa-author-column__visit::after {
+        content: "";
+        background-image: url("/app/themes/awasqa/assets/images/arrow-right-lighter.svg");
+        background-position: center;
+        background-repeat: no-repeat;
+        height: 0.75rem;
+        margin-left: 0.5rem;
+        width: 1rem;
+    }
 .awasqa-authors {
     display: flex;
     list-style: none;
+    margin-bottom: 0.75rem;
     padding: 0;
 }
 .awasqa-authors li:not(:last-child) {
@@ -136,12 +195,14 @@ footer .wp-block-image img {
             content: "";
             display: inline-block;
             background-image: url("/app/themes/awasqa/assets/images/arrow-right.svg");
+            background-position: center;
+            background-repeat: no-repeat;
             height: 0.75rem;
             margin-left: 0.5rem;
             width: 1rem;
         }
 .awasqa-issue-link {
-  background-color: var(--color-green-lighter);
+  background-color: var(--color-green-lightest);
   border-radius: 0.25rem;
   color: var(--color-green);
   display: inline-block;
@@ -175,10 +236,74 @@ footer .wp-block-image img {
   text-decoration: none;
     }
 .awasqa-join-us a:focus, .awasqa-join-us a:hover {
-  background-color: var(--color-green-lighter);
+  background-color: var(--color-green-lightest);
         }
 .awasqa-join-us p {
         margin-top: 0.625rem;
+    }
+.single-post .awasqa-post-heading {
+        margin-top: -6rem;
+    }
+.single-post .awasqa-post-heading a {
+            color: white;
+        }
+.awasqa-post-heading .wp-block-post-featured-image {
+        height: 100%;
+        position: relative;
+    }
+.awasqa-post-heading .wp-block-post-featured-image::before {
+            content: "";
+            background: linear-gradient(180deg, rgba(0, 0, 0, 0.80) 0%, rgba(0, 0, 0, 0.00) 28.52%);
+            display: block;
+            height: 100%;
+            left: 0;
+            position: absolute;
+            top: 0;
+            width: 100%;
+        }
+.awasqa-post-heading .wp-block-post-featured-image img {
+            border-radius: 0;
+            height: 100%;
+            -o-object-fit: cover;
+               object-fit: cover;
+        }
+.awasqa-post-heading >.wp-block-column:first-child {
+        padding: 6rem 0 !important;
+    }
+.awasqa-org-contact-details {
+    margin: 5rem 0;
+}
+.awasqa-org-contact-details h3 {
+        font-size: 1.125rem;
+        margin: 0;
+        text-transform: none;
+    }
+.awasqa-org-contact-details a {
+        align-items: center;
+        display: flex;
+        text-decoration: none;
+    }
+.awasqa-org-contact-details a:focus,
+        .awasqa-org-contact-details a:hover {
+            text-decoration: underline;
+        }
+.awasqa-org-contact-details__email {
+    margin: 1rem 0 2.5rem;
+}
+.awasqa-org-contact-details__facebook::before, .awasqa-org-contact-details__twitter::before {
+        content: "";
+        background-image: url('/app/themes/awasqa/assets/images/facebook.svg');
+        background-position: center;
+        background-repeat: no-repeat;
+        height: 24px;
+        margin-right: 0.25rem;
+        width: 24px;
+    }
+.awasqa-org-contact-details__facebook,.awasqa-org-contact-details__twitter {
+    margin: 1rem 0;
+}
+.awasqa-org-contact-details__twitter::before {
+        background-image: url('/app/themes/awasqa/assets/images/twitter.svg');
     }
 .awasqa_organisation .wp-block-post-featured-image {
         background-color: #fff;
@@ -198,12 +323,15 @@ footer .wp-block-image img {
         }
 .awasqa_organisation .wp-block-post-excerpt__more-link {
         align-items: center;
+        color: var(--color-green-lighter);
         display: inline-flex;
         text-decoration: none;
     }
 .awasqa_organisation .wp-block-post-excerpt__more-link::after {
             content: "";
-            background-image: url("/app/themes/awasqa/assets/images/arrow-right.svg");
+            background-image: url("/app/themes/awasqa/assets/images/arrow-right-lighter.svg");
+            background-position: center;
+            background-repeat: no-repeat;
             height: 0.75rem;
             margin-left: 0.5rem;
             width: 1rem;
@@ -211,6 +339,33 @@ footer .wp-block-image img {
 .awasqa_organisation .wp-block-post-excerpt__more-link:hover,.awasqa_organisation .wp-block-post-excerpt__more-link:focus {
             text-decoration: underline;
         }
+.awasqa-organisation-authors {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+.awasqa-organisation-authors li {
+        margin-bottom: 2.25rem;
+    }
+.awasqa-organisation-column .wp-block-post-featured-image {
+        background-color: #fff;
+        border-radius: 0.5rem;
+        box-sizing: border-box;
+        display: flex;
+        height: 100px;
+        padding: 0.5rem;
+        width: 100px;
+    }
+.awasqa-organisation-column .wp-block-post-featured-image img {
+            border-radius: 0;
+            height: 100%;
+            margin: auto;
+            -o-object-fit: contain !important;
+               object-fit: contain !important;
+        }
+.awasqa-organisation-column .wp-block-post-title {
+        font-size: var(--font-size-large);
+    }
 .awasqa-radical-resilience .wp-block-column:first-child {
         display: flex;
         flex-direction: column;
@@ -242,7 +397,7 @@ footer .wp-block-image img {
   text-decoration: none;
     }
 .awasqa-radical-resilience a:first-child:focus, .awasqa-radical-resilience a:first-child:hover {
-  background-color: var(--color-green-lighter);
+  background-color: var(--color-green-lightest);
         }
 .awasqa-radical-resilience a:first-child {
         margin-right: 1.25rem;
@@ -258,6 +413,6 @@ footer .wp-block-image img {
   text-decoration: none;
     }
 .awasqa-radical-resilience a:last-child:focus, .awasqa-radical-resilience a:last-child:hover {
-  background-color: var(--color-green-lighter);
+  background-color: var(--color-green-lightest);
   color: var(--color-green);
         }

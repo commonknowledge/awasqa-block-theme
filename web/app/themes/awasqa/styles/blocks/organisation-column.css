@@ -1,0 +1,21 @@
+.awasqa-organisation-column {
+    .wp-block-post-featured-image {
+        background-color: #fff;
+        border-radius: 0.5rem;
+        box-sizing: border-box;
+        display: flex;
+        height: 100px;
+        padding: 0.5rem;
+        width: 100px;
+
+        img {
+            border-radius: 0;
+            height: 100%;
+            margin: auto;
+            object-fit: contain !important;
+        }
+    }
+    .wp-block-post-title {
+        font-size: var(--font-size-large);
+    }
+}
