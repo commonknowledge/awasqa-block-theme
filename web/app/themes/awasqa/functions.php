@@ -91,16 +91,22 @@ add_action('init', function () {
     );
 }, 9);
 
-add_action('wp_enqueue_scripts', function () {
-    wp_enqueue_style('awasqa', get_template_directory_uri() . '/style.css');
+$ver = "1.0";
+add_action('wp_enqueue_scripts', function () use ($ver) {
+    wp_enqueue_style(
+        'awasqa',
+        get_template_directory_uri() . '/style.css',
+        ver: $ver
+    );
     wp_enqueue_script(
         'awasqa-pre',
-        get_template_directory_uri() . '/pre-script.js'
+        get_template_directory_uri() . '/pre-script.js',
+        ver: $ver
     );
     wp_enqueue_script(
         'awasqa-post',
         get_template_directory_uri() . '/script.js',
-        ver: false,
+        ver: $ver,
         args: true // in_footer = true
     );
 });
