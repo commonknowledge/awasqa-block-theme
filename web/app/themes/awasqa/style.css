@@ -77,14 +77,10 @@ h6::after {
         border-top: 1px solid var(--color-orange);
         flex-grow: 1;
     }
-/* Remove margin-top on first block after the navbar */
+/* Alter margin-top on first block after the navbar */
 .wp-site-blocks header + * {
-        margin-top: 0;
+        margin-top: 1.25rem;
     }
-/* Home page *does* have spacing after the navbar */
-.home .wp-site-blocks header + * {
-            margin-top: 1.25rem;
-        }
 .wp-block-categories {
     display: flex;
     flex-wrap: wrap;
@@ -247,6 +243,9 @@ footer .wp-block-image img {
 .single-post .awasqa-post-heading a {
             color: white;
         }
+.single-post .wp-block-navigation-item__label {
+        color: white;
+    }
 .awasqa-post-heading .wp-block-post-featured-image {
         height: 100%;
         position: relative;

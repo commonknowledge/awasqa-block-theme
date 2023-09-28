@@ -38,20 +38,28 @@ function render_author_column($author, $show_visit_link = true)
     <?php
 }
 
+/**
+ * Get organisations associated with an author.
+ * Have to do it by getting all the orgs and checking each one,
+ * because using a meta query doesn't work in different site locales.
+ */
 function get_author_organisations($author_id)
 {
     $org_query = new \WP_Query([
         'post_type' => 'awasqa_organisation',
-        'meta_query' => [
-            [
-                'key' => 'members',
-                'carbon_field_property' => 'id',
-                'compare' => '==',
-                'value' => $author_id
-            ],
-        ],
     ]);
-    return $org_query->posts ?: [];
+    $orgs = $org_query->posts ?: [];
+    $author_orgs = [];
+    foreach ($orgs as $org) {
+        $authors = awasqa_carbon_get_post_meta($org->ID, 'members');
+        $matching_author = array_filter($authors, function ($author) use ($author_id) {
+            return (string) $author['id'] === (string) $author_id;
+        });
+        if ($matching_author) {
+            $author_orgs[] = $org;
+        }
+    }
+    return $author_orgs;
 }
 
 function awasqa_get_author_name($author_id)
@@ -435,6 +443,8 @@ add_filter('render_block', function ($block_content, $block) {
 
 add_filter("query_loop_block_query_vars", function ($query) {
     global $post;
+    // Modify the query to get posts on an Organisation page
+    // to restrict posts to those associated with a (co-)author of that org
     if ($post->post_type === "awasqa_organisation") {
         $members = awasqa_carbon_get_post_meta($post->ID, 'members');
         $post_ids = [];
@@ -451,17 +461,28 @@ add_filter("query_loop_block_query_vars", function ($query) {
         # Prevent sticky posts from always appearing
         $query['ignore_sticky_posts'] = 1;
     }
+    // Fix displaying author organisations on translated version of author archive
     if (is_author() && $query['post_type'] === "awasqa_organisation") {
         $author = get_queried_object();
         if ($author) {
-            $query['meta_query'] = [
-                [
-                    'key' => 'members',
-                    'carbon_field_property' => 'id',
-                    'compare' => '==',
-                    'value' => $author->ID
-                ],
-            ];
+            $organisations = get_author_organisations($author->ID);
+            $post_ids = [];
+            foreach ($organisations as $organisation) {
+                $post_ids[] = $organisation->ID;
+            }
+            if (!$post_ids) {
+                $post_ids = [0];
+            }
+            $query['post__in'] = $post_ids;
+            # Prevent sticky posts from always appearing
+            $query['ignore_sticky_posts'] = 1;
+        }
+    }
+    // Fix displaying author posts on translated version of author archive
+    if (is_author() && $query['post_type'] === "post") {
+        $author = get_queried_object();
+        if ($author) {
+            $query['author'] = $author->ID;
         }
     }
     return $query;
@@ -502,6 +523,21 @@ add_filter('page_template_hierarchy', function ($templates) {
         array_unshift($templates, $template);
     }
     return $templates;
+});
+
+/**
+ * Hack WPML to always display the language switcher on an author archive page.
+ * If there's a better way to do this, I'd like to know...
+ */
+add_filter('query', function ($query) {
+    $backtrace = debug_backtrace();
+    $author_query_has_posts = array_filter($backtrace, function ($item) {
+        return str_contains($item['function'], 'author_query_has_posts');
+    });
+    if ($author_query_has_posts) {
+        return "SELECT COUNT(1) FROM wp_posts";
+    }
+    return $query;
 });
 
 add_action('template_redirect', function () {

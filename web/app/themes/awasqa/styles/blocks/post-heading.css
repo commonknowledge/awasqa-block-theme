@@ -6,6 +6,9 @@
             color: white;
         }
     }
+    .wp-block-navigation-item__label {
+        color: white;
+    }
 }
 
 .awasqa-post-heading {

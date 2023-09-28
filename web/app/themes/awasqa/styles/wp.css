@@ -1,16 +1,7 @@
-/* Remove margin-top on first block after the navbar */
+/* Alter margin-top on first block after the navbar */
 .wp-site-blocks {
     header + * {
-        margin-top: 0;
-    }
-}
-
-/* Home page *does* have spacing after the navbar */
-.home {
-    .wp-site-blocks {
-        header + * {
-            margin-top: 1.25rem;
-        }
+        margin-top: 1.25rem;
     }
 }
 
