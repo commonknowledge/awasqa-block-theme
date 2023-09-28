@@ -59,6 +59,28 @@ function awasqa_get_author_name($author_id)
     return get_the_author_meta("display_name", $author_id) ?: get_the_author_meta("user_nicename", $author_id);
 }
 
+/**
+ * Get english version of a page
+ */
+function get_en_page($page_id)
+{
+    if (!$page_id) {
+        return null;
+    }
+    $post_id = apply_filters('wpml_object_id', $page_id, 'page', true, 'en');
+    return get_post($post_id);
+}
+
+/**
+ * Required to convert the post ID to the English post, that has the metadata
+ */
+function awasqa_carbon_get_post_meta($post_id, $name, $container_id = '')
+{
+    $en_page = get_en_page($post_id);
+    $id = $en_page ? $en_page->ID : $post_id;
+    return carbon_get_post_meta($id, $name, $container_id);
+}
+
 add_action('init', function () {
     register_taxonomy('awasqa_country', ['post', 'awasqa_organisation'], [
         'hierarchical'      => false,
@@ -234,9 +256,9 @@ add_action('carbon_fields_register_fields', function () {
             } else {
                 $org = get_post();
             }
-            $email = carbon_get_post_meta($org->ID, 'email');
-            $twitter = carbon_get_post_meta($org->ID, 'twitter');
-            $facebook = carbon_get_post_meta($org->ID, 'facebook');
+            $email = awasqa_carbon_get_post_meta($org->ID, 'email');
+            $twitter = awasqa_carbon_get_post_meta($org->ID, 'twitter');
+            $facebook = awasqa_carbon_get_post_meta($org->ID, 'facebook');
             ?>
             <?php if ($email || $twitter || $facebook) : ?>
             <div class="awasqa-org-contact-details">
@@ -272,7 +294,7 @@ add_action('carbon_fields_register_fields', function () {
         ))
         ->set_render_callback(function ($fields, $attributes, $inner_blocks) {
             $post = get_post();
-            $members = carbon_get_post_meta($post->ID, 'members');
+            $members = awasqa_carbon_get_post_meta($post->ID, 'members');
             $author_data = [];
             foreach ($members as $member) {
                 $user_id = $member['id'];
@@ -414,7 +436,7 @@ add_filter('render_block', function ($block_content, $block) {
 add_filter("query_loop_block_query_vars", function ($query) {
     global $post;
     if ($post->post_type === "awasqa_organisation") {
-        $members = carbon_get_post_meta($post->ID, 'members');
+        $members = awasqa_carbon_get_post_meta($post->ID, 'members');
         $post_ids = [];
         foreach ($members as $member) {
             $author_query = new \WP_Query(['author' => $member['id']]);
@@ -462,19 +484,6 @@ add_filter('wpseo_title', function ($title) {
 });
 
 /**
- * Get english slug of a page
- */
-function get_en_page_slug($page)
-{
-    if (!$page) {
-        return null;
-    }
-    $post_id = apply_filters('wpml_object_id', $page->ID, 'page', true, 'en');
-    $original_post = get_post($post_id);
-    return $original_post ? $original_post->post_name : $page->post_name;
-}
-
-/**
  * Add original slug to the possible templates, so translated pages
  * match the templates of their original versions.
  *
@@ -483,7 +492,11 @@ function get_en_page_slug($page)
  */
 add_filter('page_template_hierarchy', function ($templates) {
     global $post;
-    $slug = get_en_page_slug($post);
+    $en_page = get_en_page($post?->ID);
+    if (!$en_page) {
+        return $templates;
+    }
+    $slug = $en_page->post_name;
     $template = 'page-' . $slug . '.php';
     if (!in_array($template, $templates)) {
         array_unshift($templates, $template);
@@ -503,7 +516,8 @@ add_action('template_redirect', function () {
     }
 
     global $post;
-    $slug = get_en_page_slug($post);
+    $en_page = get_en_page($post?->ID);
+    $slug = $en_page ? $en_page->post_name : null;
     if ($slug === "account") {
         if (empty($_POST)) {
             return;
@@ -524,7 +538,7 @@ add_action('template_redirect', function () {
         );
         wp_update_user($userdata);
 
-        if (!empty($_FILES['form-profile-pic'])) {
+        if (!empty($_FILES['form-profile-pic']['tmp_name'])) {
             $FILE = $_FILES['form-profile-pic'];
 
             $upload_dir = wp_upload_dir();
