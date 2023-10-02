@@ -5,3 +5,10 @@ footer {
         }
     }
 }
+
+/* Prevent gap between single post background color and footer */
+.single-post {
+    footer {
+        margin-top: 0;
+    }
+}

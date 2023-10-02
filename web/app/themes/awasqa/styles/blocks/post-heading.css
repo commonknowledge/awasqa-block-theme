@@ -1,6 +1,7 @@
 .single-post {
     .awasqa-post-heading {
         margin-top: -6rem;
+        padding: 0;
 
         a {
             color: white;
@@ -39,4 +40,11 @@
     >.wp-block-column:first-child {
         padding: 6rem 0 !important;
     }
+}
+
+/* No margin on block after post heading 
+   to prevent gap between heading background
+   and content background */
+.awasqa-post-heading + * {
+    margin-top: 0;
 }

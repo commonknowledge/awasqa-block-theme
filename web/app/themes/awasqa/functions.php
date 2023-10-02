@@ -142,6 +142,13 @@ add_action('wp_enqueue_scripts', function () use ($ver) {
 });
 
 add_action('carbon_fields_register_fields', function () {
+    Container::make('post_meta', 'Source')
+        ->where('post_type', '=', 'post')
+        ->add_fields(array(
+            Field::make('text', 'source_publication', 'Source Publication Name'),
+            Field::make('text', 'source_url', 'Source URL')->set_attribute('type', 'url'),
+        ));
+
     Container::make('post_meta', 'Contact')
         ->where('post_type', '=', 'awasqa_organisation')
         ->add_fields(array(
@@ -160,6 +167,40 @@ add_action('carbon_fields_register_fields', function () {
                     ]
                 ])
         ));
+
+    Block::make(__('Post Source'))
+        ->set_icon('search')
+        ->add_fields(array(
+            Field::make('separator', 'crb_separator', __('Post Source'))
+        ))
+        ->set_render_callback(function ($fields, $attributes, $inner_blocks) {
+            $post = get_post();
+            $source_url = awasqa_carbon_get_post_meta($post->ID, 'source_url');
+            $source_publication = awasqa_carbon_get_post_meta($post->ID, 'source_publication');
+            $text_parts = [];
+            if ($source_publication) {
+                $text_parts[] = __('This article was originally published in ') . $source_publication . '.';
+            }
+            if ($source_url) {
+                $text_parts[] = __('Click link below to see the original article.');
+            }
+            if (!$text_parts) {
+                return;
+            }
+            ?>
+        <div class="awasqa-post-source">
+            <h6><?= __('Source') ?></h6>
+            <p><?= implode("", $text_parts) ?></p>
+            <?php if ($source_url) : ?>
+                <p>
+                    <a target="_blank" href="<?= $source_url ?>" class="awasqa-link-arrow">
+                        <?= __('Visit original article') ?>
+                    </a>
+                </p>
+            <?php endif; ?>
+        </div>
+            <?php
+        });
 
     Block::make(__('Countries List'))
         ->set_icon('admin-site')
@@ -352,6 +393,74 @@ add_action('carbon_fields_register_fields', function () {
             ];
 
             render_author_column($author_data, show_visit_link: false);
+        });
+
+    Block::make(__('Authors Column'))
+        ->set_icon('groups')
+        ->add_fields(array(
+            Field::make('separator', 'crb_separator', __('Authors Column'))
+        ))
+        ->set_render_callback(function ($fields, $attributes, $inner_blocks) {
+            $post = get_post();
+            $authors = get_coauthors($post->ID);
+            if (!$authors) {
+                return;
+            }
+            $authors_data = [];
+            foreach ($authors as $author) {
+                $name = awasqa_get_author_name($author->ID);
+                $meta = get_user_meta($author->ID);
+                $image_id = $meta['awasqa_profile_pic_id'][0] ?? null;
+                $image_url = $image_id ? wp_get_attachment_image_src($image_id) : null;
+                $authors_data[] = [
+                    "link" => get_author_posts_url($author->ID),
+                    "name" => $name,
+                    "bio" => $meta['description'][0] ?? null,
+                    "image_url" => $image_url[0] ?? null
+                ];
+            }
+            ?>
+        <div class="awasqa-authors-column">
+            <h6><?= __('Authors') ?></h6>
+            <?php
+            foreach ($authors_data as $author_data) {
+                render_author_column($author_data, show_visit_link: true);
+            }
+            ?>
+        </div>
+            <?php
+        });
+
+    Block::make(__('Organisations Column'))
+        ->set_icon('networking')
+        ->add_fields(array(
+            Field::make('separator', 'crb_separator', __('Organisations Column'))
+        ))
+        ->set_render_callback(function ($fields, $attributes, $inner_blocks) {
+            $post = get_post();
+            $authors = get_coauthors($post->ID);
+            if (!$authors) {
+                return;
+            }
+            $orgs_data = [];
+            foreach ($authors as $author) {
+                $orgs = get_author_organisations($author->ID);
+                foreach ($orgs as $org) {
+                    $orgs_data[] = [
+
+                    ];
+                }
+            }
+            ?>
+        <div class="awasqa-authors-column">
+            <h6><?= __('Authors') ?></h6>
+            <?php
+            foreach ($authors_data as $author_data) {
+                render_author_column($author_data, show_visit_link: true);
+            }
+            ?>
+        </div>
+            <?php
         });
 
     Block::make(__('Account Details Form'))

@@ -15,6 +15,7 @@ header {
     }
 }
 
+/* Improve contrast on single post page */
 .single-post {
     header {
         a {

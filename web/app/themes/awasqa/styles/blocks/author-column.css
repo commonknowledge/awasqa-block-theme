@@ -31,17 +31,5 @@
 }
 
 .awasqa-author-column__visit {
-    align-items: center;
-    color: var(--color-green-lighter);
-    display: inline-flex;
-
-    &::after {
-        content: "";
-        background-image: url("/app/themes/awasqa/assets/images/arrow-right-lighter.svg");
-        background-position: center;
-        background-repeat: no-repeat;
-        height: 0.75rem;
-        margin-left: 0.5rem;
-        width: 1rem;
-    }
+    @apply --link-arrow;
 }

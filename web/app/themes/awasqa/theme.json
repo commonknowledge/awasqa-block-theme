@@ -340,6 +340,13 @@
 			},
 			"core/post-content": {
 				"elements": {
+					"h2": {
+						"spacing": {
+							"margin": {
+								"top": "3.75rem"
+							}
+						}
+					},
 					"link": {
 						"color": {
 							"text": "var(--wp--preset--color--secondary)"
@@ -563,7 +570,7 @@
 			},
 			"h2": {
 				"typography": {
-					"fontSize": "clamp(2.625rem, calc(2.625rem + ((1vw - 0.48rem) * 8.4135)), 3.25rem)",
+					"fontSize": "2.875rem",
 					"lineHeight": "1.2"
 				}
 			},
