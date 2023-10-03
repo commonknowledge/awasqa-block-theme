@@ -23,5 +23,12 @@ document.querySelectorAll(".wp-block-post-date").forEach(block => {
     block.innerText = (new Date(datetime)).toLocaleDateString(LOCALE, { month: "short", day: "numeric", year: "numeric" })
 })
 
+document.querySelectorAll('.awasqa-related-posts').forEach(block => {
+    const posts = block.querySelectorAll('.wp-block-post')
+    if (!posts.length) {
+        block.style.display = 'none'
+    }
+})
+
 // Display content (hidden by pre-script.js)
 document.body.style.visibility = "visible"

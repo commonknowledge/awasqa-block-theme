@@ -149,6 +149,18 @@ add_action('carbon_fields_register_fields', function () {
             Field::make('text', 'source_url', 'Source URL')->set_attribute('type', 'url'),
         ));
 
+    Container::make('post_meta', 'Related Posts')
+        ->where('post_type', '=', 'post')
+        ->add_fields(array(
+            Field::make('association', 'related_posts', 'Posts')
+                ->set_types([
+                    [
+                        'type'      => 'post',
+                        'post_type' => 'post'
+                    ]
+                ])
+        ));
+
     Container::make('post_meta', 'Contact')
         ->where('post_type', '=', 'awasqa_organisation')
         ->add_fields(array(
@@ -431,38 +443,6 @@ add_action('carbon_fields_register_fields', function () {
             <?php
         });
 
-    Block::make(__('Organisations Column'))
-        ->set_icon('networking')
-        ->add_fields(array(
-            Field::make('separator', 'crb_separator', __('Organisations Column'))
-        ))
-        ->set_render_callback(function ($fields, $attributes, $inner_blocks) {
-            $post = get_post();
-            $authors = get_coauthors($post->ID);
-            if (!$authors) {
-                return;
-            }
-            $orgs_data = [];
-            foreach ($authors as $author) {
-                $orgs = get_author_organisations($author->ID);
-                foreach ($orgs as $org) {
-                    $orgs_data[] = [
-
-                    ];
-                }
-            }
-            ?>
-        <div class="awasqa-authors-column">
-            <h6><?= __('Authors') ?></h6>
-            <?php
-            foreach ($authors_data as $author_data) {
-                render_author_column($author_data, show_visit_link: true);
-            }
-            ?>
-        </div>
-            <?php
-        });
-
     Block::make(__('Account Details Form'))
         ->set_icon('admin-users')
         ->add_fields(array(
@@ -593,6 +573,20 @@ add_filter("query_loop_block_query_vars", function ($query) {
         if ($author) {
             $query['author'] = $author->ID;
         }
+    }
+    // Display related posts on single post page
+    if (($query['s'] ?? '') === ':related') {
+        $query['s'] = '';
+        $post_ids = [];
+        $related_posts = awasqa_carbon_get_post_meta($post->ID, 'related_posts') ?? [];
+        foreach ($related_posts as $related_post) {
+            $post_ids[] = $related_post['id'];
+        }
+        if (!$post_ids) {
+            $post_ids = [0];
+        }
+        $query['post__in'] = $post_ids;
+        $query['ignore_sticky_posts'] = 1;
     }
     return $query;
 });

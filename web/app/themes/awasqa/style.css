@@ -176,6 +176,12 @@ h6::after {
 .awasqa-authors-column {
     margin-bottom: 5.625rem;
 }
+.awasqa-authors-column h6 {
+        margin-top: 0;
+    }
+.awasqa-authors-column .awasqa-author-column {
+        margin-bottom: var(--wp--style--block-gap);
+    }
 .awasqa-authors {
     display: flex;
     list-style: none;
@@ -207,17 +213,13 @@ h6::after {
 footer .wp-block-image img {
             vertical-align: middle;
         }
-/* Prevent gap between single post background color and footer */
-.single-post footer {
-        margin-top: 0;
-    }
-.awasqa-heading-link {
+.awasqa-heading-link a {
   align-items: center;
   color: var(--color-green-lighter);
   display: inline-flex;
   text-decoration: none;
 }
-.awasqa-heading-link::after {
+.awasqa-heading-link a::after {
   content: "";
   background-image: url("/app/themes/awasqa/assets/images/arrow-right-lighter.svg");
   background-position: center;
@@ -226,7 +228,7 @@ footer .wp-block-image img {
   margin-left: 0.5rem;
   width: 1rem;
         }
-.awasqa-heading-link:hover,.awasqa-heading-link:focus {
+.awasqa-heading-link a:hover,.awasqa-heading-link a:focus {
   text-decoration: underline;
         }
 .awasqa-issue-link {
@@ -460,3 +462,7 @@ footer .wp-block-image img {
   background-color: var(--color-green-lightest);
   color: var(--color-green);
         }
+.awasqa-related-posts {
+    margin-bottom: var(--wp--preset--spacing--50);
+    margin-top: -0.75rem;
+}

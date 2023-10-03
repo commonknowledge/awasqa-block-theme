@@ -1,3 +1,11 @@
 .awasqa-authors-column {
     margin-bottom: 5.625rem;
+
+    h6 {
+        margin-top: 0;
+    }
+
+    .awasqa-author-column {
+        margin-bottom: var(--wp--style--block-gap);
+    }
 }

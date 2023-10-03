@@ -1,3 +1,3 @@
-.awasqa-heading-link {
+.awasqa-heading-link a {
     @apply --link-arrow;
 }
