@@ -1,0 +1,7 @@
+.gform_button.button {
+    @apply --button-active;
+}
+
+.gform_submission_error {
+    font-family: var(--font-family-sans-serif);
+}

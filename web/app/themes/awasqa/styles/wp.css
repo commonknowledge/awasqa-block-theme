@@ -5,6 +5,12 @@
     }
 }
 
+.wp-block-button.is-style-outline {
+    a,button {
+        @apply --button-outline;
+    }
+}
+
 .wp-block-categories {
     display: flex;
     flex-wrap: wrap;
@@ -32,4 +38,12 @@
 
 .wp-block-post-excerpt__more-text {
     margin-top: 0.875rem;
+}
+
+.wp-block-post-title {
+    &::before {
+        background-size: cover;
+        height: 50px;
+        width: 50px;
+    }
 }

@@ -1,4 +1,4 @@
-# WordPress Starter
+# Awasqa
 
 A starter repository for [WordPress](https://wordpress.org) websites for organisers, campaigns and anyone else who finds it useful.
 

@@ -17,7 +17,7 @@ use Carbon_Fields\Field;
  *   ...
  * ]
  */
-function awasqa_get_taxonomy_slugs()
+function get_taxonomy_slugs()
 {
     global $awasqa_taxonomy_slugs, $wpdb;
     if (!$awasqa_taxonomy_slugs) {
@@ -54,15 +54,15 @@ EOF;
     return $awasqa_taxonomy_slugs;
 }
 
-function awasqa_get_translated_taxonomy_slug($taxonomy_name, $language, $default)
+function get_translated_taxonomy_slug($taxonomy_name, $language, $default)
 {
-    $taxonomy_slugs = awasqa_get_taxonomy_slugs();
+    $taxonomy_slugs = get_taxonomy_slugs();
     return ($taxonomy_slugs[$taxonomy_name][$language] ?? $default) ?: $default;
 }
 
-function awasqa_get_taxonomy_name_from_slug($translated_slug)
+function get_taxonomy_name_from_slug($translated_slug)
 {
-    $taxonomy_slugs = awasqa_get_taxonomy_slugs();
+    $taxonomy_slugs = get_taxonomy_slugs();
     foreach ($taxonomy_slugs as $taxonomy => $languages) {
         foreach ($languages as $language_slug) {
             if ($language_slug && $language_slug === $translated_slug) {
@@ -71,6 +71,11 @@ function awasqa_get_taxonomy_name_from_slug($translated_slug)
         }
     }
     return false;
+}
+
+function get_current_language($default = null)
+{
+    return apply_filters('wpml_current_language', null) ?: $default;
 }
 
 /**
@@ -85,6 +90,9 @@ function awasqa_get_taxonomy_name_from_slug($translated_slug)
  */
 function render_author_column($author, $show_visit_link = true)
 {
+    if (!$author['name']) {
+        return;
+    }
     ?>
     <div class="awasqa-author-column">
         <a class="awasqa-author-column__heading" href="<?= $author['link'] ?>">
@@ -98,11 +106,27 @@ function render_author_column($author, $show_visit_link = true)
         </p>
         <?php if ($show_visit_link) : ?>
             <a class="awasqa-author-column__visit" href="<?= $author['link'] ?>">
-                <?= __('Visit author profile') ?>
+                <?= __('Visit author profile', 'awasqa') ?>
             </a>
         <?php endif; ?>
     </div>
     <?php
+}
+
+function get_frontend_user_data()
+{
+    $user_id = get_current_user_id();
+    if (!$user_id) {
+        return [
+            "user_id" => null,
+            "organisations" => []
+        ];
+    }
+    $organisations = get_author_organisations($user_id);
+    return [
+        "user_id" => $user_id,
+        "organisations" => $organisations
+    ];
 }
 
 /**
@@ -146,14 +170,93 @@ function get_en_page($page_id)
     return get_post($post_id);
 }
 
+function get_original_post_id($post_id, $post_type)
+{
+    return apply_filters('wpml_original_element_id', null, $post_id, 'post_' . $post_type) ?: $post_id;
+}
+
 /**
- * Required to convert the post ID to the English post, that has the metadata
+ * Get translated page
+ */
+function get_translated_page_by_slug($slug, $lang)
+{
+    if (!$slug) {
+        return null;
+    }
+
+    $posts = get_posts(['name' => $slug, 'post_type' => 'page']);
+    if (!$posts) {
+        return null;
+    }
+
+    $page_id = $posts[0]->ID;
+    $translated_page_id = apply_filters('wpml_object_id', $page_id, 'page', true, $lang);
+    return get_post($translated_page_id);
+}
+
+/**
+ * Sometimes carbon_get_post_meta doesn't work when using translated posts.
+ * This function is more reliable, as it gets the original post ID.
  */
 function awasqa_carbon_get_post_meta($post_id, $name, $container_id = '')
 {
-    $en_page = get_en_page($post_id);
-    $id = $en_page ? $en_page->ID : $post_id;
-    return carbon_get_post_meta($id, $name, $container_id);
+    $post = get_post($post_id);
+    if (!$post) {
+        return null;
+    }
+    $original_post_id = get_original_post_id($post->ID, $post->post_type);
+    return carbon_get_post_meta($original_post_id, $name, $container_id);
+}
+
+function add_user_to_organisation($org_id, $user_id)
+{
+    $original_org_id = get_original_post_id($org_id, 'awasqa_organisation');
+    $members = carbon_get_post_meta($original_org_id, 'members');
+
+    $user_exists = (bool) array_filter($members, function ($member) use ($user_id) {
+        return $member['id'] === $user_id;
+    });
+
+    if ($user_exists) {
+        return;
+    }
+
+    $members[] = [
+        'value' => 'post:members:' . $user_id,
+        'id' => $user_id,
+        'type' => 'user',
+        'subtype' => ''
+    ];
+    carbon_set_post_meta(
+        $original_org_id,
+        'members',
+        $members
+    );
+}
+
+function get_admin_email_from_address()
+{
+    $site_url = home_url();
+    $parsed_url = parse_url($site_url);
+    return 'admin@' . $parsed_url['host'];
+}
+
+function notify_user_joined_org($user_id, $org)
+{
+    $user = get_userdata($user_id);
+    $language_details = apply_filters('wpml_post_language_details', null, $org->ID);
+    $post_language = $language_details['language_code'] ?? null;
+    $account = get_translated_page_by_slug('account', $post_language);
+    $href = get_permalink($account);
+    $link = '<a href"' . $href . '">' . $href . '</a>';
+    $from = get_admin_email_from_address();
+    
+    wp_mail(
+        $user->user_email,
+        __('Your request to join', 'awasqa') . ' ' . $org->post_title . ' ' . __('has been approved.', 'awasqa'),
+        __('Thank you for registering on Awasqa. View your account here: ') . $link,
+        headers: ['From: ' => $from]
+    );
 }
 
 add_action('init', function () {
@@ -174,8 +277,8 @@ add_action('init', function () {
         'awasqa_event',
         array(
             'labels'      => array(
-                'name'          => __('Events'),
-                'singular_name' => __('Event'),
+                'name'          => __('Events', 'awasqa'),
+                'singular_name' => __('Event', 'awasqa'),
             ),
             'public'      => true,
             'has_archive' => true,
@@ -223,6 +326,14 @@ add_action('wp_enqueue_scripts', function () use ($ver) {
         ver: $ver,
         args: true // in_footer = true
     );
+});
+
+add_action('wp_footer', function () {
+    ?>
+    <script>
+        window.USER_DATA = <?= json_encode(get_frontend_user_data()) ?>;
+    </script>
+    <?php
 });
 
 add_action('carbon_fields_register_fields', function () {
@@ -278,10 +389,10 @@ add_action('carbon_fields_register_fields', function () {
                 ])
         ]);
 
-    Block::make(__('Post Source'))
+    Block::make('Post Source')
         ->set_icon('search')
         ->add_fields(array(
-            Field::make('separator', 'crb_separator', __('Post Source'))
+            Field::make('separator', 'crb_separator', __('Post Source', 'awasqa'))
         ))
         ->set_render_callback(function ($fields, $attributes, $inner_blocks) {
             $post = get_post();
@@ -289,22 +400,22 @@ add_action('carbon_fields_register_fields', function () {
             $source_publication = awasqa_carbon_get_post_meta($post->ID, 'source_publication');
             $text_parts = [];
             if ($source_publication) {
-                $text_parts[] = __('This article was originally published in ') . $source_publication . '.';
+                $text_parts[] = __('This article was originally published in ', 'awasqa') . $source_publication . '.';
             }
             if ($source_url) {
-                $text_parts[] = __('Click link below to see the original article.');
+                $text_parts[] = __('Click link below to see the original article.', 'awasqa');
             }
             if (!$text_parts) {
                 return;
             }
             ?>
         <div class="awasqa-post-source">
-            <h6><?= __('Source') ?></h6>
+            <h6><?= __('Source', 'awasqa') ?></h6>
             <p><?= implode("", $text_parts) ?></p>
             <?php if ($source_url) : ?>
                 <p>
                     <a target="_blank" href="<?= $source_url ?>" class="awasqa-link-arrow">
-                        <?= __('Visit original article') ?>
+                        <?= __('Visit original article', 'awasqa') ?>
                     </a>
                 </p>
             <?php endif; ?>
@@ -312,11 +423,11 @@ add_action('carbon_fields_register_fields', function () {
             <?php
         });
 
-    Block::make(__('Countries List'))
+    Block::make('Countries List')
         ->set_icon('admin-site')
         ->add_fields(array(
-            Field::make('separator', 'crb_separator', __('Countries List')),
-            Field::make('checkbox', 'is_filter', __('Filter Mode'))
+            Field::make('separator', 'crb_separator', __('Countries List', 'awasqa')),
+            Field::make('checkbox', 'is_filter', __('Filter Mode', 'awasqa'))
         ))
         ->set_render_callback(function ($fields, $attributes, $inner_blocks) {
             $countries = get_terms([
@@ -337,13 +448,13 @@ add_action('carbon_fields_register_fields', function () {
 
                 // If the link is for a filter, return e.g. ?country=mexico instead of /country/mexico/
                 // Also append the language if necessary, e.g. ?lang=es&pais=mexico
-                $language = $_GET['lang'] ?? 'en';
-                $translated_slug = awasqa_get_translated_taxonomy_slug('awasqa_country', $language, 'country');
+                $language = get_current_language('en');
+                $translated_slug = get_translated_taxonomy_slug('awasqa_country', $language, 'country');
 
                 $current_url = parse_url($_SERVER['REQUEST_URI']);
 
                 $query = '';
-                $locale = $_GET['lang'] ?? '';
+                $locale = get_current_language();
                 if ($locale) {
                     // Add the lang query parameter if required
                     $query = '?lang=' . $locale;
@@ -370,7 +481,7 @@ add_action('carbon_fields_register_fields', function () {
                 ?>
                 <li>
                     <a href="<?= $link['href'] ?>" class="<?= $link['class'] ?>">
-                        <?= __($country->name) ?>
+                        <?= __($country->name, 'awasqa') ?>
                     </a>
                 </li>
             <?php } ?>
@@ -388,31 +499,30 @@ add_action('carbon_fields_register_fields', function () {
         return $options;
     }
 
-    Block::make(__('Issue Link'))
+    Block::make('Issue Link')
         ->set_icon('category')
         ->add_fields(array(
-            Field::make('separator', 'crb_separator', __('Issue Link')),
-            Field::make('select', 'category', __('Issue'))
+            Field::make('separator', 'crb_separator', __('Issue Link', 'awasqa')),
+            Field::make('select', 'category', __('Issue', 'awasqa'))
                 ->add_options('CommonKnowledge\WordPress\Awasqa\get_issue_options')
                 ->set_default_value("uncategorized")
         ))
         ->set_render_callback(function ($fields, $attributes, $inner_blocks) {
             $category_slug = $fields['category'];
             $category = get_category_by_slug($category_slug);
-            $posts = get_posts(["category_name" => $category_slug, "num_posts" => 4]);
             ?>
         <a class="awasqa-issue-link" href="/category/<?= $category->slug ?>">
             <span class="awasqa-issue-link__title"><?= $category->name ?></span>
-            <span class="awasqa-issue-link__more"><?= __('More') ?></span>
+            <span class="awasqa-issue-link__more"><?= __('More', 'awasqa') ?></span>
             <img src="/app/themes/awasqa/assets/images/arrow-right.svg">
         </a>
             <?php
         });
 
-    Block::make(__('Authors'))
+    Block::make('Authors')
         ->set_icon('groups')
         ->add_fields(array(
-            Field::make('separator', 'crb_separator', __('Authors'))
+            Field::make('separator', 'crb_separator', __('Authors', 'awasqa'))
         ))
         ->set_render_callback(function ($fields, $attributes, $inner_blocks) {
             $post = get_post();
@@ -439,10 +549,10 @@ add_action('carbon_fields_register_fields', function () {
             <?php
         });
 
-    Block::make(__('Organisation Contact Details'))
+    Block::make('Organisation Contact Details')
         ->set_icon('megaphone')
         ->add_fields(array(
-            Field::make('separator', 'crb_separator', __('Organisation Contact Details'))
+            Field::make('separator', 'crb_separator', __('Organisation Contact Details', 'awasqa'))
         ))
         ->set_render_callback(function ($fields, $attributes, $inner_blocks) {
             if (is_author()) {
@@ -462,37 +572,34 @@ add_action('carbon_fields_register_fields', function () {
             $twitter = awasqa_carbon_get_post_meta($org->ID, 'twitter');
             $facebook = awasqa_carbon_get_post_meta($org->ID, 'facebook');
             ?>
-            <?php if ($email || $twitter || $facebook) : ?>
-            <div class="awasqa-org-contact-details">
-                <?php if ($email) : ?>
-                    <h3><?= __('Email') ?></h3>
-                    <a class="awasqa-org-contact-details__email" href="mailto:<?= $email ?>">
-                        <?= $email ?>
+        <div class="awasqa-org-contact-details">
+            <?php if ($email) : ?>
+                <h3><?= __('Email', 'awasqa') ?></h3>
+                <a class="awasqa-org-contact-details__email" href="mailto:<?= $email ?>">
+                    <?= $email ?>
+                </a>
+            <?php endif; ?>
+            <?php if ($twitter || $facebook) : ?>
+                <h3><?= __('Social Media', 'awasqa') ?></h3>
+                <?php if ($twitter) : ?>
+                    <a class="awasqa-org-contact-details__twitter" href="<?= $twitter ?>">
+                        Twitter
                     </a>
                 <?php endif; ?>
-                <?php if ($twitter || $facebook) : ?>
-                    <h3><?= __('Social Media') ?></h3>
-                    <?php if ($twitter) : ?>
-                        <a class="awasqa-org-contact-details__twitter" href="<?= $twitter ?>">
-                            Twitter
-                        </a>
-                    <?php endif; ?>
-                    <?php if ($facebook) : ?>
-                        <a class="awasqa-org-contact-details__facebook" href="<?= $facebook ?>">
-                            Facebook
-                        </a>
-                    <?php endif; ?>
+                <?php if ($facebook) : ?>
+                    <a class="awasqa-org-contact-details__facebook" href="<?= $facebook ?>">
+                        Facebook
+                    </a>
                 <?php endif; ?>
-            </div>
             <?php endif; ?>
-
+        </div>
             <?php
         });
 
-    Block::make(__('Organisation Authors'))
+    Block::make('Organisation Authors')
         ->set_icon('groups')
         ->add_fields(array(
-            Field::make('separator', 'crb_separator', __('Organisation Authors'))
+            Field::make('separator', 'crb_separator', __('Organisation Authors', 'awasqa'))
         ))
         ->set_render_callback(function ($fields, $attributes, $inner_blocks) {
             $post = get_post();
@@ -522,10 +629,10 @@ add_action('carbon_fields_register_fields', function () {
             <?php
         });
 
-    Block::make(__('Author Column'))
+    Block::make('Author Column')
         ->set_icon('admin-users')
         ->add_fields(array(
-            Field::make('separator', 'crb_separator', __('Author Column'))
+            Field::make('separator', 'crb_separator', __('Author Column', 'awasqa'))
         ))
         ->set_render_callback(function ($fields, $attributes, $inner_blocks) {
             $author = get_queried_object();
@@ -548,10 +655,10 @@ add_action('carbon_fields_register_fields', function () {
             render_author_column($author_data, show_visit_link: false);
         });
 
-    Block::make(__('Authors Column'))
+    Block::make('Authors Column')
         ->set_icon('groups')
         ->add_fields(array(
-            Field::make('separator', 'crb_separator', __('Authors Column'))
+            Field::make('separator', 'crb_separator', __('Authors Column', 'awasqa'))
         ))
         ->set_render_callback(function ($fields, $attributes, $inner_blocks) {
             $post = get_post();
@@ -574,7 +681,7 @@ add_action('carbon_fields_register_fields', function () {
             }
             ?>
         <div class="awasqa-authors-column">
-            <h6><?= __('Authors') ?></h6>
+            <h6><?= __('Authors', 'awasqa') ?></h6>
             <?php
             foreach ($authors_data as $author_data) {
                 render_author_column($author_data, show_visit_link: true);
@@ -584,10 +691,10 @@ add_action('carbon_fields_register_fields', function () {
             <?php
         });
 
-    Block::make(__('Account Details Form'))
+    Block::make('Account Details Form')
         ->set_icon('admin-users')
         ->add_fields(array(
-            Field::make('separator', 'crb_separator', __('Account Details Form'))
+            Field::make('separator', 'crb_separator', __('Account Details Form', 'awasqa'))
         ))
         ->set_render_callback(function ($fields, $attributes, $inner_blocks) {
             $user_id = get_current_user_id();
@@ -603,29 +710,29 @@ add_action('carbon_fields_register_fields', function () {
         <form class="awasqa-account-details-form" method="post" enctype="multipart/form-data">
             <input name="form-nonce" type="hidden" value="<?= wp_create_nonce('awasqa_account_details_form') ?>" />
             <div class="awasqa-account-details-form__row">
-                <label for="name"><?= __('Name') ?></label>
+                <label for="name"><?= __('Name', 'awasqa') ?></label>
                 <input id="name" name="form-name" type="text" value="<?= $name ?>">
             </div>
             <div class="awasqa-account-details-form__row">
-                <label for="profile-pic"><?= __('Profile pic') ?></label>
+                <label for="profile-pic"><?= __('Profile pic', 'awasqa') ?></label>
                 <?php if ($image_url) : ?>
                     <img src="<?= $image_url[0] ?>">
                 <?php endif; ?>
                 <input id="profile-pic" name="form-profile-pic" type="file">
             </div>
             <div class="awasqa-account-details-form__row">
-                <label for="bio"><?= __('Bio') ?></label>
+                <label for="bio"><?= __('Bio', 'awasqa') ?></label>
                 <textarea id="bio" name="form-bio"><?= $bio ?></textarea>
             </div>
-            <button><?= __('Submit') ?></button>
+            <button><?= __('Submit', 'awasqa') ?></button>
         </form>
             <?php
         });
 
-    Block::make(__('Event Date'))
+    Block::make('Event Date')
         ->set_icon('calendar')
         ->add_fields(array(
-            Field::make('separator', 'crb_separator', __('Event Date'))
+            Field::make('separator', 'crb_separator', __('Event Date', 'awasqa'))
         ))
         ->set_render_callback(function ($fields, $attributes, $inner_blocks) {
             $event = get_post();
@@ -683,7 +790,7 @@ add_filter('render_block', function ($block_content, $block) {
             if ($author) {
                 $author_name = $author->data->display_name ?: $author->data->user_nicename;
             } else {
-                $author_name = __('Unknown author');
+                $author_name = __('Unknown author', 'awasqa');
             }
             $block_content = preg_replace('#\[author_archives_author_name\]#i', $author_name, $block_content);
         }
@@ -702,7 +809,7 @@ add_filter("query_loop_block_query_vars", function ($query) {
      */
 
     foreach ($_GET as $key => $value) {
-        $taxonomy = awasqa_get_taxonomy_name_from_slug($key);
+        $taxonomy = get_taxonomy_name_from_slug($key);
         if ($taxonomy) {
             if (empty($query['tax_query'])) {
                 $query['tax_query'] = [];
@@ -722,7 +829,7 @@ add_filter("query_loop_block_query_vars", function ($query) {
 
     // Modify the query to get posts on an Organisation page
     // to show posts by (co-)authors of that org
-    if ($post->post_type === "awasqa_organisation") {
+    if ($post && $post->post_type === "awasqa_organisation") {
         $members = awasqa_carbon_get_post_meta($post->ID, 'members');
         $post_ids = [];
         foreach ($members as $member) {
@@ -848,7 +955,7 @@ add_filter('wpseo_title', function ($title) {
             return $title;
         }
         $org = $orgs[0];
-        $title = awasqa_get_author_name($author->ID) . ', ' . __('author at') . ' ' . $org->post_title;
+        $title = awasqa_get_author_name($author->ID) . ', ' . __('author at', 'awasqa') . ' ' . $org->post_title;
     }
     return $title;
 });
@@ -889,21 +996,84 @@ add_filter('query', function ($query) {
     return $query;
 });
 
+/**
+ * Use custom login page
+ */
+add_filter('login_url', function ($login_url, $redirect, $force_reauth) {
+    $log_in = get_translated_page_by_slug('log-in', get_current_language('en'));
+    if (!$log_in) {
+        return $login_url;
+    }
+    $login_url = get_permalink($log_in);
+    $login_url = add_query_arg('redirect_to', urlencode($redirect), $login_url);
+    return $login_url;
+}, 10, 3);
+
+/**
+ * Use custom register page
+ */
+add_filter('register_url', function ($register_url) {
+    $register = get_translated_page_by_slug('register', get_current_language('en'));
+    if (!$register) {
+        return $register_url;
+    }
+    return get_permalink($register);
+});
+
+// Make sure translations are registered for Gravity Form registration form links
+add_filter('gform_user_registration_login_args', function ($args) {
+    $args['logged_in_message'] = __($args['logged_in_message'] ?? 'You are logged in!', 'awasqa');
+    foreach ($args['logged_out_links'] as $i => $logged_out_link) {
+        $args['logged_out_links'][$i]['text'] = __($logged_out_link['text'] ?? '', 'awasqa');
+    }
+    return $args;
+});
+
 add_action('template_redirect', function () {
+    global $post;
+
+    $en_page = get_en_page($post?->ID);
+    $en_slug = $en_page?->post_name;
+
     if (!is_user_logged_in()) {
-        $protected_paths = ['/account', '/forums'];
-        foreach ($protected_paths as $path) {
-            if (str_starts_with($_SERVER['REQUEST_URI'], $path)) {
+        if (is_bbpress()) {
+            auth_redirect();
+            exit;
+        }
+        $protected_pages = ['account', 'join-organisation', 'edit-organisation'];
+        foreach ($protected_pages as $slug) {
+            if ($slug === $en_slug) {
                 auth_redirect();
+                exit;
+            }
+        }
+    } else {
+        $anonymous_only_pages = ['log-in', 'register'];
+        foreach ($anonymous_only_pages as $slug) {
+            if ($slug === $en_slug) {
+                wp_redirect(home_url());
                 exit;
             }
         }
     }
 
-    global $post;
-    $en_page = get_en_page($post?->ID);
-    $slug = $en_page ? $en_page->post_name : null;
-    if ($slug === "account") {
+    if (!empty($_GET['org']) && !empty($_GET['key'])) {
+        $org_id = $_GET['org'];
+        $key = $_GET['key'];
+        $org = get_post($org_id);
+        $user_id_to_add = get_post_meta($org_id, "awasqa_add_user_key:$key", true);
+        if ($org && $user_id_to_add) {
+            add_user_to_organisation($org_id, $user_id_to_add);
+            notify_user_joined_org($user_id_to_add, $org);
+            $org_link = get_permalink($org_id);
+            wp_redirect($org_link);
+            exit();
+        }
+        wp_redirect(home_url());
+        exit;
+    }
+
+    if ($en_slug === "account") {
         if (empty($_POST)) {
             return;
         }
@@ -959,6 +1129,284 @@ add_action('template_redirect', function () {
             wp_update_attachment_metadata($attach_id, $attach_data);
 
             add_user_meta($user_id, meta_key: "awasqa_profile_pic_id", meta_value: $attach_id, unique: true);
+            update_user_meta($user_id, meta_key: "awasqa_profile_pic_id", meta_value: $attach_id);
         }
     }
 });
+
+
+// Disable asynchronous processing if not in production
+// Doesn't work in Docker because it makes a request to WP_HOME, localhost:8082,
+// which fails from within the wordpress container.
+add_filter('gform_is_feed_asynchronous', function ($is_asynchronous, $feed) {
+    return $is_asynchronous && WP_ENV === "production";
+}, 10, 2);
+
+// Prevent subscribers from accessing the WP backend
+add_action('admin_init', function () {
+    if (!is_user_logged_in()) {
+        return;
+    }
+
+    $roles = (array) wp_get_current_user()->roles;
+    $allowed_roles = ['administrator', 'editor', 'author', 'contributor'];
+
+    if (!array_intersect($allowed_roles, $roles)) {
+        wp_die('Sorry, you are not allowed to access this page.');
+    }
+});
+
+function populate_form_organisations($form)
+{
+    foreach ($form['fields'] as &$field) {
+        if ($field->type !== 'select' || !str_contains($field->cssClass, 'awasqa-form-organisations')) {
+            continue;
+        }
+
+        $posts = get_posts(['post_type' => 'awasqa_organisation']);
+
+        $choices = array();
+
+        $lang = get_current_language();
+
+        // Have to filter by language because the WPML query filters are not active
+        // when the Gravity Forms filters run (seemingly)
+        foreach ($posts as $post) {
+            $language_details = apply_filters('wpml_post_language_details', null, $post->ID);
+            $post_language = $language_details['language_code'] ?? null;
+            if ($post_language === $lang) {
+                $choices[] = array('text' => $post->post_title, 'value' => $post->ID);
+            }
+        }
+
+        // Add "New Organisation" on Register form but not Join Organisation form
+        if ($form['id'] === 1) {
+            $choices[] = array('text' => __('New organisation', 'awasqa'), 'value' => 'NEW');
+        }
+
+        $field->placeholder = __('No organisation', 'awasqa');
+        $field->choices = $choices;
+    }
+
+    return $form;
+}
+
+// Gravity form filters work by form ID >_<
+add_filter('gform_pre_render_1', 'CommonKnowledge\WordPress\Awasqa\populate_form_organisations');
+add_filter('gform_pre_validation_1', 'CommonKnowledge\WordPress\Awasqa\populate_form_organisations');
+add_filter('gform_pre_submission_filter_1', 'CommonKnowledge\WordPress\Awasqa\populate_form_organisations');
+add_filter('gform_admin_pre_render_1', 'CommonKnowledge\WordPress\Awasqa\populate_form_organisations');
+
+add_filter('gform_pre_render_2', 'CommonKnowledge\WordPress\Awasqa\populate_form_organisations');
+add_filter('gform_pre_validation_2', 'CommonKnowledge\WordPress\Awasqa\populate_form_organisations');
+add_filter('gform_pre_submission_filter_2', 'CommonKnowledge\WordPress\Awasqa\populate_form_organisations');
+add_filter('gform_admin_pre_render_2', 'CommonKnowledge\WordPress\Awasqa\populate_form_organisations');
+
+/**
+ * Prefill form when rendering an Edit Organisation page
+ */
+add_filter('gform_pre_render_3', function ($form) {
+    $org_id = $_GET['org_id'] ?? null;
+    if (!$org_id) {
+        return $form;
+    }
+    $org = get_post($org_id);
+    $form['fields'][0]['defaultValue'] = $org->post_title;
+    $form['fields'][1]['defaultValue'] = apply_filters('the_content', $org->post_content);
+    $form['fields'][2]['defaultValue'] = awasqa_carbon_get_post_meta($org_id, 'email');
+    $form['fields'][3]['defaultValue'] = awasqa_carbon_get_post_meta($org_id, 'facebook');
+    $form['fields'][4]['defaultValue'] = awasqa_carbon_get_post_meta($org_id, 'twitter');
+    return $form;
+});
+
+/**
+ * Disable no duplicates on organisation name when editing an organisation
+ */
+add_filter('gform_pre_validation_3', function ($form) {
+    $org_id = $_GET['org_id'] ?? null;
+    if (!$org_id) {
+        return $form;
+    }
+    $org = get_post($org_id);
+    if (!$org) {
+        return $form;
+    }
+    $form['fields'][0]['noDuplicates'] = false;
+    return $form;
+});
+
+add_action('gform_activate_user', function ($user_id, $user_data, $user_meta) {
+    $org_id = get_user_meta($user_id, 'awasqa_user_organisation', single: true);
+    if ($org_id && $org_id !== 'NEW') {
+        add_user_to_organisation($org_id, $user_id);
+    }
+    $bio = get_user_meta($user_id, 'awasqa_user_bio', single: true);
+    $userdata = array(
+        'ID' => $user_id,
+        'description' => $bio
+    );
+    wp_update_user($userdata);
+}, 10, 3);
+
+add_filter('gform_custom_merge_tags', function ($merge_tags, $form_id, $fields, $element_id) {
+    $merge_tags[] = array(
+        'label' => __('Add user to organisation', 'awasqa'),
+        'tag'   => '{awasqa_join_organisation_url}',
+    );
+
+    $merge_tags[] = array(
+        'label' => __('Admin Organisations URL', 'awasqa'),
+        'tag'   => '{admin_organisations_url}',
+    );
+
+    return $merge_tags;
+}, 10, 4);
+
+/**
+ * Process the {awasqa_join_organisation_url} to create a link for the admin to click
+ * that will add the user to the organisation.
+ */
+add_filter('gform_replace_merge_tags', function ($text, $form, $entry, $url_encode, $esc_html, $nl2br, $format) {
+    $custom_merge_tag = '{awasqa_join_organisation_url}';
+
+    if (!str_contains($text, $custom_merge_tag)) {
+        return $text;
+    }
+
+    $organisation = get_post($entry[1]);
+
+    if (!$organisation) {
+        return str_replace($custom_merge_tag, '[Error: organisation not found]', $text);
+    }
+
+    // Create a key that will be used to verify the join organisation request
+    $domain = home_url();
+    $key = substr(md5(time() . wp_rand() . $domain), 0, 16);
+
+    // Save the key in the organisation post meta
+    $organisation_id = get_original_post_id($entry[1], $organisation->post_type);
+    add_post_meta($organisation_id, "awasqa_add_user_key:$key", $entry['created_by'], true);
+
+    $href = home_url();
+    $href = add_query_arg('org', $organisation_id, $href);
+    $href = add_query_arg('key', $key, $href);
+
+    $link = '<a href="' . $href . '">' . __('click here', 'awasqa') . '</a>';
+    return str_replace($custom_merge_tag, $link, $text);
+}, 10, 7);
+
+/**
+ * Process the {admin_organisations_url} tag to create a link to
+ * the admin organisations page.
+ */
+add_filter('gform_replace_merge_tags', function ($text, $form, $entry, $url_encode, $esc_html, $nl2br, $format) {
+    $custom_merge_tag = '{admin_organisations_url}';
+
+    if (!str_contains($text, $custom_merge_tag)) {
+        return $text;
+    }
+
+    $href = admin_url('/edit.php?post_type=awasqa_organisation&lang=all;');
+    $link = '<a href="' . $href . '">' . __('Go to the admin site.', 'awasqa') . '</a>';
+    return str_replace($custom_merge_tag, $link, $text);
+}, 10, 7);
+
+/**
+ * Add metadata to the post and set the correct language after it
+ * has been created by Gravity Forms.
+ */
+add_action(
+    'gform_advancedpostcreation_post_after_creation',
+    function ($post_id, $feed, $entry, $form) {
+        $post = get_post($post_id);
+        if (!$post) {
+            return;
+        }
+
+        if ($post->post_type === "awasqa_organisation") {
+            $email = $entry[6];
+            $facebook_url = $entry[7];
+            $twitter_url = $entry[8];
+
+            carbon_set_post_meta($post_id, 'email', $email);
+            carbon_set_post_meta($post_id, 'twitter', $twitter_url);
+            carbon_set_post_meta($post_id, 'facebook', $facebook_url);
+        }
+
+        // ID of the post that had the form on it - used to determine lang of new post
+        $source_post_id = $entry[9];
+        $language_details = apply_filters('wpml_post_language_details', null, $source_post_id);
+        $source_lang = $language_details['language_code'];
+
+        // Update the language of the post
+        $trid = apply_filters('wpml_element_trid', null, $post_id, 'post_' . $post->post_type);
+        $language_args = [
+            'element_id' => $post_id,
+            'element_type' => 'post_' . $post->post_type,
+            'trid' => $trid,
+            'language_code' => $source_lang,
+            'source_language_code' => null,
+        ];
+
+        do_action('wpml_set_element_language_details', $language_args);
+    },
+    10,
+    4
+);
+
+/**
+ * Make the Edit Organisation form support editing as well as creating new organisations.
+ * Check the submitting user is an auther for that org, then delete the new post ($post parameter)
+ * and return the Organisation post.
+ */
+add_filter('gform_advancedpostcreation_post', function ($post, $feed, $entry, $form) {
+    // Make post content block friendly
+    $post['post_content'] = "<!-- wp:paragraph -->" . $post['post_content'] . "\n" . "<!-- /wp:paragraph -->";
+
+    $org_id = $_GET['org_id'] ?? null;
+    if (!$org_id) {
+        return $post;
+    }
+    $org = get_post($org_id);
+    if (!$org || $org->post_type !== "awasqa_organisation") {
+        return $post;
+    }
+    $members = awasqa_carbon_get_post_meta($org->ID, 'members');
+    $is_member = false;
+    foreach ($members as $member) {
+        if ($member['id'] == $entry['created_by']) {
+            $is_member = true;
+            break;
+        }
+    }
+    if (!$is_member) {
+        header('HTTP/1.0 403 Forbidden');
+        die('Forbidden.');
+    }
+    wp_delete_post($post['ID']);
+    $post['ID'] = $org->ID;
+    $post['post_status'] = $org->post_status;
+    return $post;
+}, 10, 4);
+
+function organisation_published($post)
+{
+    if ($post->post_type !== 'awasqa_organisation') {
+        return;
+    }
+    $author_id = $post->post_author;
+    $author = get_userdata($author_id);
+    $href = get_permalink($post);
+    $link = '<a href"' . $href . '">' . $href . '</a>';
+
+    wp_mail(
+        $author->user_email,
+        __('Your organisation', 'awasqa') . ' ' . $post->post_title . ' ' . __('has been approved.', 'awasqa'),
+        __('Thank you for registering on Awasqa. View the organisation here: ') . $link,
+        headers: ['From: ' => get_admin_email_from_address()]
+    );
+}
+
+add_action('draft_to_publish', 'CommonKnowledge\WordPress\Awasqa\organisation_published', 10, 1);
+add_action('future_to_publish', 'CommonKnowledge\WordPress\Awasqa\organisation_published', 10, 1);
+add_action('private_to_publish', 'CommonKnowledge\WordPress\Awasqa\organisation_published', 10, 1);

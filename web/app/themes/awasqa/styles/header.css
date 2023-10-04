@@ -1,17 +1,12 @@
 header {
-    height: 6rem;
+    min-height: 6rem;
     position: relative;
     z-index: 1;
 
-    nav:first-of-type {
-        margin: 0 0.5rem 0 auto;
-    }
-    nav:last-of-type {
-        border-left: 1px solid var(--color-green-lightest);
-        padding: 0.5rem 0 0.5rem 2.5rem;
-    }
     .nav-language-switcher {
+        border-right: 1px solid var(--color-green-lightest);
         margin-right: auto;
+        padding-right: 1.5rem;
     }
 }
 

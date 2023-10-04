@@ -1,0 +1,11 @@
+.bbp-remember-me {
+    margin-bottom: 0.625rem;
+
+    label {
+        width: auto;
+    }
+}
+
+.bbp-submit-wrapper button {
+    @apply --button-active;
+}
