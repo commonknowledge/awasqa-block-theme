@@ -122,6 +122,20 @@ h6::after {
 .wp-block-categories a:focus, .wp-block-categories a:hover {
   background-color: var(--color-orange);
         }
+.wp-block-categories a.active {
+  background-color: var(--color-orange);
+  border-radius: 0.25rem;
+  color: var(--color-green);
+  display: inline-block;
+  font-size: 0.875rem;
+  font-weight: bold;
+  padding: 0.5rem 1rem;
+  text-decoration: none;
+  text-transform: uppercase;
+    }
+.wp-block-categories a.active:focus, .wp-block-categories a.active:hover {
+  background-color: var(--color-green-lightest);
+        }
 .wp-block-post-featured-image {
     margin-bottom: 0.875rem;
 }
