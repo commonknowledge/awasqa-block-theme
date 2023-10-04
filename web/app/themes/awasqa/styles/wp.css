@@ -16,6 +16,10 @@
     a {
         @apply --button-default;
     }
+
+    a.active {
+        @apply --button-active;
+    }
 }
 
 .wp-block-post-featured-image {

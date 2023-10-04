@@ -7,6 +7,73 @@ use Carbon_Fields\Container;
 use Carbon_Fields\Field;
 
 /**
+ * Load translated taxonomy slugs, returns this format:
+ *
+ * [
+ *   $taxonomy_name => [
+ *     $language => $slug,
+ *     ...
+ *   ],
+ *   ...
+ * ]
+ */
+function awasqa_get_taxonomy_slugs()
+{
+    global $awasqa_taxonomy_slugs, $wpdb;
+    if (!$awasqa_taxonomy_slugs) {
+        $awasqa_taxonomy_slugs = [];
+        $query = <<<EOF
+        SELECT
+          s.name AS name,
+          s.value AS original,
+          s.language AS original_language,
+          st.language AS language,
+          st.value AS translated
+        FROM wp_icl_strings AS s
+        INNER JOIN wp_icl_string_translations AS st
+        WHERE s.id=st.string_id
+          AND s.name like '% tax slug';
+EOF;
+        $strings = $wpdb->get_results($query);
+        foreach ($strings as $string) {
+            // The string name in the database is e.g. "URL awasqa_country tax slug"
+            // As far as I can tell, this is the only way to pull
+            // the taxonomy name from the db
+            preg_match('#^URL (.*) tax slug$#', $string->name, $matches);
+            if (count($matches) !== 2) {
+                continue;
+            }
+            $tax_name = $matches[1];
+            if (empty($awasqa_taxonomy_slugs[$tax_name])) {
+                $awasqa_taxonomy_slugs[$tax_name] = [];
+            }
+            $awasqa_taxonomy_slugs[$tax_name][$string->language] = $string->translated;
+            $awasqa_taxonomy_slugs[$tax_name][$string->original_language] = $string->original;
+        }
+    }
+    return $awasqa_taxonomy_slugs;
+}
+
+function awasqa_get_translated_taxonomy_slug($taxonomy_name, $language, $default)
+{
+    $taxonomy_slugs = awasqa_get_taxonomy_slugs();
+    return ($taxonomy_slugs[$taxonomy_name][$language] ?? $default) ?: $default;
+}
+
+function awasqa_get_taxonomy_name_from_slug($translated_slug)
+{
+    $taxonomy_slugs = awasqa_get_taxonomy_slugs();
+    foreach ($taxonomy_slugs as $taxonomy => $languages) {
+        foreach ($languages as $language_slug) {
+            if ($language_slug && $language_slug === $translated_slug) {
+                return $taxonomy;
+            }
+        }
+    }
+    return false;
+}
+
+/**
  * $author should be an array:
  *
  * [
@@ -90,8 +157,8 @@ function awasqa_carbon_get_post_meta($post_id, $name, $container_id = '')
 }
 
 add_action('init', function () {
-    register_taxonomy('awasqa_country', ['post', 'awasqa_organisation'], [
-        'hierarchical'      => false,
+    register_taxonomy('awasqa_country', ['post', 'awasqa_organisation', 'awasqa_event'], [
+        'hierarchical'      => true,
         'show_ui'           => true,
         'show_admin_column' => true,
         'show_in_rest' => true,
@@ -102,6 +169,23 @@ add_action('init', function () {
             'singular_name'     => _x('Country', 'taxonomy singular name'),
         ]
     ]);
+
+    register_post_type(
+        'awasqa_event',
+        array(
+            'labels'      => array(
+                'name'          => __('Events'),
+                'singular_name' => __('Event'),
+            ),
+            'public'      => true,
+            'has_archive' => true,
+            'menu_icon' => 'dashicons-calendar',
+            'rewrite' => array('slug' => 'event'),
+            'show_in_rest' => true,
+            'supports' => array('title', 'editor', 'author', 'thumbnail', 'excerpt'),
+            'taxonomies' => array('category', 'awasqa_country')
+        )
+    );
 
     register_post_type(
         'awasqa_organisation',
@@ -180,6 +264,20 @@ add_action('carbon_fields_register_fields', function () {
                 ])
         ));
 
+    Container::make('post_meta', 'Event Details')
+        ->where('post_type', '=', 'awasqa_event')
+        ->add_fields([
+            Field::make('date', 'event_date', 'Event Date'),
+            Field::make('time', 'event_time', 'Event Time (in UTC, i.e. +00:00)')
+                ->set_input_format('H:i', 'H:i')
+                ->set_picker_options([
+                    'altInput' => false,
+                    'dateFormat' => 'H:i',
+                    'time_24hr' => true,
+                    'enableSeconds' => false
+                ])
+        ]);
+
     Block::make(__('Post Source'))
         ->set_icon('search')
         ->add_fields(array(
@@ -217,22 +315,65 @@ add_action('carbon_fields_register_fields', function () {
     Block::make(__('Countries List'))
         ->set_icon('admin-site')
         ->add_fields(array(
-            Field::make('separator', 'crb_separator', __('Countries List'))
+            Field::make('separator', 'crb_separator', __('Countries List')),
+            Field::make('checkbox', 'is_filter', __('Filter Mode'))
         ))
         ->set_render_callback(function ($fields, $attributes, $inner_blocks) {
             $countries = get_terms([
                 'taxonomy'   => 'awasqa_country',
                 'hide_empty' => false,
             ]);
+            $is_filter = $fields['is_filter'] ?? false;
+
+            function get_link($country, $is_filter)
+            {
+                $link = get_term_link($country->name, 'awasqa_country');
+                if (!$is_filter) {
+                    return [
+                        'href' => $link,
+                        'class' => ''
+                    ];
+                }
+
+                // If the link is for a filter, return e.g. ?country=mexico instead of /country/mexico/
+                // Also append the language if necessary, e.g. ?lang=es&pais=mexico
+                $language = $_GET['lang'] ?? 'en';
+                $translated_slug = awasqa_get_translated_taxonomy_slug('awasqa_country', $language, 'country');
+
+                $current_url = parse_url($_SERVER['REQUEST_URI']);
+
+                $query = '';
+                $locale = $_GET['lang'] ?? '';
+                if ($locale) {
+                    // Add the lang query parameter if required
+                    $query = '?lang=' . $locale;
+                }
+
+                $active = ($_GET[$translated_slug] ?? '') === $country->slug;
+                if (!$active) {
+                    // Add query ?country=mexico
+                    $query_param = $translated_slug . '=' . $country->slug;
+                    $query_glue = $query ? '&' : '?';
+                    $query .= $query_glue . $query_param;
+                }
+
+                $href = $current_url['path'] . $query;
+                return [
+                    'href' => $href,
+                    'class' => $active ? 'active' : ''
+                ];
+            }
             ?>
         <ul class="wp-block-categories">
-            <?php foreach ($countries as $country) : ?>
+            <?php foreach ($countries as $country) {
+                $link = get_link($country, $is_filter);
+                ?>
                 <li>
-                    <a href="<?= get_term_link($country->name, 'awasqa_country') ?>">
+                    <a href="<?= $link['href'] ?>" class="<?= $link['class'] ?>">
                         <?= __($country->name) ?>
                     </a>
                 </li>
-            <?php endforeach; ?>
+            <?php } ?>
         </ul>
             <?php
         });
@@ -480,6 +621,26 @@ add_action('carbon_fields_register_fields', function () {
         </form>
             <?php
         });
+
+    Block::make(__('Event Date'))
+        ->set_icon('calendar')
+        ->add_fields(array(
+            Field::make('separator', 'crb_separator', __('Event Date'))
+        ))
+        ->set_render_callback(function ($fields, $attributes, $inner_blocks) {
+            $event = get_post();
+            $event_date = awasqa_carbon_get_post_meta($event->ID, 'event_date');
+            // Default to 6pm to prevent events with no specified time having the wrong date displayed in Western timezones
+            // E.G. Mexico is up to UTC-7, so if the default were midnight, the date would go back one day when displayed
+            // in a Mexican user's locale
+            $event_time = awasqa_carbon_get_post_meta($event->ID, 'event_time') ?: '18:00:00';
+            ?>
+        <div class="wp-block-post-date">
+            <time datetime="<?= $event_date ?>T<?= $event_time ?>+00:00"></time>
+            <?= $event_date ?>
+        </div>
+            <?php
+        });
 });
 
 add_action('after_setup_theme', function () {
@@ -532,8 +693,35 @@ add_filter('render_block', function ($block_content, $block) {
 
 add_filter("query_loop_block_query_vars", function ($query) {
     global $post;
+
+    /**
+     * In this first section, if blocks DO NOT return the
+     * $query, so filters can be combined. In the second
+     * section, if blocks DO return the $query, so page
+     * specific behaviour isn't mixed.
+     */
+
+    foreach ($_GET as $key => $value) {
+        $taxonomy = awasqa_get_taxonomy_name_from_slug($key);
+        if ($taxonomy) {
+            if (empty($query['tax_query'])) {
+                $query['tax_query'] = [];
+            }
+            $query['tax_query'][] = [
+                'taxonomy' => $taxonomy,
+                'terms' => $value,
+                'field' => 'slug'
+            ];
+        }
+    }
+
+    /**
+     * From this point onwards, all the if(...) blocks
+     * return the $query, to avoid mixed behaviour.
+     */
+
     // Modify the query to get posts on an Organisation page
-    // to restrict posts to those associated with a (co-)author of that org
+    // to show posts by (co-)authors of that org
     if ($post->post_type === "awasqa_organisation") {
         $members = awasqa_carbon_get_post_meta($post->ID, 'members');
         $post_ids = [];
@@ -549,6 +737,7 @@ add_filter("query_loop_block_query_vars", function ($query) {
         $query['post__in'] = $post_ids;
         # Prevent sticky posts from always appearing
         $query['ignore_sticky_posts'] = 1;
+        return $query;
     }
     // Fix displaying author organisations on translated version of author archive
     if (is_author() && $query['post_type'] === "awasqa_organisation") {
@@ -566,6 +755,7 @@ add_filter("query_loop_block_query_vars", function ($query) {
             # Prevent sticky posts from always appearing
             $query['ignore_sticky_posts'] = 1;
         }
+        return $query;
     }
     // Fix displaying author posts on translated version of author archive
     if (is_author() && $query['post_type'] === "post") {
@@ -573,6 +763,7 @@ add_filter("query_loop_block_query_vars", function ($query) {
         if ($author) {
             $query['author'] = $author->ID;
         }
+        return $query;
     }
     // Display related posts on single post page
     if (($query['s'] ?? '') === ':related') {
@@ -587,8 +778,63 @@ add_filter("query_loop_block_query_vars", function ($query) {
         }
         $query['post__in'] = $post_ids;
         $query['ignore_sticky_posts'] = 1;
+        return $query;
+    }
+    // Filter events. To work with WPML, the filter has to be
+    // done by post ID. Meta queries do not work. So first
+    // a query is done to find the post IDs, then these are
+    // passed to the block 'post__in' $query parameter.
+    $search = $query['s'] ?? '';
+    if ($search === ':upcoming' || $search === ':previous') {
+        $query['s'] = '';
+
+        $today = date('Y-m-d');
+        $is_future = $search === ':upcoming';
+
+        $meta_query = [
+            'event_date' => [
+                'key' => 'event_date',
+                'compare' => $is_future ? '>=' : '<',
+                'value' => $today
+            ]
+        ];
+
+        $events = get_posts([
+            'orderby' => 'event_date',
+            'order' => $is_future ? 'ASC' : 'DESC',
+            'post_type' => 'awasqa_event',
+            'meta_query' => $meta_query
+        ]);
+
+        $post_ids = [];
+        foreach ($events as $event) {
+            $post_ids[] = $event->ID;
+        }
+        if (!$post_ids) {
+            $post_ids = [0];
+        }
+
+        $query['orderby'] = 'post__in';
+        $query['post__in'] = $post_ids;
+
+        // Show essentially unlimited posts in the events query loop that
+        // is not restricted to showing the single latest event.
+        if ($query['posts_per_page'] > 1) {
+            $query['posts_per_page'] = 999;
+        }
+
+        return $query;
     }
     return $query;
+});
+
+add_action('pre_get_posts', function ($query) {
+    // Ignore special parameters in block editor
+    $search = $query->get('s') ?: '';
+    if (str_starts_with($search, ':')) {
+        $query->set("s", "");
+        return $query;
+    }
 });
 
 add_filter('wpseo_title', function ($title) {
