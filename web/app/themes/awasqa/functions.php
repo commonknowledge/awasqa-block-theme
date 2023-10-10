@@ -1353,6 +1353,7 @@ add_action(
             return;
         }
 
+        $source_post_id = null;
         if ($post->post_type === "awasqa_organisation") {
             $email = $entry[6];
             $facebook_url = $entry[7];
@@ -1361,24 +1362,33 @@ add_action(
             carbon_set_post_meta($post_id, 'email', $email);
             carbon_set_post_meta($post_id, 'twitter', $twitter_url);
             carbon_set_post_meta($post_id, 'facebook', $facebook_url);
+
+            $source_post_id = $entry[9];
+
+            add_user_to_organisation($post_id, $entry['created_by']);
+        }
+
+        if ($post->post_type === "post") {
+            $source_post_id = $entry[4];
         }
 
         // ID of the post that had the form on it - used to determine lang of new post
-        $source_post_id = $entry[9];
-        $language_details = apply_filters('wpml_post_language_details', null, $source_post_id);
-        $source_lang = $language_details['language_code'];
+        if ($source_post_id) {
+            $language_details = apply_filters('wpml_post_language_details', null, $source_post_id);
+            $source_lang = $language_details['language_code'];
 
-        // Update the language of the post
-        $trid = apply_filters('wpml_element_trid', null, $post_id, 'post_' . $post->post_type);
-        $language_args = [
-            'element_id' => $post_id,
-            'element_type' => 'post_' . $post->post_type,
-            'trid' => $trid,
-            'language_code' => $source_lang,
-            'source_language_code' => null,
-        ];
+            // Update the language of the post
+            $trid = apply_filters('wpml_element_trid', null, $post_id, 'post_' . $post->post_type);
+            $language_args = [
+                'element_id' => $post_id,
+                'element_type' => 'post_' . $post->post_type,
+                'trid' => $trid,
+                'language_code' => $source_lang,
+                'source_language_code' => null,
+            ];
 
-        do_action('wpml_set_element_language_details', $language_args);
+            do_action('wpml_set_element_language_details', $language_args);
+        }
     },
     10,
     4
@@ -1386,13 +1396,24 @@ add_action(
 
 /**
  * Make the Edit Organisation form support editing as well as creating new organisations.
- * Check the submitting user is an auther for that org, then delete the new post ($post parameter)
+ * Check the submitting user is an author for that org, then delete the new post ($post parameter)
  * and return the Organisation post.
  */
 add_filter('gform_advancedpostcreation_post', function ($post, $feed, $entry, $form) {
-    // Make post content block friendly
-    $post['post_content'] = "<!-- wp:paragraph -->" . $post['post_content'] . "\n" . "<!-- /wp:paragraph -->";
+    if ($post['post_type'] === 'awasqa_organisation') {
+        // Make post content block friendly
+        $post_content_lines = explode('<br />', $post['post_content']);
+        $post_content = '';
+        foreach ($post_content_lines as $line) {
+            $line = trim($line);
+            if ($line) {
+                $post_content .=  "<!-- wp:paragraph -->" . $line . "\n" . "<!-- /wp:paragraph -->";
+            }
+        }
+        $post['post_content'] = $post_content;
+    }
 
+    // Update existing organisation if ?org_id= is included
     $org_id = $_GET['org_id'] ?? null;
     if (!$org_id) {
         return $post;
@@ -1419,24 +1440,35 @@ add_filter('gform_advancedpostcreation_post', function ($post, $feed, $entry, $f
     return $post;
 }, 10, 4);
 
-function organisation_published($post)
+function post_published($post)
 {
-    if ($post->post_type !== 'awasqa_organisation') {
-        return;
-    }
-    $author_id = $post->post_author;
-    $author = get_userdata($author_id);
-    $href = get_permalink($post);
-    $link = '<a href"' . $href . '">' . $href . '</a>';
+    if ($post->post_type === 'awasqa_organisation') {
+        $author_id = $post->post_author;
+        $author = get_userdata($author_id);
+        $href = get_permalink($post);
+        $link = '<a href"' . $href . '">' . $href . '</a>';
 
-    wp_mail(
-        $author->user_email,
-        __('Your organisation', 'awasqa') . ' ' . $post->post_title . ' ' . __('has been approved.', 'awasqa'),
-        __('Thank you for registering on Awasqa. View the organisation here: ') . $link,
-        headers: ['From: ' => get_admin_email_from_address()]
-    );
+        wp_mail(
+            $author->user_email,
+            __('Your organisation', 'awasqa') . ' ' . $post->post_title . ' ' . __('has been approved.', 'awasqa'),
+            __('Thank you for registering on Awasqa. View the organisation here: ') . $link,
+            headers: ['From: ' => get_admin_email_from_address()]
+        );
+    } elseif ($post->post_type === 'post') {
+        $author_id = $post->post_author;
+        $author = get_userdata($author_id);
+        $href = get_permalink($post);
+        $link = '<a href"' . $href . '">' . $href . '</a>';
+
+        wp_mail(
+            $author->user_email,
+            __('Your article', 'awasqa') . ' ' . $post->post_title . ' ' . __('has been approved.', 'awasqa'),
+            __('View the article here: ') . $link,
+            headers: ['From: ' => get_admin_email_from_address()]
+        );
+    }
 }
 
-add_action('draft_to_publish', 'CommonKnowledge\WordPress\Awasqa\organisation_published', 10, 1);
-add_action('future_to_publish', 'CommonKnowledge\WordPress\Awasqa\organisation_published', 10, 1);
-add_action('private_to_publish', 'CommonKnowledge\WordPress\Awasqa\organisation_published', 10, 1);
+add_action('draft_to_publish', 'CommonKnowledge\WordPress\Awasqa\post_published', 10, 1);
+add_action('future_to_publish', 'CommonKnowledge\WordPress\Awasqa\post_published', 10, 1);
+add_action('private_to_publish', 'CommonKnowledge\WordPress\Awasqa\post_published', 10, 1);
