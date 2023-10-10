@@ -438,7 +438,7 @@ add_action('carbon_fields_register_fields', function () {
 
             function get_link($country, $is_filter)
             {
-                $link = get_term_link($country->name, 'awasqa_country');
+                $link = get_term_link($country->slug, 'awasqa_country');
                 if (!$is_filter) {
                     return [
                         'href' => $link,
@@ -469,6 +469,13 @@ add_action('carbon_fields_register_fields', function () {
                 }
 
                 $href = $current_url['path'] . $query;
+
+                $issue_param = get_translated_taxonomy_slug('category', $locale, 'category');
+                $issue = $_GET[$issue_param] ?? null;
+                if ($issue) {
+                    $href = add_query_arg($issue_param, $issue, $href);
+                }
+
                 return [
                     'href' => $href,
                     'class' => $active ? 'active' : ''
@@ -824,6 +831,50 @@ add_filter('render_block', function ($block_content, $block) {
     }
     return $block_content;
 }, 10, 2);
+
+add_filter('term_link', function ($termlink, $term_id, $taxonomy) {
+    // Categories are already handled by the "category_link" filter
+    $taxonomy_name = get_taxonomy_name_from_slug($taxonomy);
+    if ($taxonomy_name === 'category') {
+        return $termlink;
+    }
+    $term = get_term($term_id, $taxonomy);
+    $lang = get_current_language('en');
+    $articles_page = get_translated_page_by_slug("articles", $lang);
+    $taxonomy_param = get_translated_taxonomy_slug($taxonomy, $lang, $taxonomy);
+    $link = get_permalink($articles_page);
+    $link = add_query_arg($taxonomy_param, $term->slug, $link);
+    return $link;
+}, 10, 3);
+
+add_filter("category_link", function ($termlink, $term_id) {
+    $category = get_category($term_id);
+    $lang = get_current_language('en');
+    $articles_page = get_translated_page_by_slug("articles", $lang);
+    $issue_param = get_translated_taxonomy_slug('category', $lang, 'category');
+    $country_param = get_translated_taxonomy_slug('awasqa_country', $lang, 'country');
+    $country = $_GET[$country_param] ?? null;
+    $link = get_permalink($articles_page);
+    $link = add_query_arg($issue_param, urlencode($category->slug), $link);
+    if ($country) {
+        $link = add_query_arg($country_param, $country, $link);
+    }
+    return $link;
+}, 10, 2);
+
+// Add active class to category link if appropriate
+add_filter('category_list_link_attributes', function ($atts, $category, $depth, $args, $current_object_id) {
+    $lang = get_current_language('en');
+    $issue_param = get_translated_taxonomy_slug('category', $lang, 'category');
+    $issue = $_GET[$issue_param] ?? null;
+    if ($issue === $category->slug) {
+        $classes = explode(' ', $atts['class'] ?? '');
+        $classes[] = 'active';
+        $atts['class'] = implode(' ', $classes);
+        $atts['href'] = remove_query_arg($issue_param, $atts['href']);
+    }
+    return $atts;
+}, 10, 5);
 
 add_filter("query_loop_block_query_vars", function ($query) {
     global $post;
@@ -1240,7 +1291,7 @@ add_filter('gform_pre_render_3', function ($form) {
     }
     $org = get_post($org_id);
     $form['fields'][0]['defaultValue'] = $org->post_title;
-    $form['fields'][1]['defaultValue'] = apply_filters('the_content', $org->post_content);
+    $form['fields'][1]['defaultValue'] = strip_tags(html_entity_decode($org->post_content));
     $form['fields'][2]['defaultValue'] = awasqa_carbon_get_post_meta($org_id, 'email');
     $form['fields'][3]['defaultValue'] = awasqa_carbon_get_post_meta($org_id, 'facebook');
     $form['fields'][4]['defaultValue'] = awasqa_carbon_get_post_meta($org_id, 'twitter');
@@ -1262,6 +1313,34 @@ add_filter('gform_pre_validation_3', function ($form) {
     $form['fields'][0]['noDuplicates'] = false;
     return $form;
 });
+
+function populate_form_issues($form)
+{
+    foreach ($form['fields'] as &$field) {
+        if ($field->type !== 'select' || !str_contains($field->cssClass, 'awasqa-form-issues')) {
+            continue;
+        }
+
+        $categories = get_categories(['hide_empty' => false]);
+
+        $choices = array();
+
+        // Have to filter by language because the WPML query filters are not active
+        // when the Gravity Forms filters run (seemingly)
+        foreach ($categories as $category) {
+            $choices[] = array('text' => $category->name, 'value' => $category->name);
+        }
+
+        $field->choices = $choices;
+    }
+
+    return $form;
+}
+
+add_filter('gform_pre_render_5', 'CommonKnowledge\WordPress\Awasqa\populate_form_issues');
+add_filter('gform_pre_validation_5', 'CommonKnowledge\WordPress\Awasqa\populate_form_issues');
+add_filter('gform_pre_submission_filter_5', 'CommonKnowledge\WordPress\Awasqa\populate_form_issues');
+add_filter('gform_admin_pre_render_5', 'CommonKnowledge\WordPress\Awasqa\populate_form_issues');
 
 add_action('gform_activate_user', function ($user_id, $user_data, $user_meta) {
     $org_id = get_user_meta($user_id, 'awasqa_user_organisation', single: true);
@@ -1370,6 +1449,17 @@ add_action(
 
         if ($post->post_type === "post") {
             $source_post_id = $entry[4];
+            $pdfs = get_attached_media('application/pdf', $post->ID);
+            foreach ($pdfs as $pdf) {
+                $post->post_content .= (
+                    "<!-- wp:paragraph -->" .
+                    "[pdfjs-viewer url=" . wp_get_attachment_url($pdf->ID) . " " .
+                    "viewer_width=600px viewer_height=700px fullscreen=true download=true print=true]" .
+                    "\n" .
+                    "<!-- /wp:paragraph -->"
+                );
+            }
+            wp_update_post($post);
         }
 
         // ID of the post that had the form on it - used to determine lang of new post

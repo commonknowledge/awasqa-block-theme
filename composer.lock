@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "6c709a879e228f8ade02f1af00b6746f",
+    "content-hash": "39944ed5c2dbf9335a2073f5841e3800",
     "packages": [
         {
             "name": "composer/installers",
@@ -1349,6 +1349,24 @@
             },
             "type": "wordpress-plugin",
             "homepage": "https://wordpress.org/plugins/co-authors-plus/"
+        },
+        {
+            "name": "wpackagist-plugin/pdfjs-viewer-shortcode",
+            "version": "2.1.8",
+            "source": {
+                "type": "svn",
+                "url": "https://plugins.svn.wordpress.org/pdfjs-viewer-shortcode/",
+                "reference": "tags/2.1.8"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://downloads.wordpress.org/plugin/pdfjs-viewer-shortcode.2.1.8.zip"
+            },
+            "require": {
+                "composer/installers": "^1.0 || ^2.0"
+            },
+            "type": "wordpress-plugin",
+            "homepage": "https://wordpress.org/plugins/pdfjs-viewer-shortcode/"
         },
         {
             "name": "wpackagist-plugin/safe-svg",
