@@ -748,6 +748,33 @@ add_action('carbon_fields_register_fields', function () {
         </div>
             <?php
         });
+
+    Block::make('User Activation Success')
+        ->set_icon('yes')
+        ->add_fields(array(
+            Field::make('separator', 'crb_separator', __('User Activation Success', 'awasqa'))
+        ))
+        ->set_render_callback(function ($fields, $attributes, $inner_blocks) {
+            $action = $_GET['action'] ?? null;
+            $user = $_GET['user'] ?? null;
+            $org = $_GET['org'] ?? null;
+            if (!$action) {
+                return;
+            }
+            ?>
+            <div class="awasqa-user-activation-success">
+                <?php if ($action === "activated") : ?>
+                    <p>User <?= $user ?> has been activated. We have sent them an email to let them know.</p>
+                <?php endif; ?>
+                <?php if ($action === "approved") : ?>
+                    <p>
+                        User <?= $user ?> has been approved as a member of the organisation <?= $org ?>.
+                        We have sent them an email to let them know.
+                    </p>
+                <?php endif; ?>
+            </div>
+            <?php
+        });
 });
 
 add_action('after_setup_theme', function () {
@@ -1065,8 +1092,9 @@ add_action('template_redirect', function () {
         if ($org && $user_id_to_add) {
             add_user_to_organisation($org_id, $user_id_to_add);
             notify_user_joined_org($user_id_to_add, $org);
-            $org_link = get_permalink($org_id);
-            wp_redirect($org_link);
+            $user_data = get_user_by('ID', $user_id_to_add);
+            $org_title = urlencode(get_the_title($org));
+            wp_redirect('/success/?action=approved&user=' . $user_data->user_login . '&org=' . $org_title);
             exit();
         }
         wp_redirect(home_url());
@@ -1246,6 +1274,8 @@ add_action('gform_activate_user', function ($user_id, $user_data, $user_meta) {
         'description' => $bio
     );
     wp_update_user($userdata);
+    wp_redirect('/success/?action=activated&user=' . $user_data['user_login']);
+    exit();
 }, 10, 3);
 
 add_filter('gform_custom_merge_tags', function ($merge_tags, $form_id, $fields, $element_id) {
