@@ -250,7 +250,7 @@ function notify_user_joined_org($user_id, $org)
     $href = get_permalink($account);
     $link = '<a href"' . $href . '">' . $href . '</a>';
     $from = get_admin_email_from_address();
-    
+
     wp_mail(
         $user->user_email,
         __('Your request to join', 'awasqa') . ' ' . $org->post_title . ' ' . __('has been approved.', 'awasqa'),
@@ -769,17 +769,17 @@ add_action('carbon_fields_register_fields', function () {
                 return;
             }
             ?>
-            <div class="awasqa-user-activation-success">
-                <?php if ($action === "activated") : ?>
-                    <p>User <?= $user ?> has been activated. We have sent them an email to let them know.</p>
-                <?php endif; ?>
-                <?php if ($action === "approved") : ?>
-                    <p>
-                        User <?= $user ?> has been approved as a member of the organisation <?= $org ?>.
-                        We have sent them an email to let them know.
-                    </p>
-                <?php endif; ?>
-            </div>
+        <div class="awasqa-user-activation-success">
+            <?php if ($action === "activated") : ?>
+                <p>User <?= $user ?> has been activated. We have sent them an email to let them know.</p>
+            <?php endif; ?>
+            <?php if ($action === "approved") : ?>
+                <p>
+                    User <?= $user ?> has been approved as a member of the organisation <?= $org ?>.
+                    We have sent them an email to let them know.
+                </p>
+            <?php endif; ?>
+        </div>
             <?php
         });
 });
@@ -795,7 +795,6 @@ add_action('after_setup_theme', function () {
 // bbpress is not compatible with block themes. It tries to find
 // the old-style PHP templates (single.php, archive.php, etc), and fails.
 // This filter makes bbpress use the default "Single Page" block template.
-// It may be worth creating a specific template for bbpress pages and using that here.
 add_filter('bbp_template_include_theme_compat', function ($template) {
     if (!$template) {
         return get_query_template('wp-custom-template-forums');
@@ -875,6 +874,19 @@ add_filter('category_list_link_attributes', function ($atts, $category, $depth, 
     }
     return $atts;
 }, 10, 5);
+
+// Fix forums URL in language switcher
+add_filter('post_type_archive_link', function ($link, $post_type) {
+    global $sitepress;
+    $lang = $sitepress->get_this_lang();
+    if ($lang !== 'en' && $post_type === 'forum') {
+        $translated = get_translated_page_by_slug('forums', $lang);
+        if ($translated) {
+            return get_permalink($translated);
+        }
+    }
+    return $link;
+}, 10, 2);
 
 add_filter("query_loop_block_query_vars", function ($query) {
     global $post;
@@ -1451,8 +1463,7 @@ add_action(
             $source_post_id = $entry[4];
             $pdfs = get_attached_media('application/pdf', $post->ID);
             foreach ($pdfs as $pdf) {
-                $post->post_content .= (
-                    "<!-- wp:paragraph -->" .
+                $post->post_content .= ("<!-- wp:paragraph -->" .
                     "[pdfjs-viewer url=" . wp_get_attachment_url($pdf->ID) . " " .
                     "viewer_width=600px viewer_height=700px fullscreen=true download=true print=true]" .
                     "\n" .
