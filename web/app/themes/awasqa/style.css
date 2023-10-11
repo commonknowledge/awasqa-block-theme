@@ -9,6 +9,22 @@
     --font-family-sans-serif: 'Aktiv Grotesk', sans-serif;
     --font-size-large: 2.75rem;
 }
+.page-about-contents ul {
+        list-style: none;
+        padding-left: 0.25rem;
+    }
+.page-about-contents a {
+        text-decoration: none;
+    }
+.page-about-contents a:hover,.page-about-contents a:focus {
+            text-decoration: underline;
+        }
+.page-about-contents a.active {
+        text-decoration: underline;
+    }
+.page-about-contents a.active:hover,.page-about-contents a.active:focus {
+            text-decoration: none;
+        }
 strong {
     font-family: var(--font-family-sans-serif);
 }
@@ -117,6 +133,25 @@ h6::after {
         content: "";
         border-top: 1px solid var(--color-orange);
         flex-grow: 1;
+    }
+.page-join-us-steps ol {
+        counter-reset: li;
+        list-style: none;
+    }
+.page-join-us-steps ol>li {
+        font-weight: bold;
+        margin-bottom: 2rem;
+    }
+.page-join-us-steps ol>li:before {
+            background-color: var(--color-orange);
+            content: counter(li);
+            counter-increment: li;
+            margin-right: 1rem;
+            padding: 0.66rem 1rem;
+        }
+.page-join-us-steps ul {
+        font-weight: normal;
+        padding-left: 5rem;
     }
 .awasqa-link-arrow {
   align-items: center;

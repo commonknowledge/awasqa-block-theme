@@ -70,5 +70,42 @@ document.querySelectorAll('.awasqa-edit-organisation-action').forEach(button => 
     })
 })
 
+// Add About Contents
+const about = document.querySelector('.page-about')
+if (about) {
+    const headings = about.querySelectorAll('h1,h2,h3,h4,h5,h6')
+    const contents = about.querySelector('.page-about-contents')
+    const contentsList = document.createElement('ul')
+    contents.appendChild(contentsList)
+    headings.forEach((heading) => {
+        // When this code runs, the document is hidden, so heading.innerText is empty
+        // Create a dummy <span> to convert the heading HTML to text
+        const span = document.createElement('span')
+        span.innerHTML = heading.innerHTML
+        const title = span.innerText
+
+        const slug = title.replace(/[^a-z]/gi, '').toLowerCase()
+        heading.setAttribute('id', slug)
+        const link = document.createElement('a')
+        link.setAttribute('href', `#${slug}`)
+        link.innerText = title
+        const listItem = document.createElement('li')
+        listItem.appendChild(link)
+        contentsList.appendChild(listItem)
+    })
+
+    // Add "active" class to links when they are clicked
+    const links = contentsList.querySelectorAll('a')
+    links.forEach(link => {
+        link.addEventListener('click', () => {
+            links.forEach(link => link.classList.remove('active'))
+            link.classList.add('active')
+        })
+        if (link.getAttribute('href') === location.hash) {
+            link.classList.add('active')
+        }
+    })
+}
+
 // Display content (hidden by pre-script.js)
 document.body.style.visibility = "visible"
