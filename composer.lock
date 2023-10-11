@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "39944ed5c2dbf9335a2073f5841e3800",
+    "content-hash": "78d35985af9843233115771567b37f23",
     "packages": [
         {
             "name": "composer/installers",
@@ -1349,6 +1349,24 @@
             },
             "type": "wordpress-plugin",
             "homepage": "https://wordpress.org/plugins/co-authors-plus/"
+        },
+        {
+            "name": "wpackagist-plugin/disable-full-site-editing",
+            "version": "1.2.0",
+            "source": {
+                "type": "svn",
+                "url": "https://plugins.svn.wordpress.org/disable-full-site-editing/",
+                "reference": "tags/1.2.0"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://downloads.wordpress.org/plugin/disable-full-site-editing.1.2.0.zip"
+            },
+            "require": {
+                "composer/installers": "^1.0 || ^2.0"
+            },
+            "type": "wordpress-plugin",
+            "homepage": "https://wordpress.org/plugins/disable-full-site-editing/"
         },
         {
             "name": "wpackagist-plugin/pdfjs-viewer-shortcode",
