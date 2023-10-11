@@ -1,0 +1,22 @@
+.page-about-contents {
+    ul {
+        list-style: none;
+        padding-left: 0.25rem;
+    }
+
+    a {
+        text-decoration: none;
+
+        &:hover,&:focus {
+            text-decoration: underline;
+        }
+    }
+
+    a.active {
+        text-decoration: underline;
+
+        &:hover,&:focus {
+            text-decoration: none;
+        }
+    }
+}

@@ -1,0 +1,22 @@
+.page-join-us-steps {
+    ol {
+        counter-reset: li;
+        list-style: none;
+    }
+    ol>li {
+        font-weight: bold;
+        margin-bottom: 2rem;
+
+        &:before {
+            background-color: var(--color-orange);
+            content: counter(li);
+            counter-increment: li;
+            margin-right: 1rem;
+            padding: 0.66rem 1rem;
+        }
+    }
+    ul {
+        font-weight: normal;
+        padding-left: 5rem;
+    }
+}

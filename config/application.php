@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Your base production configuration goes in this file. Environment-specific
  * overrides go in their respective config/environments/{{WP_ENV}}.php file.
@@ -134,4 +135,9 @@ Config::apply();
  */
 if (!defined('ABSPATH')) {
     define('ABSPATH', $webroot_dir . '/wp/');
+}
+
+if (!defined('DISABLE_FSE')) {
+    // Disable FSE
+    define('DISABLE_FSE', true);
 }

@@ -9,13 +9,53 @@
     --font-family-sans-serif: 'Aktiv Grotesk', sans-serif;
     --font-size-large: 2.75rem;
 }
+.page-about-contents ul {
+        list-style: none;
+        padding-left: 0.25rem;
+    }
+.page-about-contents a {
+        text-decoration: none;
+    }
+.page-about-contents a:hover,.page-about-contents a:focus {
+            text-decoration: underline;
+        }
+.page-about-contents a.active {
+        text-decoration: underline;
+    }
+.page-about-contents a.active:hover,.page-about-contents a.active:focus {
+            text-decoration: none;
+        }
 strong {
     font-family: var(--font-family-sans-serif);
 }
-.button-default {
-  background-color: var(--color-green-lightest);
+.bbp-remember-me {
+    margin-bottom: 0.625rem;
+}
+.bbp-remember-me label {
+        width: auto;
+    }
+.bbp-submit-wrapper button {
+  background-color: var(--color-orange);
+  border: none;
   border-radius: 0.25rem;
   color: var(--color-green);
+  cursor: pointer;
+  display: inline-block;
+  font-size: 0.875rem;
+  font-weight: bold;
+  padding: 0.5rem 1rem;
+  text-decoration: none;
+  text-transform: uppercase;
+}
+.bbp-submit-wrapper button:focus, .bbp-submit-wrapper button:hover {
+  background-color: var(--color-green-lightest);
+        }
+.button-default {
+  background-color: var(--color-green-lightest);
+  border: none;
+  border-radius: 0.25rem;
+  color: var(--color-green);
+  cursor: pointer;
   display: inline-block;
   font-size: 0.875rem;
   font-weight: bold;
@@ -28,8 +68,10 @@ strong {
         }
 .button-outline {
   background-color: var(--color-green-lightest);
+  border: none;
   border-radius: 0.25rem;
   color: var(--color-green);
+  cursor: pointer;
   display: inline-block;
   font-size: 0.875rem;
   font-weight: bold;
@@ -40,20 +82,34 @@ strong {
 .button-outline:focus, .button-outline:hover {
   background-color: var(--color-orange);
         }
+.gform_button.button {
+  background-color: var(--color-orange);
+  border: none;
+  border-radius: 0.25rem;
+  color: var(--color-green);
+  cursor: pointer;
+  display: inline-block;
+  font-size: 0.875rem;
+  font-weight: bold;
+  padding: 0.5rem 1rem;
+  text-decoration: none;
+  text-transform: uppercase;
+}
+.gform_button.button:focus, .gform_button.button:hover {
+  background-color: var(--color-green-lightest);
+        }
+.gform_submission_error {
+    font-family: var(--font-family-sans-serif);
+}
 header {
-    height: 6rem;
+    min-height: 6rem;
     position: relative;
     z-index: 1;
 }
-header nav:first-of-type {
-        margin: 0 0.5rem 0 auto;
-    }
-header nav:last-of-type {
-        border-left: 1px solid var(--color-green-lightest);
-        padding: 0.5rem 0 0.5rem 2.5rem;
-    }
 header .nav-language-switcher {
+        border-right: 1px solid var(--color-green-lightest);
         margin-right: auto;
+        padding-right: 1.5rem;
     }
 /* Improve contrast on single post page */
 .single-post header a {
@@ -78,6 +134,25 @@ h6::after {
         border-top: 1px solid var(--color-orange);
         flex-grow: 1;
     }
+.page-join-us-steps ol {
+        counter-reset: li;
+        list-style: none;
+    }
+.page-join-us-steps ol>li {
+        font-weight: bold;
+        margin-bottom: 2rem;
+    }
+.page-join-us-steps ol>li:before {
+            background-color: var(--color-orange);
+            content: counter(li);
+            counter-increment: li;
+            margin-right: 1rem;
+            padding: 0.66rem 1rem;
+        }
+.page-join-us-steps ul {
+        font-weight: normal;
+        padding-left: 5rem;
+    }
 .awasqa-link-arrow {
   align-items: center;
   color: var(--color-green-lighter);
@@ -100,6 +175,19 @@ h6::after {
 .wp-site-blocks header + * {
         margin-top: 1.25rem;
     }
+.wp-block-button.is-style-outline a,.wp-block-button.is-style-outline button {
+  background: none;
+  border: 1px solid var(--color-green) !important;
+  border-radius: 0.25rem;
+  color: var(--color-green);
+  display: inline-block;
+  font-size: 0.875rem;
+  padding: 0.5rem 1rem;
+  text-decoration: none;
+    }
+.wp-block-button.is-style-outline a:focus, .wp-block-button.is-style-outline a:hover, .wp-block-button.is-style-outline button:focus, .wp-block-button.is-style-outline button:hover {
+  background-color: var(--color-green-lightest) !important;
+        }
 .wp-block-categories {
     display: flex;
     flex-wrap: wrap;
@@ -110,8 +198,10 @@ h6::after {
 }
 .wp-block-categories a {
   background-color: var(--color-green-lightest);
+  border: none;
   border-radius: 0.25rem;
   color: var(--color-green);
+  cursor: pointer;
   display: inline-block;
   font-size: 0.875rem;
   font-weight: bold;
@@ -124,8 +214,10 @@ h6::after {
         }
 .wp-block-categories a.active {
   background-color: var(--color-orange);
+  border: none;
   border-radius: 0.25rem;
   color: var(--color-green);
+  cursor: pointer;
   display: inline-block;
   font-size: 0.875rem;
   font-weight: bold;
@@ -145,6 +237,67 @@ h6::after {
 .wp-block-post-excerpt__more-text {
     margin-top: 0.875rem;
 }
+.wp-block-post-title::before {
+        background-size: cover;
+        height: 50px;
+        width: 50px;
+    }
+.awasqa-edit-organisation-action ul {
+    margin: 0;
+}
+.awasqa-edit-organisation-action li {
+    margin-top: 1rem;;
+}
+.awasqa-account-details-form {
+    display: flex;
+    flex-direction: column;
+}
+.awasqa-account-details-form button {
+  background: none;
+  border: 1px solid var(--color-green) !important;
+  border-radius: 0.25rem;
+  color: var(--color-green);
+  display: inline-block;
+  font-size: 0.875rem;
+  padding: 0.5rem 1rem;
+  text-decoration: none;
+    }
+.awasqa-account-details-form button:focus, .awasqa-account-details-form button:hover {
+  background-color: var(--color-green-lightest) !important;
+        }
+.awasqa-account-details-form button {
+        margin-right: auto;
+}
+.awasqa-account-details-form__row {
+    align-items: center;
+    background: var(--color-green-lightest);
+    border-radius: 0.625rem;
+    display: flex;
+    margin-bottom: 1.875rem;
+    padding: 1.25rem;
+}
+.awasqa-account-details-form__row label {
+        margin-right: 0.25rem;
+        width: 100px;
+    }
+.awasqa-account-details-form__row img {
+        border-radius: 100%;
+        height: 150px;
+        margin-right: 0.25rem;
+        -o-object-fit: cover;
+           object-fit: cover;
+        width: 150px;
+    }
+.awasqa-account-details-form__row input,.awasqa-account-details-form__row textarea {
+        font-family: var(--font-family-sans-serif);
+        font-size: 1rem;
+        line-height: 1.2;
+        padding: 0.5rem;
+    }
+.awasqa-account-details-form__row textarea {
+        flex-grow: 1;
+        height: 150px;
+    }
 .awasqa-author-column p {
         margin: 0 0 0.875rem 0;
     }
@@ -247,8 +400,10 @@ footer .wp-block-image img {
         }
 .awasqa-issue-link {
   background-color: var(--color-green-lightest);
+  border: none;
   border-radius: 0.25rem;
   color: var(--color-green);
+  cursor: pointer;
   display: inline-block;
   font-size: 0.875rem;
   font-weight: bold;
@@ -271,7 +426,8 @@ footer .wp-block-image img {
     text-transform: none;
 }
 .awasqa-join-us a {
-  border: 1px solid var(--color-green);
+  background: none;
+  border: 1px solid var(--color-green) !important;
   border-radius: 0.25rem;
   color: var(--color-green);
   display: inline-block;
@@ -280,7 +436,7 @@ footer .wp-block-image img {
   text-decoration: none;
     }
 .awasqa-join-us a:focus, .awasqa-join-us a:hover {
-  background-color: var(--color-green-lightest);
+  background-color: var(--color-green-lightest) !important;
         }
 .awasqa-join-us p {
         margin-top: 0.625rem;
@@ -448,7 +604,8 @@ footer .wp-block-image img {
             width: 100%;
         }
 .awasqa-radical-resilience a:first-child {
-  border: 1px solid var(--color-green);
+  background: none;
+  border: 1px solid var(--color-green) !important;
   border-radius: 0.25rem;
   color: var(--color-green);
   display: inline-block;
@@ -457,7 +614,7 @@ footer .wp-block-image img {
   text-decoration: none;
     }
 .awasqa-radical-resilience a:first-child:focus, .awasqa-radical-resilience a:first-child:hover {
-  background-color: var(--color-green-lightest);
+  background-color: var(--color-green-lightest) !important;
         }
 .awasqa-radical-resilience a:first-child {
         margin-right: 1.25rem;
