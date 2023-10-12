@@ -1,14 +1,20 @@
-.single-post {
+.single-post,
+.single-awasqa_event {
     .awasqa-post-heading {
         margin-top: -6rem;
         padding: 0;
 
         a {
-            color: white;
+            color: var(--color-yellow) !important;
         }
     }
+
     .wp-block-navigation-item__label {
-        color: white;
+        color: var(--color-yellow) !important;
+    }
+
+    .wp-block-loginout {
+        color: var(--color-yellow) !important;
     }
 }
 
@@ -31,6 +37,7 @@
         img {
             border-radius: 0;
             height: 100%;
+            max-height: 600px;
             object-fit: cover;
         }
     }
@@ -45,6 +52,6 @@
 /* No margin on block after post heading 
    to prevent gap between heading background
    and content background */
-.awasqa-post-heading + * {
+.awasqa-post-heading+* {
     margin-top: 0;
 }

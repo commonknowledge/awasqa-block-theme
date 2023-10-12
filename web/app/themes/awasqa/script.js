@@ -107,5 +107,31 @@ if (about) {
     })
 }
 
+const eventForm = document.querySelector('[action="/submit-event/"]')
+if (eventForm) {
+    const dateField = eventForm.querySelector('.datepicker')
+    const hourField = eventForm.querySelector('.gfield_time_hour input')
+    const minuteField = eventForm.querySelector('.gfield_time_minute input')
+    const hiddenField = eventForm.querySelector('#input_7_11')
+
+    const updateUTCTime = () => {
+        const localTime = new Date()
+        const dateStr = dateField.value
+        if (dateStr) {
+            const [year, month, day] = dateStr.split('-')
+            localTime.setFullYear(year, Number(month) - 1, day)
+            localTime.setHours(hourField.value)
+            localTime.setMinutes(minuteField.value)
+            hiddenField.setAttribute("value", localTime.toISOString())
+        } else {
+            hiddenField.setAttribute("value", "")
+        }
+    }
+
+    dateField.addEventListener('blur', updateUTCTime)
+    hourField.addEventListener('change', updateUTCTime)
+    minuteField.addEventListener('change', updateUTCTime)
+}
+
 // Display content (hidden by pre-script.js)
 document.body.style.visibility = "visible"

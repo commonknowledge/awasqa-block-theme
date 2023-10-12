@@ -9,12 +9,3 @@ header {
         padding-right: 1.5rem;
     }
 }
-
-/* Improve contrast on single post page */
-.single-post {
-    header {
-        a {
-            color: var(--color-yellow) !important;
-        }
-    }
-}
