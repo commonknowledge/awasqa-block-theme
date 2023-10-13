@@ -107,7 +107,7 @@ if (about) {
     })
 }
 
-const eventForm = document.querySelector('[action="/submit-event/"]')
+const eventForm = document.querySelector('#gform_7')
 if (eventForm) {
     const dateField = eventForm.querySelector('.datepicker')
     const hourField = eventForm.querySelector('.gfield_time_hour input')
