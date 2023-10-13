@@ -59,6 +59,6 @@ function post_published($post)
     }
 }
 
-add_action('draft_to_publish', 'CommonKnowledge\WordPress\Awasqa\post_published', 10, 1);
-add_action('future_to_publish', 'CommonKnowledge\WordPress\Awasqa\post_published', 10, 1);
-add_action('private_to_publish', 'CommonKnowledge\WordPress\Awasqa\post_published', 10, 1);
+add_action('draft_to_publish', 'CommonKnowledge\WordPress\Awasqa\Emails\post_published', 10, 1);
+add_action('future_to_publish', 'CommonKnowledge\WordPress\Awasqa\Emails\post_published', 10, 1);
+add_action('private_to_publish', 'CommonKnowledge\WordPress\Awasqa\Emails\post_published', 10, 1);
