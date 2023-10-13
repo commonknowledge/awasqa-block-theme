@@ -56,6 +56,18 @@ function post_published($post)
             __('View the article here: ') . $link,
             headers: ['From: ' => get_admin_email_from_address()]
         );
+    } elseif ($post->post_type === 'awasqa_event') {
+        $author_id = $post->post_author;
+        $author = get_userdata($author_id);
+        $href = get_permalink($post);
+        $link = '<a href"' . $href . '">' . $href . '</a>';
+
+        wp_mail(
+            $author->user_email,
+            __('Your event', 'awasqa') . ' ' . $post->post_title . ' ' . __('has been approved.', 'awasqa'),
+            __('View the event here: ') . $link,
+            headers: ['From: ' => get_admin_email_from_address()]
+        );
     }
 }
 
