@@ -582,7 +582,6 @@ footer .wp-block-image img {
 .awasqa-post-heading .wp-block-post-featured-image img {
             border-radius: 0;
             height: 100%;
-            max-height: 600px;
             -o-object-fit: cover;
                object-fit: cover;
         }

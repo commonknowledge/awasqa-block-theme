@@ -81,6 +81,7 @@ add_filter("query_loop_block_query_vars", function ($query) {
     // Display related posts on single post page
     if (($query['s'] ?? '') === ':related') {
         $query['s'] = '';
+        $query['post_type'] = ['post', 'awasqa_event'];
         $post_ids = [];
         $related_posts = Awasqa\CarbonFields\awasqa_carbon_get_post_meta($post->ID, 'related_posts') ?? [];
         foreach ($related_posts as $related_post) {
