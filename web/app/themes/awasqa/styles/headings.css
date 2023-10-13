@@ -1,21 +1,33 @@
-h6 {
-    align-items: center;
-    display: flex;
-    gap: 0.5rem;
-
-    &::before {
-        content: "";
+:root {
+    --star-header {
         align-items: center;
-        background-image: url("/app/themes/awasqa/assets/images/awasqa-symbol.svg");
-        background-position: center;
-        background-repeat: no-repeat;
-        height: 25px;
-        width: 25px;
-    }
+        display: flex;
+        gap: 0.5rem;
 
-    &::after {
-        content: "";
-        border-top: 1px solid var(--color-orange);
-        flex-grow: 1;
+        &::before {
+            content: "";
+            align-items: center;
+            background-image: url("/app/themes/awasqa/assets/images/awasqa-symbol.svg");
+            background-position: center;
+            background-repeat: no-repeat;
+            height: 25px;
+            width: 25px;
+        }
+
+        &::after {
+            content: "";
+            border-top: 1px solid var(--color-orange);
+            flex-grow: 1;
+        }
+    }
+}
+
+h6 {
+    @apply --star-header;
+}
+
+.bbp-user-profile {
+    h2 {
+        @apply --star-header;
     }
 }

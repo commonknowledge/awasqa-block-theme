@@ -112,24 +112,43 @@ header .nav-language-switcher {
         padding-right: 1.5rem;
     }
 h6 {
-    align-items: center;
-    display: flex;
-    gap: 0.5rem;
+  align-items: center;
+  display: flex;
+  gap: 0.5rem;
 }
 h6::before {
-        content: "";
-        align-items: center;
-        background-image: url("/app/themes/awasqa/assets/images/awasqa-symbol.svg");
-        background-position: center;
-        background-repeat: no-repeat;
-        height: 25px;
-        width: 25px;
-    }
+  content: "";
+  align-items: center;
+  background-image: url("/app/themes/awasqa/assets/images/awasqa-symbol.svg");
+  background-position: center;
+  background-repeat: no-repeat;
+  height: 25px;
+  width: 25px;
+        }
 h6::after {
-        content: "";
-        border-top: 1px solid var(--color-orange);
-        flex-grow: 1;
+  content: "";
+  border-top: 1px solid var(--color-orange);
+  flex-grow: 1;
+        }
+.bbp-user-profile h2 {
+  align-items: center;
+  display: flex;
+  gap: 0.5rem;
     }
+.bbp-user-profile h2::before {
+  content: "";
+  align-items: center;
+  background-image: url("/app/themes/awasqa/assets/images/awasqa-symbol.svg");
+  background-position: center;
+  background-repeat: no-repeat;
+  height: 25px;
+  width: 25px;
+        }
+.bbp-user-profile h2::after {
+  content: "";
+  border-top: 1px solid var(--color-orange);
+  flex-grow: 1;
+        }
 .page-join-us-steps ol {
         counter-reset: li;
         list-style: none;

@@ -56,13 +56,17 @@ add_action('carbon_fields_register_fields', function () {
         ));
 
     Container::make('post_meta', 'Related Posts')
-        ->where('post_type', '=', 'post')
+        ->where('post_type', 'IN', ['post', 'awasqa_event'])
         ->add_fields(array(
             Field::make('association', 'related_posts', 'Posts')
                 ->set_types([
                     [
                         'type'      => 'post',
                         'post_type' => 'post'
+                    ],
+                    [
+                        'type'      => 'post',
+                        'post_type' => 'awasqa_event'
                     ]
                 ])
         ));

@@ -105,3 +105,57 @@ add_filter('post_type_archive_link', function ($link, $post_type) {
     }
     return $link;
 }, 10, 2);
+
+// Fix the forums root url according to bbpress
+add_filter('bbp_get_forum_archive_title', function ($title) {
+    $lang = WPML\get_current_language();
+    if ($lang !== 'en') {
+        $translated = WPML\get_translated_page_by_slug('forums', $lang);
+        return get_the_title($translated);
+    }
+    return $title;
+});
+
+// Replace the gravatar avatar with the one uploaded by the user
+// Thanks to jbrandsma on the bbpress forums: https://bbpress.org/forums/topic/using-buddypress-avatar/#post-204887
+add_filter('get_avatar', function ($avatar, $id_or_email, $size, $default, $alt) {
+    if (is_numeric($id_or_email)) {
+        $id = (int) $id_or_email;
+        $user = get_user_by('id', $id);
+    } elseif (is_object($id_or_email)) {
+        if (!empty($id_or_email->user_id)) {
+            $id = (int) $id_or_email->user_id;
+            $user = get_user_by('id', $id);
+        }
+    } else {
+        $user = get_user_by('email', $id_or_email);
+    }
+    if ($user && is_object($user)) {
+        $image_id = get_user_meta($user->ID, 'awasqa_profile_pic_id', single: true);
+        $image_urls = $image_id ? wp_get_attachment_image_src($image_id) : null;
+        if (!$image_urls) {
+            return $avatar;
+        }
+        $src = $image_urls[0];
+        $valid_url = filter_var($src, FILTER_VALIDATE_URL);
+        if (!$valid_url) {
+            return $avatar;
+        }
+        $user_name = $user->display_name ?: $user->user_nicename;
+        // Replace src attribute
+        $avatar = preg_replace('#src=[^ ]*#', 'src="' . $src . '"', $avatar);
+        // Remove srcset attribute
+        $avatar = preg_replace('#srcset=[^ ]*#', '', $avatar);
+        // Set alt attribute
+        $avatar = preg_replace('#alt=[^ ]*#', 'alt="' . $user_name . '"', $avatar);
+    }
+    return $avatar;
+}, 10, 5);
+
+// Remove user website from user profile page (it's not a field we provide the user)
+add_filter('bbp_get_displayed_user_field', function ($value, $field, $filter) {
+    if ($field === 'user_url') {
+        return null;
+    }
+    return $value;
+}, 10, 3);

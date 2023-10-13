@@ -34,7 +34,7 @@ function get_translated_page_by_slug($slug, $lang)
         return null;
     }
 
-    $posts = get_posts(['name' => $slug, 'post_type' => 'page']);
+    $posts = get_posts(['name' => $slug, 'post_type' => 'page', 'numposts' => 1]);
     if (!$posts) {
         return null;
     }
@@ -43,6 +43,16 @@ function get_translated_page_by_slug($slug, $lang)
     $translated_page_id = apply_filters('wpml_object_id', $page_id, 'page', true, $lang);
     return get_post($translated_page_id);
 }
+
+// Fix weird SitePress bug where the query was being mangled
+// Clear SitePress state after it has parsed any query
+add_action("parse_query", function () {
+    global $wpml_query_filter;
+    $r = new \ReflectionObject($wpml_query_filter);
+    $p = $r->getProperty('name_filter');
+    $p->setAccessible(true);
+    $p->setValue($wpml_query_filter, []);
+}, 99, 0);
 
 /**
  * Add original slug to the possible templates, so translated pages
