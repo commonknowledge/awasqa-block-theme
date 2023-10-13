@@ -230,6 +230,12 @@ add_action('admin_init', function () {
     }
 });
 
+add_action('after_setup_theme', function () {
+    if (!current_user_can('administrator') && !is_admin()) {
+        show_admin_bar(false);
+    }
+});
+
 // Improve title on Author archives page
 add_filter('wpseo_title', function ($title) {
     if (is_author()) {
