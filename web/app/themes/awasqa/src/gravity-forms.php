@@ -200,6 +200,7 @@ add_filter('gform_replace_merge_tags', function ($text, $form, $entry, $url_enco
     }
 
     $organisation = get_post($entry[1]);
+    $orig_org_id = $organisation->ID;
 
     if (!$organisation) {
         return str_replace($custom_merge_tag, '[Error: organisation not found]', $text);
@@ -215,6 +216,7 @@ add_filter('gform_replace_merge_tags', function ($text, $form, $entry, $url_enco
 
     $href = home_url();
     $href = add_query_arg('org', $organisation_id, $href);
+    $href = add_query_arg('orig_org', $orig_org_id, $href);
     $href = add_query_arg('key', $key, $href);
 
     $link = '<a href="' . $href . '">' . __('click here', 'awasqa') . '</a>';

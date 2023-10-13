@@ -120,8 +120,9 @@ add_action('template_redirect', function () {
         $org = get_post($org_id);
         $user_id_to_add = get_post_meta($org_id, "awasqa_add_user_key:$key", true);
         if ($org && $user_id_to_add) {
+            $orig_org_id = $_GET['orig_org'] ?? $_GET['org'];
             Awasqa\CarbonFields\add_user_to_organisation($org_id, $user_id_to_add);
-            Awasqa\Emails\notify_user_joined_org($user_id_to_add, $org);
+            Awasqa\Emails\notify_user_joined_org($user_id_to_add, $orig_org_id);
             $user_data = get_user_by('ID', $user_id_to_add);
             $org_title = urlencode(get_the_title($org));
             wp_redirect('/success/?action=approved&user=' . $user_data->user_login . '&org=' . $org_title);
