@@ -138,7 +138,6 @@ function populate_form_countries($form)
         ]);
 
         $choices = array();
-        $choices[] = array('text' => __('Select country', 'awasqa'), 'value' => '');
 
         foreach ($countries as $country) {
             $choices[] = array('text' => $country->name, 'value' => $country->name);
