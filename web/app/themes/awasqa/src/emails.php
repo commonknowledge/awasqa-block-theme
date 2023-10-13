@@ -41,31 +41,31 @@ function post_published($post)
         wp_mail(
             $author->user_email,
             __('Your organisation', 'awasqa') . ' ' . $post->post_title . ' ' . __('has been approved.', 'awasqa'),
-            __('Thank you for registering on Awasqa. View the organisation here: ') . $link,
+            __('Thank you for registering on Awasqa. View the organisation here: ', 'awasqa') . $link,
             headers: ['From: ' => get_admin_email_from_address()]
         );
     } elseif ($post->post_type === 'post') {
         $author_id = $post->post_author;
         $author = get_userdata($author_id);
         $href = get_permalink($post);
-        $link = '<a href"' . $href . '">' . $href . '</a>';
+        $link = '<a href="' . $href . '">' . $href . '</a>';
 
         wp_mail(
             $author->user_email,
             __('Your article', 'awasqa') . ' ' . $post->post_title . ' ' . __('has been approved.', 'awasqa'),
-            __('View the article here: ') . $link,
+            __('View the article here: ', 'awasqa') . $link,
             headers: ['From: ' => get_admin_email_from_address()]
         );
     } elseif ($post->post_type === 'awasqa_event') {
         $author_id = $post->post_author;
         $author = get_userdata($author_id);
         $href = get_permalink($post);
-        $link = '<a href"' . $href . '">' . $href . '</a>';
+        $link = '<a href="' . $href . '">' . $href . '</a>';
 
         wp_mail(
             $author->user_email,
             __('Your event', 'awasqa') . ' ' . $post->post_title . ' ' . __('has been approved.', 'awasqa'),
-            __('View the event here: ') . $link,
+            __('View the event here: ', 'awasqa') . $link,
             headers: ['From: ' => get_admin_email_from_address()]
         );
     }
