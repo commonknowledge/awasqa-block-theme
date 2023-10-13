@@ -78,8 +78,8 @@ add_filter('gform_pre_render_3', function ($form) {
     $form['fields'][0]['defaultValue'] = $org->post_title;
     $form['fields'][1]['defaultValue'] = strip_tags(html_entity_decode($org->post_content));
     $form['fields'][2]['defaultValue'] = Awasqa\CarbonFields\awasqa_carbon_get_post_meta($org_id, 'email');
-    $form['fields'][3]['defaultValue'] = Awasqa\CarbonFields\awasqa_carbon_get_post_meta($org_id, 'facebook');
-    $form['fields'][4]['defaultValue'] = Awasqa\CarbonFields\awasqa_carbon_get_post_meta($org_id, 'twitter');
+    $form['fields'][4]['defaultValue'] = Awasqa\CarbonFields\awasqa_carbon_get_post_meta($org_id, 'facebook');
+    $form['fields'][5]['defaultValue'] = Awasqa\CarbonFields\awasqa_carbon_get_post_meta($org_id, 'twitter');
     return $form;
 });
 
