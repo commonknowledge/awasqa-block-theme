@@ -113,6 +113,7 @@ header .nav-language-switcher {
     }
 h6 {
   align-items: center;
+  color: var(--color-orange);
   display: flex;
   gap: 0.5rem;
 }
@@ -132,6 +133,7 @@ h6::after {
         }
 .bbp-user-profile h2 {
   align-items: center;
+  color: var(--color-orange);
   display: flex;
   gap: 0.5rem;
     }

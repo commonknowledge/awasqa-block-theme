@@ -166,6 +166,20 @@
 					],
 					"fontFamily": "Aktiv Grotesk Trial",
 					"slug": "aktiv-grotesk-trial"
+				},
+				{
+					"fontFamily": "Aktiv Grotesk Cd",
+					"slug": "aktiv-grotesk-cd",
+					"fontFace": [
+						{
+							"fontFamily": "Aktiv Grotesk Cd",
+							"fontWeight": "700",
+							"fontStyle": "normal",
+							"src": [
+								"file:./assets/fonts/aktiv-grotesk-cd_normal_700.otf"
+							]
+						}
+					]
 				}
 			],
 			"fontSizes": [

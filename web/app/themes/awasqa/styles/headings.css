@@ -1,6 +1,7 @@
 :root {
     --star-header {
         align-items: center;
+        color: var(--color-orange);
         display: flex;
         gap: 0.5rem;
 
