@@ -86,15 +86,16 @@ strong {
   border: 1px solid var(--color-green);
   background-color: var(--color-green);
   border-radius: 0.25rem;
-  color: var(--color-yellow);
+  color: var(--color-yellow) !important;
   display: inline-block;
   font-size: 0.875rem;
   padding: 0.5rem 1rem;
-  text-decoration: none;
+  text-decoration: none !important;
 }
 .button-inverse:focus, .button-inverse:hover {
   background-color: var(--color-green-lightest);
-  color: var(--color-green);
+  color: var(--color-green) !important;
+  text-decoration: none !important;
         }
 .gform_button.button {
   background-color: var(--color-orange);
@@ -657,15 +658,16 @@ footer .wp-block-image img {
   border: 1px solid var(--color-green);
   background-color: var(--color-green);
   border-radius: 0.25rem;
-  color: var(--color-yellow);
+  color: var(--color-yellow) !important;
   display: inline-block;
   font-size: 0.875rem;
   padding: 0.5rem 1rem;
-  text-decoration: none;
+  text-decoration: none !important;
     }
 .awasqa-radical-resilience a:last-child:focus, .awasqa-radical-resilience a:last-child:hover {
   background-color: var(--color-green-lightest);
-  color: var(--color-green);
+  color: var(--color-green) !important;
+  text-decoration: none !important;
         }
 .awasqa-related-posts {
     margin-bottom: var(--wp--preset--spacing--50);
