@@ -47,3 +47,8 @@
         width: 50px;
     }
 }
+
+.wp-block-loginout a {
+    @apply --button-inverse;
+    font-size: 1rem !important;
+}

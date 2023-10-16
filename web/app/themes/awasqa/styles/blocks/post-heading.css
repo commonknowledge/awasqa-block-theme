@@ -9,12 +9,27 @@
         }
     }
 
-    .wp-block-navigation-item__label {
+    .wp-block-site-title {
         color: var(--color-yellow) !important;
     }
 
-    .wp-block-loginout {
+    .wp-block-navigation-item__content {
         color: var(--color-yellow) !important;
+    }
+
+    .wp-block-loginout a {
+        @apply --button-outline;
+
+        &:focus,&:hover {
+            color: var(--color-yellow) !important;
+            text-decoration: underline !important;
+        }
+    }
+
+    header {
+        .nav-language-switcher {
+            border-right: 1px solid var(--color-yellow);
+        }
     }
 }
 

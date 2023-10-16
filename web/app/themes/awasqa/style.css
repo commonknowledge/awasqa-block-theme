@@ -274,6 +274,24 @@ h6::after {
         height: 50px;
         width: 50px;
     }
+.wp-block-loginout a {
+  border: 1px solid var(--color-green);
+  background-color: var(--color-green);
+  border-radius: 0.25rem;
+  color: var(--color-yellow) !important;
+  display: inline-block;
+  font-size: 0.875rem;
+  padding: 0.5rem 1rem;
+  text-decoration: none !important;
+}
+.wp-block-loginout a:focus, .wp-block-loginout a:hover {
+  background-color: var(--color-green-lightest);
+  color: var(--color-green) !important;
+  text-decoration: none !important;
+        }
+.wp-block-loginout a {
+    font-size: 1rem !important;
+}
 .awasqa-edit-organisation-action ul {
     margin: 0;
 }
@@ -576,12 +594,32 @@ footer .wp-block-image img {
 .single-post .awasqa-post-heading a, .single-awasqa_event .awasqa-post-heading a {
             color: var(--color-yellow) !important;
         }
-.single-post .wp-block-navigation-item__label, .single-awasqa_event .wp-block-navigation-item__label {
+.single-post .wp-block-site-title, .single-awasqa_event .wp-block-site-title {
         color: var(--color-yellow) !important;
     }
-.single-post .wp-block-loginout, .single-awasqa_event .wp-block-loginout {
+.single-post .wp-block-navigation-item__content, .single-awasqa_event .wp-block-navigation-item__content {
         color: var(--color-yellow) !important;
     }
+.single-post .wp-block-loginout a, .single-awasqa_event .wp-block-loginout a {
+  background: none;
+  border: 1px solid var(--color-green) !important;
+  border-radius: 0.25rem;
+  color: var(--color-green);
+  display: inline-block;
+  font-size: 0.875rem;
+  padding: 0.5rem 1rem;
+  text-decoration: none;
+    }
+.single-post .wp-block-loginout a:focus, .single-post .wp-block-loginout a:hover, .single-awasqa_event .wp-block-loginout a:focus, .single-awasqa_event .wp-block-loginout a:hover {
+  background-color: var(--color-green-lightest) !important;
+        }
+.single-post .wp-block-loginout a:focus,.single-post .wp-block-loginout a:hover,.single-awasqa_event .wp-block-loginout a:focus,.single-awasqa_event .wp-block-loginout a:hover {
+            color: var(--color-yellow) !important;
+            text-decoration: underline !important;
+        }
+.single-post header .nav-language-switcher, .single-awasqa_event header .nav-language-switcher {
+            border-right: 1px solid var(--color-yellow);
+        }
 .awasqa-post-heading .wp-block-post-featured-image {
         height: 100%;
         position: relative;
