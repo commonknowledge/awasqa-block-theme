@@ -82,6 +82,20 @@ strong {
 .button-outline:focus, .button-outline:hover {
   background-color: var(--color-orange);
         }
+.button-inverse {
+  border: 1px solid var(--color-green);
+  background-color: var(--color-green);
+  border-radius: 0.25rem;
+  color: var(--color-yellow);
+  display: inline-block;
+  font-size: 0.875rem;
+  padding: 0.5rem 1rem;
+  text-decoration: none;
+}
+.button-inverse:focus, .button-inverse:hover {
+  background-color: var(--color-green-lightest);
+  color: var(--color-green);
+        }
 .gform_button.button {
   background-color: var(--color-orange);
   border: none;
