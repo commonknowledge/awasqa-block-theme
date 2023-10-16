@@ -620,6 +620,15 @@ footer .wp-block-image img {
 .single-post header .nav-language-switcher, .single-awasqa_event header .nav-language-switcher {
             border-right: 1px solid var(--color-yellow);
         }
+.single-post .wp-block-navigation__responsive-container-open, .single-awasqa_event .wp-block-navigation__responsive-container-open {
+        color: var(--color-yellow) !important;
+    }
+.single-post .wp-block-navigation__responsive-container-content .wp-block-navigation-item__content, .single-awasqa_event .wp-block-navigation__responsive-container-content .wp-block-navigation-item__content {
+            color: var(--color-green) !important;
+        }
+.single-post .wp-block-navigation__responsive-container-content .wp-block-loginout a, .single-awasqa_event .wp-block-navigation__responsive-container-content .wp-block-loginout a {
+            color: var(--color-green) !important;
+        }
 .awasqa-post-heading .wp-block-post-featured-image {
         height: 100%;
         position: relative;
