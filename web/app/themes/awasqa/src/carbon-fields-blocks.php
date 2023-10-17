@@ -388,12 +388,21 @@ add_action('carbon_fields_register_fields', function () {
             ?>
         <div class="awasqa-user-activation-success">
             <?php if ($action === "activated") : ?>
-                <p>User <?= $user ?> has been activated. We have sent them an email to let them know.</p>
+                <p><?= sprintf(__("User %s has been activated. We have sent them an email to let them know.", "awasqa"), $user) ?></p>
             <?php endif; ?>
             <?php if ($action === "approved") : ?>
                 <p>
-                    User <?= $user ?> has been approved as a member of the organisation <?= $org ?>.
-                    We have sent them an email to let them know.
+                <?php
+                    echo sprintf(
+                        __(
+                            "User %s has been approved as a member of the organisation %s. " .
+                            "We have sent them an email to let them know.",
+                            "awasqa"
+                        ),
+                        $user,
+                        $org
+                    )
+                ?>
                 </p>
             <?php endif; ?>
         </div>
