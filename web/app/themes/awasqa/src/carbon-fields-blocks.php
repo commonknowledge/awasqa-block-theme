@@ -154,12 +154,21 @@ add_action('carbon_fields_register_fields', function () {
             if (!$authors) {
                 return;
             }
+            $organisations = [];
             $author_data = [];
             foreach ($authors as $author) {
                 $name = Awasqa\Authors\awasqa_get_author_name($author->ID);
                 $author_data[] = [
                     "link" => get_author_posts_url($author->ID),
                     "name" => $name
+                ];
+            }
+            $primary_author = $post->post_author;
+            $organisations = Awasqa\Authors\get_author_organisations($primary_author);
+            foreach ($organisations as $org) {
+                $author_data[] = [
+                    "link" => get_permalink($org),
+                    "name" => get_the_title($org)
                 ];
             }
             ?>
@@ -392,17 +401,17 @@ add_action('carbon_fields_register_fields', function () {
             <?php endif; ?>
             <?php if ($action === "approved") : ?>
                 <p>
-                <?php
+                    <?php
                     echo sprintf(
                         __(
                             "User %s has been approved as a member of the organisation %s. " .
-                            "We have sent them an email to let them know.",
+                                "We have sent them an email to let them know.",
                             "awasqa"
                         ),
                         $user,
                         $org
                     )
-                ?>
+                    ?>
                 </p>
             <?php endif; ?>
         </div>
