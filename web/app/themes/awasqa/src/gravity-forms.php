@@ -282,16 +282,28 @@ add_action(
 
         if ($post->post_type === "post") {
             $source_post_id = $entry[4];
-            $pdfs = get_attached_media('application/pdf', $post->ID);
-            foreach ($pdfs as $pdf) {
-                $post->post_content .= ("<!-- wp:paragraph -->" .
-                    "[pdfjs-viewer url=" . wp_get_attachment_url($pdf->ID) . " " .
-                    "viewer_width=600px viewer_height=700px fullscreen=true download=true print=true]" .
-                    "\n" .
-                    "<!-- /wp:paragraph -->"
+            $mp3s = get_attached_media('audio/mpeg', $post->ID);
+            foreach ($mp3s as $mp3) {
+                $src = wp_get_attachment_url($mp3->ID);
+                $post->post_content .= ('<!-- wp:heading -->' .
+                '<h2 class="wp-block-heading">' . __('Listen now:', 'awasqa') . '</h2>' .
+                '<!-- /wp:heading -->'
+                );
+
+                $post->post_content .= ('<!-- wp:audio {"id":' . $mp3->ID . '} -->' .
+                    '<figure class="wp-block-audio">' .
+                    '    <audio controls src="' . $src . '"></audio>' .
+                    '</figure>' .
+                    '<!-- /wp:audio -->'
                 );
             }
             wp_update_post($post);
+
+            $source_publication = $entry[11];
+            $source_url = $entry[12];
+
+            carbon_set_post_meta($post_id, 'source_publication', $source_publication);
+            carbon_set_post_meta($post_id, 'source_url', $source_url);
         }
 
         // ID of the post that had the form on it - used to determine lang of new post
