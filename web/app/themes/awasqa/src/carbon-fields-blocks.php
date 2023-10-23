@@ -6,6 +6,8 @@ use Carbon_Fields\Block;
 use Carbon_Fields\Field;
 use CommonKnowledge\WordPress\Awasqa;
 
+use function CommonKnowledge\WordPress\Awasqa\CarbonFields\awasqa_carbon_get_post_meta;
+
 add_action('carbon_fields_register_fields', function () {
     Block::make('Post Source')
         ->set_icon('search')
@@ -135,7 +137,7 @@ add_action('carbon_fields_register_fields', function () {
             $category_slug = $fields['category'];
             $category = get_category_by_slug($category_slug);
             ?>
-        <a class="awasqa-issue-link" href="/category/<?= $category->slug ?>">
+        <a class="awasqa-issue-link" href="<?= get_category_link($category) ?>">
             <span class="awasqa-issue-link__title"><?= $category->name ?></span>
             <span class="awasqa-issue-link__more"><?= __('More', 'awasqa') ?></span>
             <img src="/app/themes/awasqa/assets/images/arrow-right.svg">
@@ -150,7 +152,7 @@ add_action('carbon_fields_register_fields', function () {
         ))
         ->set_render_callback(function ($fields, $attributes, $inner_blocks) {
             $post = get_post();
-            $authors = get_coauthors($post->ID);
+            $authors = Awasqa\Authors\awasqa_get_coauthors($post->ID);
             if (!$authors) {
                 return;
             }
@@ -164,7 +166,24 @@ add_action('carbon_fields_register_fields', function () {
                 ];
             }
             $primary_author = $post->post_author;
-            $organisations = Awasqa\Authors\get_author_organisations($primary_author);
+            $organisations = [];
+            $related_orgs = Awasqa\CarbonFields\awasqa_carbon_get_post_meta($post->ID, 'related_organisations');
+            if ($related_orgs) {
+                $org_ids = array_map(function ($related_org) {
+                    return $related_org['id'];
+                }, $related_orgs);
+                $organisations = get_posts([
+                    "post_type" => "awasqa_organisation",
+                    "post__in" => $org_ids
+                ]);
+            }
+            // Fallback to author organisation if there is only one
+            if (!$organisations) {
+                $author_organisations = Awasqa\Authors\get_author_organisations($primary_author);
+                if (count($author_organisations) === 1) {
+                    $organisations = $author_organisations;
+                }
+            }
             foreach ($organisations as $org) {
                 $author_data[] = [
                     "link" => get_permalink($org),
@@ -247,9 +266,14 @@ add_action('carbon_fields_register_fields', function () {
                 $author_data[] = [
                     "link" => get_author_posts_url($user_id),
                     "name" => $name,
-                    "bio" => $meta['description'][0] ?? "",
+                    "bio" => __($meta['description'][0], "Authors") ?? "",
                     "image_url" => $image_url[0] ?? null
                 ];
+            }
+            if (!$author_data) {
+                ?>
+            <ul class="awasqa-organisation-authors"></ul>
+                <?php
             }
             ?>
         <ul class="awasqa-organisation-authors">
@@ -281,7 +305,7 @@ add_action('carbon_fields_register_fields', function () {
             $author_data = [
                 "link" => get_author_posts_url($author_id),
                 "name" => $author_name,
-                "bio" => $meta['description'][0] ?? null,
+                "bio" => __($meta['description'][0], "Authors") ?? null,
                 "image_url" => $image_url[0] ?? null
             ];
 
@@ -295,7 +319,7 @@ add_action('carbon_fields_register_fields', function () {
         ))
         ->set_render_callback(function ($fields, $attributes, $inner_blocks) {
             $post = get_post();
-            $authors = get_coauthors($post->ID);
+            $authors = Awasqa\Authors\awasqa_get_coauthors($post->ID);
             if (!$authors) {
                 return;
             }
@@ -308,7 +332,7 @@ add_action('carbon_fields_register_fields', function () {
                 $authors_data[] = [
                     "link" => get_author_posts_url($author->ID),
                     "name" => $name,
-                    "bio" => $meta['description'][0] ?? null,
+                    "bio" => __($meta['description'][0], "Authors") ?? null,
                     "image_url" => $image_url[0] ?? null
                 ];
             }
