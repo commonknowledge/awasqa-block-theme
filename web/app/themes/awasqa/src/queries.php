@@ -81,7 +81,7 @@ add_filter("query_loop_block_query_vars", function ($query) {
         return $query;
     }
     // Display related orgs on post/event page
-    if ($post &&
+    if (is_single() && $post &&
         in_array($post->post_type, ["post", "awasqa_event"]) &&
         $query['post_type'] === "awasqa_organisation"
     ) {

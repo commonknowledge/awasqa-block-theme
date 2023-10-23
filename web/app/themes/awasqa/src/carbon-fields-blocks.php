@@ -152,10 +152,7 @@ add_action('carbon_fields_register_fields', function () {
         ))
         ->set_render_callback(function ($fields, $attributes, $inner_blocks) {
             $post = get_post();
-            $authors = Awasqa\Authors\awasqa_get_coauthors($post->ID);
-            if (!$authors) {
-                return;
-            }
+            $authors = Awasqa\Authors\awasqa_get_coauthors($post->ID) ?? [];
             $organisations = [];
             $author_data = [];
             foreach ($authors as $author) {
