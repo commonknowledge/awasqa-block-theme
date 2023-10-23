@@ -55,9 +55,16 @@ add_action('carbon_fields_register_fields', function () {
             Field::make('text', 'source_url', 'Source URL')->set_attribute('type', 'url'),
         ));
 
-    Container::make('post_meta', 'Related Posts')
+    Container::make('post_meta', 'Related Organisations and Posts')
         ->where('post_type', 'IN', ['post', 'awasqa_event'])
         ->add_fields(array(
+            Field::make('association', 'related_organisations', 'Organisations')
+                ->set_types([
+                    [
+                        'type'      => 'post',
+                        'post_type' => 'awasqa_organisation'
+                    ],
+                ]),
             Field::make('association', 'related_posts', 'Posts')
                 ->set_types([
                     [

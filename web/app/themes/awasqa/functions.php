@@ -18,6 +18,9 @@ require_once(__DIR__ . '/src/emails.php');
 // Gravity forms logic
 require_once(__DIR__ . '/src/gravity-forms.php');
 
+// Import data from old site
+require_once(__DIR__ . '/src/import.php');
+
 // Alter queries used in query loops
 require_once(__DIR__ . '/src/queries.php');
 

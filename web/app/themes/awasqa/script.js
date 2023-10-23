@@ -133,5 +133,12 @@ if (eventForm) {
     minuteField.addEventListener('change', updateUTCTime)
 }
 
+// Hide headings for empty query loops
+document.querySelectorAll(
+    '.wp-block-heading + .wp-block-query:empty,.wp-block-heading + .awasqa-organisation-authors:empty'
+).forEach(query => {
+    query.previousElementSibling.style.display = "none"
+})
+
 // Display content (hidden by pre-script.js)
 document.body.style.visibility = "visible"

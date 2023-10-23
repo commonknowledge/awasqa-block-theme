@@ -4,6 +4,16 @@ namespace CommonKnowledge\WordPress\Awasqa\Authors;
 
 use CommonKnowledge\WordPress\Awasqa;
 
+function awasqa_get_coauthors($post_id)
+{
+    $post = get_post($post_id);
+    if (!$post) {
+        return null;
+    }
+    $original_post_id = Awasqa\WPML\get_original_post_id($post->ID, $post->post_type);
+    return get_coauthors($original_post_id);
+}
+
 /**
  * $author should be an array:
  *
@@ -84,6 +94,48 @@ function awasqa_get_author_name($author_id)
     return get_the_author_meta("display_name", $author_id) ?: get_the_author_meta("user_nicename", $author_id);
 }
 
+function handle_update_profile_pic($user_id)
+{
+    if (!empty($_FILES['form-profile-pic']['tmp_name'])) {
+        $FILE = $_FILES['form-profile-pic'];
+
+        $upload_dir = wp_upload_dir();
+
+        $filename = $FILE['name'];
+
+        if (wp_mkdir_p($upload_dir['path'])) {
+            $dest = $upload_dir['path'] . '/' . $filename;
+        } else {
+            $dest = $upload_dir['basedir'] . '/' . $filename;
+        }
+
+        $tmp_filepath = $FILE['tmp_name'];
+
+        $mimetype = mime_content_type($tmp_filepath);
+
+        if (!$mimetype || !str_starts_with($mimetype, 'image')) {
+            return;
+        }
+
+        copy($tmp_filepath, $dest);
+
+        $attachment = array(
+            'post_mime_type' => $mimetype,
+            'post_title' => sanitize_file_name($filename),
+            'post_content' => '',
+            'post_status' => 'inherit'
+        );
+
+        $attach_id = wp_insert_attachment($attachment, $dest);
+        require_once(ABSPATH . 'wp-admin/includes/image.php');
+        $attach_data = wp_generate_attachment_metadata($attach_id, $dest);
+        wp_update_attachment_metadata($attach_id, $attach_data);
+
+        add_user_meta($user_id, meta_key: "awasqa_profile_pic_id", meta_value: $attach_id, unique: true);
+        update_user_meta($user_id, meta_key: "awasqa_profile_pic_id", meta_value: $attach_id);
+    }
+}
+
 // Add auth control of protected pages
 // Add handling of submitting user data and approving users
 add_action('template_redirect', function () {
@@ -143,53 +195,17 @@ add_action('template_redirect', function () {
         if (!wp_verify_nonce($_POST['form-nonce'], 'awasqa_account_details_form')) {
             return;
         }
-        $dislay_name = $_POST['form-name'];
+        $display_name = $_POST['form-name'];
         $description = $_POST['form-bio'];
         $userdata = array(
             'ID' => $user_id,
-            'display_name' => $dislay_name,
+            'nickname' => $display_name,
+            'display_name' => $display_name,
             'description' => $description
         );
         wp_update_user($userdata);
 
-        if (!empty($_FILES['form-profile-pic']['tmp_name'])) {
-            $FILE = $_FILES['form-profile-pic'];
-
-            $upload_dir = wp_upload_dir();
-
-            $filename = $FILE['name'];
-
-            if (wp_mkdir_p($upload_dir['path'])) {
-                $dest = $upload_dir['path'] . '/' . $filename;
-            } else {
-                $dest = $upload_dir['basedir'] . '/' . $filename;
-            }
-
-            $tmp_filepath = $FILE['tmp_name'];
-
-            $mimetype = mime_content_type($tmp_filepath);
-
-            if (!$mimetype || !str_starts_with($mimetype, 'image')) {
-                return;
-            }
-
-            copy($tmp_filepath, $dest);
-
-            $attachment = array(
-                'post_mime_type' => $mimetype,
-                'post_title' => sanitize_file_name($filename),
-                'post_content' => '',
-                'post_status' => 'inherit'
-            );
-
-            $attach_id = wp_insert_attachment($attachment, $dest);
-            require_once(ABSPATH . 'wp-admin/includes/image.php');
-            $attach_data = wp_generate_attachment_metadata($attach_id, $dest);
-            wp_update_attachment_metadata($attach_id, $attach_data);
-
-            add_user_meta($user_id, meta_key: "awasqa_profile_pic_id", meta_value: $attach_id, unique: true);
-            update_user_meta($user_id, meta_key: "awasqa_profile_pic_id", meta_value: $attach_id);
-        }
+        handle_update_profile_pic($user_id);
     }
 });
 
@@ -253,3 +269,70 @@ add_filter('wpseo_title', function ($title) {
     }
     return $title;
 });
+
+function extra_admin_user_fields($user)
+{
+    $user_id = $user->ID;
+    $meta = get_user_meta($user_id);
+    $image_id = $meta['awasqa_profile_pic_id'][0] ?? 0;
+    $image_url = $image_id ? wp_get_attachment_image_src($image_id) : null;
+    ?>
+    <h2>Awasqa</h2>
+    <table class="form-table">
+        <tr>
+            <th><label for="profile-pic"><?= __('Profile pic', 'awasqa') ?></label></th>
+            <?php if ($image_url) : ?>
+                <td>
+                    <img width="100px" height="100px" style="object-fit: contain" src="<?= $image_url[0] ?>">
+                </td>
+            <?php endif; ?>
+            <td>
+                <input id="profile-pic" name="form-profile-pic" type="file">
+            </td>
+        </tr>
+    </table>
+    <?php
+}
+add_action('show_user_profile', 'CommonKnowledge\WordPress\Awasqa\Authors\extra_admin_user_fields');
+add_action('edit_user_profile', 'CommonKnowledge\WordPress\Awasqa\Authors\extra_admin_user_fields');
+add_action('user_edit_form_tag', function () {
+    echo 'enctype="multipart/form-data"';
+});
+
+function awasqa_save_admin_user_fields($user_id)
+{
+    if (current_user_can('edit_user', $user_id)) {
+        handle_update_profile_pic($user_id);
+    }
+}
+add_action('personal_options_update', 'CommonKnowledge\WordPress\Awasqa\Authors\awasqa_save_admin_user_fields');
+add_action('edit_user_profile_update', 'CommonKnowledge\WordPress\Awasqa\Authors\awasqa_save_admin_user_fields');
+
+// Hide built-in avatar field in wordpress admin pages
+add_filter("option_show_avatars", function ($val) {
+    return !is_admin();
+});
+
+function add_avatar_column($column)
+{
+    $column['profile_pic'] = __('Profile pic', 'awasqa');
+    return $column;
+}
+add_filter('manage_users_columns', 'CommonKnowledge\WordPress\Awasqa\Authors\add_avatar_column');
+
+function do_avatar_column($val, $column_name, $user_id)
+{
+    switch ($column_name) {
+        case 'profile_pic':
+            $meta = get_user_meta($user_id);
+            $image_id = $meta['awasqa_profile_pic_id'][0] ?? 0;
+            $image_url = $image_id ? wp_get_attachment_image_src($image_id) : null;
+            if ($image_url) {
+                return '<img width="100px" height="100px" style="object-fit: contain" src="' . $image_url[0] . '">';
+            }
+            return $val;
+        default:
+    }
+    return $val;
+}
+add_filter('manage_users_custom_column', 'CommonKnowledge\WordPress\Awasqa\Authors\do_avatar_column', 10, 3);

@@ -4,6 +4,30 @@ namespace CommonKnowledge\WordPress\Awasqa\Queries;
 
 use CommonKnowledge\WordPress\Awasqa;
 
+/**
+ * Return the post IDs associated to an organisation.
+ * Have to iterate through all posts, as meta queries
+ * don't work with translated posts.
+ */
+function get_org_post_ids($org_id)
+{
+    $query = new \WP_Query([
+        'post_type' => 'post',
+    ]);
+    $posts = $query->posts ?: [];
+    $org_post_ids = [];
+    foreach ($posts as $post) {
+        $orgs = Awasqa\CarbonFields\awasqa_carbon_get_post_meta($post->ID, 'related_organisations') ?? [];
+        $matching_org = array_filter($orgs, function ($org) use ($org_id) {
+            return (string) $org['id'] === (string) $org_id;
+        });
+        if ($matching_org) {
+            $org_post_ids[] = $post->ID;
+        }
+    }
+    return $org_post_ids;
+}
+
 add_filter("query_loop_block_query_vars", function ($query) {
     global $post;
 
@@ -44,10 +68,42 @@ add_filter("query_loop_block_query_vars", function ($query) {
                 $post_ids[] = $post->ID;
             }
         }
+
+        $org_post_ids = get_org_post_ids($post->ID);
+        $post_ids = array_merge($post_ids, $org_post_ids);
+
         if (!$post_ids) {
             $post_ids = [0];
         }
         $query['post__in'] = $post_ids;
+        # Prevent sticky posts from always appearing
+        $query['ignore_sticky_posts'] = 1;
+        return $query;
+    }
+    // Display related orgs on post/event page
+    if ($post &&
+        in_array($post->post_type, ["post", "awasqa_event"]) &&
+        $query['post_type'] === "awasqa_organisation"
+    ) {
+        $author = $post->post_author;
+        $org_ids = [];
+        $related_orgs = Awasqa\CarbonFields\awasqa_carbon_get_post_meta($post->ID, 'related_organisations');
+        if ($related_orgs) {
+            $org_ids = array_map(function ($related_org) {
+                return $related_org['id'];
+            }, $related_orgs);
+        }
+        // Fallback to author organisation if there is only one
+        if (!$org_ids) {
+            $author_organisations = Awasqa\Authors\get_author_organisations($author);
+            if (count($author_organisations) === 1) {
+                $org_ids = [$author_organisations[0]->ID];
+            }
+        }
+        if (!$org_ids) {
+            $org_ids = [0];
+        }
+        $query['post__in'] = $org_ids;
         # Prevent sticky posts from always appearing
         $query['ignore_sticky_posts'] = 1;
         return $query;

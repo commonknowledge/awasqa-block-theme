@@ -59,12 +59,10 @@ function populate_form_organisations($form)
 add_filter('gform_pre_render_1', 'CommonKnowledge\WordPress\Awasqa\GravityForms\populate_form_organisations');
 add_filter('gform_pre_validation_1', 'CommonKnowledge\WordPress\Awasqa\GravityForms\populate_form_organisations');
 add_filter('gform_pre_submission_filter_1', 'CommonKnowledge\WordPress\Awasqa\GravityForms\populate_form_organisations');
-add_filter('gform_admin_pre_render_1', 'CommonKnowledge\WordPress\Awasqa\GravityForms\populate_form_organisations');
 
 add_filter('gform_pre_render_2', 'CommonKnowledge\WordPress\Awasqa\GravityForms\populate_form_organisations');
 add_filter('gform_pre_validation_2', 'CommonKnowledge\WordPress\Awasqa\GravityForms\populate_form_organisations');
 add_filter('gform_pre_submission_filter_2', 'CommonKnowledge\WordPress\Awasqa\GravityForms\populate_form_organisations');
-add_filter('gform_admin_pre_render_2', 'CommonKnowledge\WordPress\Awasqa\GravityForms\populate_form_organisations');
 
 /**
  * Prefill form when rendering an Edit Organisation page
@@ -152,12 +150,10 @@ function populate_form_countries($form)
 add_filter('gform_pre_render_5', 'CommonKnowledge\WordPress\Awasqa\GravityForms\populate_form_countries');
 add_filter('gform_pre_validation_5', 'CommonKnowledge\WordPress\Awasqa\GravityForms\populate_form_countries');
 add_filter('gform_pre_submission_filter_5', 'CommonKnowledge\WordPress\Awasqa\GravityForms\populate_form_countries');
-add_filter('gform_admin_pre_render_5', 'CommonKnowledge\WordPress\Awasqa\GravityForms\populate_form_countries');
 
 add_filter('gform_pre_render_7', 'CommonKnowledge\WordPress\Awasqa\GravityForms\populate_form_countries');
 add_filter('gform_pre_validation_7', 'CommonKnowledge\WordPress\Awasqa\GravityForms\populate_form_countries');
 add_filter('gform_pre_submission_filter_7', 'CommonKnowledge\WordPress\Awasqa\GravityForms\populate_form_countries');
-add_filter('gform_admin_pre_render_7', 'CommonKnowledge\WordPress\Awasqa\GravityForms\populate_form_countries');
 
 add_action('gform_activate_user', function ($user_id, $user_data, $user_meta) {
     $org_id = get_user_meta($user_id, 'awasqa_user_organisation', single: true);

@@ -401,6 +401,7 @@ h6::after {
     }
 .awasqa-authors {
     display: flex;
+    flex-wrap: wrap;
     list-style: none;
     margin-bottom: 0.75rem;
     padding: 0;
