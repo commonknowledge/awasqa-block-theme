@@ -168,7 +168,7 @@ $user_ids_by_guest_author_id = [];
 global $org_ids_by_guest_author_id;
 $org_ids_by_guest_author_id = [];
 
-function import()
+function populate_posts_by_type()
 {
     $xml_string = file_get_contents(__DIR__ . "/../../../../../awasqa.org.xml");
     $xml = new SimpleXMLElement($xml_string);
@@ -246,6 +246,13 @@ function import()
             }
         }
     }
+
+    return $posts_by_type;
+}
+
+function import()
+{
+    $posts_by_type = populate_posts_by_type();
 
     foreach ($posts_by_type['attachment'] as $slug => $attachments) {
         import_attachment($slug, $attachments);
@@ -629,7 +636,7 @@ function import_post($slug, $post_xmls)
     ]);
 
     if ($post) {
-        //return;
+        return;
     }
 
     $post_id = wp_insert_post([
@@ -965,3 +972,82 @@ function print_authors_list($author_xmls)
 }
 
 \WP_CLI::add_command('import_awasqa', 'CommonKnowledge\WordPress\Awasqa\Import\import');
+
+function fix_post_dates()
+{
+    $posts_by_type = populate_posts_by_type();
+    foreach ($posts_by_type['post'] as $slug => $posts) {
+        fix_post_date($slug, $posts);
+    }
+}
+
+function fix_post_date($slug, $post_xmls)
+{
+    if (count($post_xmls) === 1) {
+        $original_post = $post_xmls[0];
+        $translated_post = null;
+    } else if (is_original_post("post", $slug, $post_xmls[0])) {
+        $original_post = $post_xmls[0];
+        $translated_post = $post_xmls[1];
+    } else {
+        $original_post = $post_xmls[1];
+        $translated_post = $post_xmls[0];
+    }
+
+    $post_name = (string) $original_post->children(XMLNS_WP)->post_name;
+
+    $post_name = [
+        "a-zapotec-reflection-on-freedom-%ef%bf%bcmom-how-do-you-allow-yourself-to-do-what-you-desire"
+            => "a-zapotec-reflection-on-freedom-mom-how-do-you-allow-yourself-to-do-what-you-desire"
+    ][$post_name] ?? $post_name;
+
+    $posts = get_posts([
+        "post_type" => "post",
+        "name" => $post_name
+    ]);
+
+    if (!$posts) {
+        echo "Could not find post " . $post_name . "\n";
+        exit(0);
+    }
+
+    $post = $posts[0];
+
+    $post_date = (string) $original_post->children(XMLNS_WP)->post_date;
+
+    wp_update_post([
+        'ID' => $post->ID,
+        'post_date' => $post_date,
+        'post_date_gmt' => get_gmt_from_date($post_date)
+    ]);
+
+    if ($translated_post) {
+        $trans_slug = (string) $translated_post->children(XMLNS_WP)->post_name;
+        $trans_language = get_category($translated_post, "language");
+        if ($trans_slug === $slug) {
+            $trans_slug = $slug . "-" . $trans_language;
+        }
+
+        $trans_posts = get_posts([
+            "post_type" => "post",
+            "name" => $post_name
+        ]);
+
+        if (!$trans_posts) {
+            echo "Could not find translated post " . $trans_slug . "\n";
+            exit(0);
+        }
+
+        $trans_post = $trans_posts[0];
+
+        wp_update_post([
+            'ID' => $trans_post->ID,
+            'post_date' => $post_date,
+            'post_date_gmt' => get_gmt_from_date($post_date)
+        ]);
+    }
+
+    echo "Fixed post date " . $post_name . ' => ' . $post_date . "\n";
+}
+
+\WP_CLI::add_command('fix_post_dates', 'CommonKnowledge\WordPress\Awasqa\Import\fix_post_dates');
