@@ -27,7 +27,7 @@ function populate_form_organisations($form)
             continue;
         }
 
-        $posts = get_posts(['post_type' => 'awasqa_organisation']);
+        $posts = get_posts(['post_type' => 'awasqa_organisation', 'posts_per_page' => -1]);
 
         $choices = array();
 
@@ -42,6 +42,10 @@ function populate_form_organisations($form)
                 $choices[] = array('text' => $post->post_title, 'value' => $post->ID);
             }
         }
+
+        usort($choices, function ($a, $b) {
+            return $a['text'] < $b['text'] ? -1 : 1;
+        });
 
         // Add "New Organisation" on Register form but not Join Organisation form
         if ($form['id'] === 1) {
@@ -63,6 +67,14 @@ add_filter('gform_pre_submission_filter_1', 'CommonKnowledge\WordPress\Awasqa\Gr
 add_filter('gform_pre_render_2', 'CommonKnowledge\WordPress\Awasqa\GravityForms\populate_form_organisations');
 add_filter('gform_pre_validation_2', 'CommonKnowledge\WordPress\Awasqa\GravityForms\populate_form_organisations');
 add_filter('gform_pre_submission_filter_2', 'CommonKnowledge\WordPress\Awasqa\GravityForms\populate_form_organisations');
+
+add_filter('gform_pre_render_5', 'CommonKnowledge\WordPress\Awasqa\GravityForms\populate_form_organisations');
+add_filter('gform_pre_validation_5', 'CommonKnowledge\WordPress\Awasqa\GravityForms\populate_form_organisations');
+add_filter('gform_pre_submission_filter_5', 'CommonKnowledge\WordPress\Awasqa\GravityForms\populate_form_organisations');
+
+add_filter('gform_pre_render_7', 'CommonKnowledge\WordPress\Awasqa\GravityForms\populate_form_organisations');
+add_filter('gform_pre_validation_7', 'CommonKnowledge\WordPress\Awasqa\GravityForms\populate_form_organisations');
+add_filter('gform_pre_submission_filter_7', 'CommonKnowledge\WordPress\Awasqa\GravityForms\populate_form_organisations');
 
 /**
  * Prefill form when rendering an Edit Organisation page
@@ -274,6 +286,18 @@ add_action(
                     carbon_set_post_meta($post->ID, 'event_time', $time);
                 }
             }
+
+            $related_org = $entry[13];
+            if ($related_org) {
+                carbon_set_post_meta($post_id, 'related_organisations', [
+                    [
+                        "value" => "post:awasqa_organisation:" . $related_org,
+                        "type" => "post",
+                        "subtype" => "awasqa_organisation",
+                        "id" => $related_org
+                    ]
+                ]);
+            }
         }
 
         if ($post->post_type === "post") {
@@ -282,8 +306,8 @@ add_action(
             foreach ($mp3s as $mp3) {
                 $src = wp_get_attachment_url($mp3->ID);
                 $post->post_content .= ('<!-- wp:heading -->' .
-                '<h2 class="wp-block-heading">' . __('Listen now:', 'awasqa') . '</h2>' .
-                '<!-- /wp:heading -->'
+                    '<h2 class="wp-block-heading">' . __('Listen now:', 'awasqa') . '</h2>' .
+                    '<!-- /wp:heading -->'
                 );
 
                 $post->post_content .= ('<!-- wp:audio {"id":' . $mp3->ID . '} -->' .
@@ -300,6 +324,18 @@ add_action(
 
             carbon_set_post_meta($post_id, 'source_publication', $source_publication);
             carbon_set_post_meta($post_id, 'source_url', $source_url);
+
+            $related_org = $entry[14];
+            if ($related_org) {
+                carbon_set_post_meta($post_id, 'related_organisations', [
+                    [
+                        "value" => "post:awasqa_organisation:" . $related_org,
+                        "type" => "post",
+                        "subtype" => "awasqa_organisation",
+                        "id" => $related_org
+                    ]
+                ]);
+            }
         }
 
         // ID of the post that had the form on it - used to determine lang of new post
@@ -318,6 +354,20 @@ add_action(
             ];
 
             do_action('wpml_set_element_language_details', $language_args);
+        }
+
+        $user_id = $entry['created_by'];
+        $user = get_user_by('ID', $user_id);
+        $roles = (array) $user->roles;
+        $trusted_roles = ['administrator', 'editor', 'author'];
+
+        if (array_intersect($trusted_roles, $roles)) {
+            // Have to create a slug before publishing, this normally happens in the WordPress admin
+            $post_name = sanitize_title($post->post_title);
+            $slug = wp_unique_post_slug($post_name, $post_id, 'published', $post->post_type, null);
+            $post->post_name = $slug;
+            wp_update_post($post);
+            wp_publish_post($post->ID);
         }
     },
     10,
