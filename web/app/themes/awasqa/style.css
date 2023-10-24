@@ -597,7 +597,7 @@ footer .wp-block-image img {
         display: flex;
         flex-direction: column;
     }
-.awasqa-post-heading .wp-block-column:first-child > div {
+.awasqa-post-heading .wp-block-column:first-child >div {
             margin: auto 0;
         }
 .awasqa-post-heading .wp-block-post-featured-image {
@@ -625,6 +625,15 @@ footer .wp-block-image img {
    and content background */
 .awasqa-post-heading+* {
     margin-top: 0;
+}
+@media (min-width: 782px) {
+        .awasqa-post-heading .wp-block-column:first-child {
+            flex: 0 0 calc(66.66% - 2.25rem) !important;
+        }
+
+        .awasqa-post-heading .wp-block-column:last-child {
+            flex: 0 0 calc(33.33% + 2.25rem) !important;
+        }
 }
 .awasqa-post-source {
     margin-bottom: 5.625rem;
