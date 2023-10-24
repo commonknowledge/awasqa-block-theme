@@ -366,6 +366,8 @@ h6::after {
         border-radius: 100%;
         height: 76px;
         margin-right: 1.25rem;
+        -o-object-fit: cover;
+           object-fit: cover;
         width: 76px;
     }
 .awasqa-author-column__heading h2 {
@@ -588,47 +590,15 @@ footer .wp-block-image img {
 .awasqa-organisation-column .wp-block-post-title {
         font-size: var(--font-size-large);
     }
-.single-post .awasqa-post-heading, .single-awasqa_event .awasqa-post-heading {
-        margin-top: -6rem;
-        padding: 0;
+.awasqa-post-heading {
+    padding: 0 !important;
+}
+.awasqa-post-heading .wp-block-column:first-child {
+        display: flex;
+        flex-direction: column;
     }
-.single-post .awasqa-post-heading a, .single-awasqa_event .awasqa-post-heading a {
-            color: var(--color-yellow) !important;
-        }
-.single-post .wp-block-site-title, .single-awasqa_event .wp-block-site-title {
-        color: var(--color-yellow) !important;
-    }
-.single-post .wp-block-navigation-item__content, .single-awasqa_event .wp-block-navigation-item__content {
-        color: var(--color-yellow) !important;
-    }
-.single-post .wp-block-loginout a, .single-awasqa_event .wp-block-loginout a {
-  background: none;
-  border: 1px solid var(--color-green) !important;
-  border-radius: 0.25rem;
-  color: var(--color-green);
-  display: inline-block;
-  font-size: 0.875rem;
-  padding: 0.5rem 1rem;
-  text-decoration: none;
-    }
-.single-post .wp-block-loginout a:focus, .single-post .wp-block-loginout a:hover, .single-awasqa_event .wp-block-loginout a:focus, .single-awasqa_event .wp-block-loginout a:hover {
-  background-color: var(--color-green-lightest) !important;
-        }
-.single-post .wp-block-loginout a:focus,.single-post .wp-block-loginout a:hover,.single-awasqa_event .wp-block-loginout a:focus,.single-awasqa_event .wp-block-loginout a:hover {
-            color: var(--color-yellow) !important;
-            text-decoration: underline !important;
-        }
-.single-post header .nav-language-switcher, .single-awasqa_event header .nav-language-switcher {
-            border-right: 1px solid var(--color-yellow);
-        }
-.single-post .wp-block-navigation__responsive-container-open, .single-awasqa_event .wp-block-navigation__responsive-container-open {
-        color: var(--color-yellow) !important;
-    }
-.single-post .wp-block-navigation__responsive-container.has-modal-open .wp-block-navigation-item__content, .single-awasqa_event .wp-block-navigation__responsive-container.has-modal-open .wp-block-navigation-item__content {
-            color: var(--color-green) !important;
-        }
-.single-post .wp-block-navigation__responsive-container.has-modal-open .wp-block-loginout a, .single-awasqa_event .wp-block-navigation__responsive-container.has-modal-open .wp-block-loginout a {
-            color: var(--color-green) !important;
+.awasqa-post-heading .wp-block-column:first-child > div {
+            margin: auto 0;
         }
 .awasqa-post-heading .wp-block-post-featured-image {
         height: 100%;
@@ -650,9 +620,6 @@ footer .wp-block-image img {
             -o-object-fit: cover;
                object-fit: cover;
         }
-.awasqa-post-heading >.wp-block-column:first-child {
-        padding: 6rem 0 !important;
-    }
 /* No margin on block after post heading 
    to prevent gap between heading background
    and content background */
