@@ -4,6 +4,8 @@ namespace CommonKnowledge\WordPress\Awasqa\GravityForms;
 
 use CommonKnowledge\WordPress\Awasqa;
 
+use function CommonKnowledge\WordPress\Awasqa\Authors\get_author_organisations;
+
 // Make sure translations are registered for Gravity Form registration form links
 add_filter('gform_user_registration_login_args', function ($args) {
     $args['logged_in_message'] = __($args['logged_in_message'] ?? 'You are logged in!', 'awasqa');
@@ -27,7 +29,12 @@ function populate_form_organisations($form)
             continue;
         }
 
-        $posts = get_posts(['post_type' => 'awasqa_organisation', 'posts_per_page' => -1]);
+        if ($form['id'] > 2) {
+            $user = wp_get_current_user();
+            $posts = $user ? get_author_organisations($user->ID) : [];
+        } else {
+            $posts = get_posts(['post_type' => 'awasqa_organisation', 'posts_per_page' => -1]);
+        }
 
         $choices = array();
 
@@ -327,14 +334,24 @@ add_action(
 
             $related_org = $entry[14];
             if ($related_org) {
-                carbon_set_post_meta($post_id, 'related_organisations', [
-                    [
-                        "value" => "post:awasqa_organisation:" . $related_org,
-                        "type" => "post",
-                        "subtype" => "awasqa_organisation",
-                        "id" => $related_org
-                    ]
-                ]);
+                $members = Awasqa\CarbonFields\awasqa_carbon_get_post_meta($related_org, 'members') ?? [];
+                $is_member = false;
+                foreach ($members as $member) {
+                    if ($member['id'] == $entry['created_by']) {
+                        $is_member = true;
+                        break;
+                    }
+                }
+                if ($is_member) {
+                    carbon_set_post_meta($post_id, 'related_organisations', [
+                        [
+                            "value" => "post:awasqa_organisation:" . $related_org,
+                            "type" => "post",
+                            "subtype" => "awasqa_organisation",
+                            "id" => $related_org
+                        ]
+                    ]);
+                }
             }
         }
 
@@ -402,7 +419,7 @@ add_filter('gform_advancedpostcreation_post', function ($post, $feed, $entry, $f
     if (!$org || $org->post_type !== "awasqa_organisation") {
         return $post;
     }
-    $members = Awasqa\CarbonFields\awasqa_carbon_get_post_meta($org->ID, 'members');
+    $members = Awasqa\CarbonFields\awasqa_carbon_get_post_meta($org->ID, 'members') ?? [];
     $is_member = false;
     foreach ($members as $member) {
         if ($member['id'] == $entry['created_by']) {

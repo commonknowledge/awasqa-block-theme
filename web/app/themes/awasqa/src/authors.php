@@ -149,7 +149,7 @@ add_action('template_redirect', function () {
             auth_redirect();
             exit;
         }
-        $protected_pages = ['account', 'join-organisation', 'edit-organisation'];
+        $protected_pages = ['account', 'join-organisation', 'edit-organisation', 'submit-article', 'submit-event'];
         foreach ($protected_pages as $slug) {
             if ($slug === $en_slug) {
                 auth_redirect();
