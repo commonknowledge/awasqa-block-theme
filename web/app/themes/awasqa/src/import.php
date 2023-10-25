@@ -998,7 +998,7 @@ function fix_post_date($slug, $post_xmls)
 
     $post_name = [
         "a-zapotec-reflection-on-freedom-%ef%bf%bcmom-how-do-you-allow-yourself-to-do-what-you-desire"
-            => "a-zapotec-reflection-on-freedom-mom-how-do-you-allow-yourself-to-do-what-you-desire"
+        => "a-zapotec-reflection-on-freedom-mom-how-do-you-allow-yourself-to-do-what-you-desire"
     ][$post_name] ?? $post_name;
 
     $posts = get_posts([
@@ -1051,3 +1051,27 @@ function fix_post_date($slug, $post_xmls)
 }
 
 \WP_CLI::add_command('fix_post_dates', 'CommonKnowledge\WordPress\Awasqa\Import\fix_post_dates');
+
+function fix_media()
+{
+    $attachments = get_posts(["post_type" => "attachment", "posts_per_page" => -1]);
+    foreach ($attachments as $attachment) {
+        $filename = get_attached_file($attachment->ID);
+        if (!$filename) {
+            echo "NO FILENAME FOR ATTACHMENT " . $attachment->ID . "\n";
+            exit(0);
+        }
+        $filetype = wp_check_filetype(basename($filename), null);
+        wp_update_post(["ID" => $attachment->ID, "post_mime_type" => $filetype['type']]);
+
+        // Make sure that this file is included, as wp_generate_attachment_metadata() depends on it.
+        require_once(ABSPATH . 'wp-admin/includes/image.php');
+
+        // Generate the metadata for the attachment, and update the database record.
+        $attach_data = wp_generate_attachment_metadata($attachment->ID, $filename);
+        wp_update_attachment_metadata($attachment->ID, $attach_data);
+        echo "UPDATED " . $filename . ": " . $attachment->ID . "\n";
+    }
+}
+
+\WP_CLI::add_command('fix_media', 'CommonKnowledge\WordPress\Awasqa\Import\fix_media');
