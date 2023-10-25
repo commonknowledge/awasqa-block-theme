@@ -293,6 +293,9 @@ h6::after {
 .wp-block-loginout a {
     font-size: 1rem !important;
 }
+.wp-block-site-title {
+    text-transform: uppercase;
+}
 @media (min-width: 782px) {
     .has-xx-large-font-size {
         font-size: var(--wp--preset--font-size--x-large) !important;
