@@ -704,7 +704,7 @@ function import_post($slug, $post_xmls)
         }
     }
 
-    $categories = get_post_category_ids($original_post, $orig_language);
+    $categories = get_post_category_ids($original_post, $orig_language)[0];
     if ($categories) {
         wp_set_post_categories($post_id, $categories);
     }
@@ -760,6 +760,10 @@ function get_post_category_ids($post_xml, $language)
         $is_arts = in_array($category_name, ['arts-and-culture', 'arte-y-cultura']);
         $is_science = in_array($category_name, ['ciencia', 'science']);
         $is_health = in_array($category_name, ['salud', 'health']);
+        $is_thought = in_array($category_name, ['pensamient-decolonial', 'decolonial-thought']);
+        $is_struggles = in_array($category_name, ['luchas-decoloniales', 'decolonial-struggles']);
+        $is_env = in_array($category_name, ['medio-ambiente', 'rights-of-nature']);
+        $is_education = in_array($category_name, ['jovenes-indigenas', 'education']);
         $slug = null;
         if ($is_arts) {
             $slug = $language === "en" ? 'arts-and-culture' : 'arte-y-cultura';
@@ -767,6 +771,14 @@ function get_post_category_ids($post_xml, $language)
             $slug = $language === "en" ? 'science' : 'ciencia';
         } else if ($is_health) {
             $slug = $language === "en" ? 'health' : 'salud';
+        } else if ($is_thought) {
+            $slug = $language === "en" ? 'decolonial-thought' : 'pensamient-decolonial';
+        } else if ($is_struggles) {
+            $slug = $language === "en" ? 'decolonial-struggles' : 'luchas-decoloniales';
+        } else if ($is_env) {
+            $slug = $language === "en" ? 'rights-of-nature' : 'medio-ambiente';
+        } else if ($is_education) {
+            $slug = $language === "en" ? 'education' : 'jovenes-indigenas';
         }
         if (!$slug) {
             continue;
@@ -779,7 +791,39 @@ function get_post_category_ids($post_xml, $language)
         }
         $post_categories[] = $category->term_id;
     }
-    return $post_categories;
+    return [$post_categories, $cat_names];
+}
+
+function get_post_countries($post_xml, $language)
+{
+    $post_countries = [];
+    $country_slugs = [];
+    $country_names = get_category($post_xml, "post_tag", is_single: false);
+    foreach ($country_names as $country_name) {
+        $orig_name = $country_name;
+        if (in_array(
+            $country_name,
+            [
+                'covid19', 'covid19-es', 'covid19-en', 'amazon', 'amazon-es',
+                'global', 'global-es', 'cop26es', 'cop26en', "mapuche-nation",
+                'inuit-nunaat'
+            ]
+        )) {
+            continue;
+        }
+        $country_name = preg_replace('#-en$#', '', $country_name);
+        if ($language === 'es' && !str_ends_with($country_name, '-es')) {
+            $country_name = $country_name . '-es';
+        }
+        $country_name = [
+            'eeuu' => 'usa',
+            'venezuela-es-es' => 'venezuela-es'
+        ][$country_name] ?? $country_name;
+        $country = get_term_by('slug', $country_name, 'awasqa_country');
+        $post_countries[] = $country->term_id;
+        $country_slugs[] = $country_name;
+    }
+    return [$post_countries, $country_slugs];
 }
 
 // Replace WordPress uploads with relative paths
@@ -1075,3 +1119,99 @@ function fix_media()
 }
 
 \WP_CLI::add_command('fix_media', 'CommonKnowledge\WordPress\Awasqa\Import\fix_media');
+
+function fix_categories()
+{
+    $posts_by_type = populate_posts_by_type();
+    foreach ($posts_by_type['post'] as $slug => $posts) {
+        fix_post_categories($slug, $posts);
+    }
+}
+
+function fix_post_categories($slug, $post_xmls)
+{
+    if (count($post_xmls) === 1) {
+        $original_post = $post_xmls[0];
+        $translated_post = null;
+    } else if (is_original_post("post", $slug, $post_xmls[0])) {
+        $original_post = $post_xmls[0];
+        $translated_post = $post_xmls[1];
+    } else {
+        $original_post = $post_xmls[1];
+        $translated_post = $post_xmls[0];
+    }
+
+    $post_name = (string) $original_post->children(XMLNS_WP)->post_name;
+
+    $post_name = [
+        "a-zapotec-reflection-on-freedom-%ef%bf%bcmom-how-do-you-allow-yourself-to-do-what-you-desire"
+        => "a-zapotec-reflection-on-freedom-mom-how-do-you-allow-yourself-to-do-what-you-desire"
+    ][$post_name] ?? $post_name;
+
+    $posts = get_posts([
+        "post_type" => "post",
+        "name" => $post_name
+    ]);
+
+    if (!$posts) {
+        echo "Could not find post " . $post_name . "\n";
+        exit(0);
+    }
+
+    $post = $posts[0];
+
+    $initial_language = Awasqa\WPML\get_current_language('es');
+
+    $orig_language = get_category($original_post, "language");
+
+    // Switch language to make finding and setting categories work
+    do_action('wpml_switch_language', $orig_language);
+
+    list($categories, $category_names) = get_post_category_ids($original_post, $orig_language);
+    list($countries, $country_names) = get_post_countries($original_post, $orig_language);
+
+    wp_set_post_categories($post->ID, $categories);
+    wp_set_post_terms($post->ID, $countries, 'awasqa_country');
+
+    if ($translated_post) {
+        $trans_slug = (string) $translated_post->children(XMLNS_WP)->post_name;
+        $trans_language = get_category($translated_post, "language");
+
+        if ($trans_slug === $slug) {
+            $trans_slug = $slug . "-" . $trans_language;
+        }
+
+        $trans_posts = get_posts([
+            "post_type" => "post",
+            "name" => $post_name
+        ]);
+
+        if (!$trans_posts) {
+            echo "Could not find translated post " . $trans_slug . "\n";
+            exit(0);
+        }
+
+        // Switch language to make finding and setting categories work
+        do_action('wpml_switch_language', $trans_language);
+
+        $trans_post = $trans_posts[0];
+
+        list($categories, $category_names) = get_post_category_ids($trans_post, $trans_language);
+        list($countries, $country_names) = get_post_countries($trans_post, $trans_language);
+
+        wp_set_post_categories($post->ID, $categories);
+        wp_set_post_terms($post->ID, $countries, 'awasqa_country');
+
+        if ($trans_language === 'en') {
+            echo "Fixed post categories " . $post_name . ' => ' . implode($category_names) . ", " . implode($country_names) . "\n";
+        }
+    }
+
+    if ($orig_language === 'en') {
+        echo "Fixed post categories " . $post_name . ' => ' . implode($category_names) . ", " . implode($country_names) . "\n";
+    }
+
+    do_action('wpml_switch_language', $initial_language);
+}
+
+\WP_CLI::add_command('fix_categories', 'CommonKnowledge\WordPress\Awasqa\Import\fix_categories');
