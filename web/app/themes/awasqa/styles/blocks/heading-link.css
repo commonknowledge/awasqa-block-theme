@@ -1,3 +1,6 @@
-.awasqa-heading-link a {
-    @apply --link-arrow;
+.awasqa-heading-link {
+    flex-wrap: wrap !important;
+    a {
+        @apply --link-arrow;
+    }
 }

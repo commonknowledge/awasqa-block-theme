@@ -21,6 +21,9 @@
             width: 100%;
         }
     }
+    a {
+        margin-bottom: 0.5rem;
+    }
     a:first-child {
         @apply --button-outline;
         margin-right: 1.25rem;

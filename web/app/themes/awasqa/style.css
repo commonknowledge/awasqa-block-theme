@@ -6,7 +6,7 @@
     --color-green-lightest: #4653001F;
 
     --font-family-serif: 'Instrument Serif', serif;
-    --font-family-sans-serif: 'Aktiv Grotesk', sans-serif;
+    --font-family-sans-serif: 'Aktiv Grotesk Trial', sans-serif;
     --font-size-large: 2.75rem;
 }
 .page-about-contents ul {
@@ -204,10 +204,11 @@ h6::after {
   text-decoration: underline;
         }
 /* Alter margin-top on first block after the navbar */
-.wp-site-blocks header + * {
+.wp-site-blocks header+* {
         margin-top: 1.25rem;
     }
-.wp-block-button.is-style-outline a,.wp-block-button.is-style-outline button {
+.wp-block-button.is-style-outline a,
+    .wp-block-button.is-style-outline button {
   background: none;
   border: 1px solid var(--color-green) !important;
   border-radius: 0.25rem;
@@ -291,6 +292,11 @@ h6::after {
         }
 .wp-block-loginout a {
     font-size: 1rem !important;
+}
+@media (min-width: 782px) {
+    .has-xx-large-font-size {
+        font-size: var(--wp--preset--font-size--x-large) !important;
+    }
 }
 .awasqa-edit-organisation-action ul {
     margin: 0;
@@ -433,12 +439,15 @@ h6::after {
 footer .wp-block-image img {
             vertical-align: middle;
         }
+.awasqa-heading-link {
+    flex-wrap: wrap !important;
+}
 .awasqa-heading-link a {
   align-items: center;
   color: var(--color-green-lighter);
   display: inline-flex;
   text-decoration: none;
-}
+    }
 .awasqa-heading-link a::after {
   content: "";
   background-image: url("/app/themes/awasqa/assets/images/arrow-right-lighter.svg");
@@ -662,6 +671,9 @@ footer .wp-block-image img {
                object-fit: cover;
             width: 100%;
         }
+.awasqa-radical-resilience a {
+        margin-bottom: 0.5rem;
+    }
 .awasqa-radical-resilience a:first-child {
   background: none;
   border: 1px solid var(--color-green) !important;

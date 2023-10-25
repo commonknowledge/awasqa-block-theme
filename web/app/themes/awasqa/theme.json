@@ -108,6 +108,8 @@
 			"fluid": true,
 			"fontFamilies": [
 				{
+					"fontFamily": "Instrument Serif",
+					"slug": "instrument-serif",
 					"fontFace": [
 						{
 							"fontFamily": "Instrument Serif",
@@ -125,28 +127,12 @@
 								"file:./assets/fonts/instrument-serif_italic_400.ttf"
 							]
 						}
-					],
-					"fontFamily": "Instrument Serif",
-					"slug": "instrument-serif"
+					]
 				},
 				{
+					"fontFamily": "Aktiv Grotesk Trial",
+					"slug": "aktiv-grotesk-trial",
 					"fontFace": [
-						{
-							"fontFamily": "Aktiv Grotesk Trial",
-							"fontStyle": "normal",
-							"fontWeight": "700",
-							"src": [
-								"file:./assets/fonts/aktiv-grotesk-trial_normal_700.ttf"
-							]
-						},
-						{
-							"fontFamily": "Aktiv Grotesk Trial",
-							"fontStyle": "italic",
-							"fontWeight": "700",
-							"src": [
-								"file:./assets/fonts/aktiv-grotesk-trial_italic_700.ttf"
-							]
-						},
 						{
 							"fontFamily": "Aktiv Grotesk Trial",
 							"fontStyle": "normal",
@@ -162,21 +148,21 @@
 							"src": [
 								"file:./assets/fonts/aktiv-grotesk-trial_italic_400.ttf"
 							]
-						}
-					],
-					"fontFamily": "Aktiv Grotesk Trial",
-					"slug": "aktiv-grotesk-trial"
-				},
-				{
-					"fontFamily": "Aktiv Grotesk Cd",
-					"slug": "aktiv-grotesk-cd",
-					"fontFace": [
+						},
 						{
-							"fontFamily": "Aktiv Grotesk Cd",
+							"fontFamily": "Aktiv Grotesk Trial",
 							"fontWeight": "700",
 							"fontStyle": "normal",
 							"src": [
-								"file:./assets/fonts/aktiv-grotesk-cd_normal_700.otf"
+								"file:./assets/fonts/aktiv-grotesk-trial_normal_700.otf"
+							]
+						},
+						{
+							"fontFamily": "Aktiv Grotesk Trial",
+							"fontWeight": "700",
+							"fontStyle": "italic",
+							"src": [
+								"file:./assets/fonts/aktiv-grotesk-trial_italic_700.ttf"
 							]
 						}
 					]
