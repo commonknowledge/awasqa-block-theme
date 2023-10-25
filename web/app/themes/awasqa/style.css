@@ -616,19 +616,10 @@ footer .wp-block-image img {
         height: 100%;
         position: relative;
     }
-.awasqa-post-heading .wp-block-post-featured-image::before {
-            content: "";
-            background: linear-gradient(180deg, rgba(0, 0, 0, 0.80) 0%, rgba(0, 0, 0, 0.00) 28.52%);
-            display: block;
-            height: 100%;
-            left: 0;
-            position: absolute;
-            top: 0;
-            width: 100%;
-        }
 .awasqa-post-heading .wp-block-post-featured-image img {
             border-radius: 0;
             height: 100%;
+            max-height: 300px;
             -o-object-fit: cover;
                object-fit: cover;
         }
