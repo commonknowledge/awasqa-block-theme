@@ -52,6 +52,11 @@ add_filter("query_loop_block_query_vars", function ($query) {
         }
     }
 
+    if ($query['post_type'] === 'awasqa_organisation') {
+        $query['orderby'] = 'post_title';
+        $query['order'] = 'ASC';
+    }
+
     /**
      * From this point onwards, all the if(...) blocks
      * return the $query, to avoid mixed behaviour.
