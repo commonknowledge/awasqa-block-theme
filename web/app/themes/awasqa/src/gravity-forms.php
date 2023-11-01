@@ -2,6 +2,7 @@
 
 namespace CommonKnowledge\WordPress\Awasqa\GravityForms;
 
+use Gravity_Forms\Gravity_Forms_RECAPTCHA\GF_Field_RECAPTCHA;
 use CommonKnowledge\WordPress\Awasqa;
 
 use function CommonKnowledge\WordPress\Awasqa\Authors\get_author_organisations;
@@ -436,3 +437,30 @@ add_filter('gform_advancedpostcreation_post', function ($post, $feed, $entry, $f
     $post['post_status'] = $org->post_status;
     return $post;
 }, 10, 4);
+
+// Add captcha to login form
+add_filter('gform_userregistration_login_form', function ($form) {
+    $form['fields'][] = new \GF_Field_CAPTCHA();
+    return $form;
+});
+
+add_filter('gform_validation', function ($validation_result) {
+    $form = $validation_result['form'];
+
+    $files = $_FILES ?? [];
+    $files = array_filter($files, function ($file) {
+        return (bool) ($file['tmp_name'] ?? null);
+    });
+
+    foreach ($files as $file) {
+        exec("clamscan " . $file['tmp_name'], $output, $result_code);
+        if ($result_code !== 0) {
+            $validation_result['is_valid'] = false;
+            @unlink($file['tmp_name']);
+        }
+    }
+
+    //Assign modified $form object back to the validation result
+    $validation_result['form'] = $form;
+    return $validation_result;
+});

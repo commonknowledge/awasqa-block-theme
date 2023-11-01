@@ -9,7 +9,8 @@ RUN apk update \
     && apk add --no-cache $PHP_GD_DEPS \
     && docker-php-ext-install gd mysqli pdo pdo_mysql zip \
     && echo "date.timezone=Europe/London" > /usr/local/etc/php/conf.d/zz-custom.ini \
-    && echo "session.autostart=0" >> /usr/local/etc/php/conf.d/zz-custom.ini
+    && echo "session.autostart=0" >> /usr/local/etc/php/conf.d/zz-custom.ini \
+    && apk add clamav
 
 RUN apk update && apk add --virtual --no-cache \
     imagemagick imagemagick-dev linux-headers $PHPIZE_DEPS \
