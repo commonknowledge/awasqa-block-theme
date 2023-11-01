@@ -260,10 +260,11 @@ add_action('carbon_fields_register_fields', function () {
                 $name = Awasqa\Authors\awasqa_get_author_name($user_id);
                 $image_id = $meta['awasqa_profile_pic_id'][0] ?? 0;
                 $image_url = $image_id ? wp_get_attachment_image_src($image_id) : null;
+                $bio = $meta['description'][0] ?? "";
                 $author_data[] = [
                     "link" => get_author_posts_url($user_id),
                     "name" => $name,
-                    "bio" => __($meta['description'][0], "Authors") ?? "",
+                    "bio" => $bio ? __($bio, "Authors") : "",
                     "image_url" => $image_url[0] ?? null
                 ];
             }
