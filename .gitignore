@@ -9,6 +9,7 @@ web/app/languages/*
 !web/app/languages/.gitkeep
 web/app/cache/*
 web/app/vendor
+web/app/wflogs
 
 # WordPress
 web/wp

@@ -443,3 +443,65 @@ add_filter('gform_userregistration_login_form', function ($form) {
     $form['fields'][] = new \GF_Field_CAPTCHA();
     return $form;
 });
+
+function scanFile($file, $patterns)
+{
+    $fh = fopen($file['tmp_name'], 'r');
+    while (!feof($fh)) {
+        $data = fread($fh, 1 * 1024 * 1024);
+        foreach ($patterns['rules'] as $rule) {
+            if (preg_match('/(' . $rule[2] . ')/iS', $data, $matches, PREG_OFFSET_CAPTURE)) {
+                return false;
+            }
+        }
+        $badStringFound = false;
+        if (strpos($data, $patterns['badstrings'][0]) !== false) {
+            for ($i = 1; $i < sizeof($patterns['badstrings']); $i++) {
+                if (\wfUtils::strpos($data, $patterns['badstrings'][$i]) !== false) {
+                    $badStringFound = $patterns['badstrings'][$i];
+                    break;
+                }
+            }
+        }
+        if ($badStringFound) {
+            return false;
+        }
+    }
+    return true;
+}
+
+add_filter('gform_validation', function ($validation_result) {
+    $form = $validation_result['form'];
+
+    $files = $_FILES ?? [];
+    $files = array_filter($files, function ($file) {
+        return (bool) ($file['tmp_name'] ?? null);
+    });
+
+    // get virus patterns from WordFence
+    $scan_engine = new \wfScanEngine();
+    $wp_version = \wfUtils::getWPVersion();
+    $apiKey = \wfConfig::get('apiKey');
+    $scanner = new \wordfenceScanner($apiKey, $wp_version, ABSPATH, $scan_engine);
+    $refl = new \ReflectionObject($scanner);
+    $prop = $refl->getProperty('patterns');
+    $prop->setAccessible(true);
+    $patterns = $prop->getValue($scanner);
+
+    foreach ($files as $file) {
+        $result = scanFile($file, $patterns);
+        if (!$result) {
+            $validation_result['is_valid'] = false;
+            @unlink($file['tmp_name']);
+        }
+    }
+
+    if (!$validation_result['is_valid']) {
+        wp_redirect($_SERVER['REQUEST_URI']);
+        exit(0);
+    }
+
+    //Assign modified $form object back to the validation result
+    $validation_result['form'] = $form;
+    return $validation_result;
+});
