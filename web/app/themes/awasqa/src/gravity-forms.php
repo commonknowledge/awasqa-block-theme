@@ -443,24 +443,3 @@ add_filter('gform_userregistration_login_form', function ($form) {
     $form['fields'][] = new \GF_Field_CAPTCHA();
     return $form;
 });
-
-add_filter('gform_validation', function ($validation_result) {
-    $form = $validation_result['form'];
-
-    $files = $_FILES ?? [];
-    $files = array_filter($files, function ($file) {
-        return (bool) ($file['tmp_name'] ?? null);
-    });
-
-    foreach ($files as $file) {
-        exec("clamscan " . $file['tmp_name'], $output, $result_code);
-        if ($result_code !== 0) {
-            $validation_result['is_valid'] = false;
-            @unlink($file['tmp_name']);
-        }
-    }
-
-    //Assign modified $form object back to the validation result
-    $validation_result['form'] = $form;
-    return $validation_result;
-});
