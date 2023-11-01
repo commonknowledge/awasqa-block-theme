@@ -74,6 +74,7 @@ function get_author_organisations($author_id)
 {
     $org_query = new \WP_Query([
         'post_type' => 'awasqa_organisation',
+        'posts_per_page' => -1
     ]);
     $orgs = $org_query->posts ?: [];
     $author_orgs = [];

@@ -13,6 +13,7 @@ function get_org_post_ids($org_id)
 {
     $query = new \WP_Query([
         'post_type' => 'post',
+        'posts_per_page' => -1
     ]);
     $posts = $query->posts ?: [];
     $org_post_ids = [];

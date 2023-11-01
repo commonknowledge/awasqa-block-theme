@@ -170,6 +170,7 @@ add_action('carbon_fields_register_fields', function () {
                     return $related_org['id'];
                 }, $related_orgs);
                 $organisations = get_posts([
+                    "posts_per_page" => -1,
                     "post_type" => "awasqa_organisation",
                     "post__in" => $org_ids
                 ]);
