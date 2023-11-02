@@ -140,10 +140,6 @@ add_filter('get_avatar', function ($avatar, $id_or_email, $size, $default, $alt)
             return $avatar;
         }
         $src = $image_urls[0];
-        $valid_url = filter_var($src, FILTER_VALIDATE_URL);
-        if (!$valid_url) {
-            return $avatar;
-        }
         $user_name = $user->display_name ?: $user->user_nicename;
         // Replace src attribute
         $avatar = preg_replace('#src=[^ ]*#', 'src="' . $src . '"', $avatar);
