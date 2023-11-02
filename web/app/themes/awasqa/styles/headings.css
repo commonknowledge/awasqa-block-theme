@@ -3,6 +3,7 @@
         align-items: center;
         color: var(--color-orange);
         display: flex;
+        font-weight: bold;
         gap: 0.5rem;
 
         &::before {

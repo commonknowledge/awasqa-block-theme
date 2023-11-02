@@ -130,6 +130,7 @@ h6 {
   align-items: center;
   color: var(--color-orange);
   display: flex;
+  font-weight: bold;
   gap: 0.5rem;
 }
 h6::before {
@@ -150,6 +151,7 @@ h6::after {
   align-items: center;
   color: var(--color-orange);
   display: flex;
+  font-weight: bold;
   gap: 0.5rem;
     }
 .bbp-user-profile h2::before {

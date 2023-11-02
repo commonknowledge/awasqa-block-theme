@@ -4,6 +4,8 @@ namespace CommonKnowledge\WordPress\Awasqa\Authors;
 
 use CommonKnowledge\WordPress\Awasqa;
 
+use function CommonKnowledge\WordPress\Awasqa\WPML\get_current_language;
+
 function awasqa_get_coauthors($post_id)
 {
     $post = get_post($post_id);
@@ -337,3 +339,21 @@ function do_avatar_column($val, $column_name, $user_id)
     return $val;
 }
 add_filter('manage_users_custom_column', 'CommonKnowledge\WordPress\Awasqa\Authors\do_avatar_column', 10, 3);
+
+function get_translated_author_bio($author_id)
+{
+    global $wpdb;
+
+    $description = get_user_meta($author_id, 'description', true);
+
+    $sql = "SELECT id FROM wp_icl_strings WHERE context='Authors' AND name='description_{$author_id}' LIMIT 1;";
+    $string_id = $wpdb->get_col($sql);
+    if (!$string_id) {
+        return $description;
+    }
+
+    $lang = get_current_language('es');
+
+    $translations = icl_get_string_translations_by_id($string_id[0]);
+    return $translations[$lang]['value'] ?? $description;
+}
