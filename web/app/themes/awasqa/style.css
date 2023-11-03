@@ -97,6 +97,22 @@ strong {
   color: var(--color-green) !important;
   text-decoration: none !important;
         }
+.wp-block-button:not(.is-style-outline) {
+  background-color: var(--color-green-lightest);
+  border: none;
+  border-radius: 0.25rem;
+  color: var(--color-green);
+  cursor: pointer;
+  display: inline-block;
+  font-size: 0.875rem;
+  font-weight: bold;
+  padding: 0.5rem 1rem;
+  text-decoration: none;
+  text-transform: uppercase;
+}
+.wp-block-button:not(.is-style-outline):focus, .wp-block-button:not(.is-style-outline):hover {
+  background-color: var(--color-orange);
+        }
 .gform_button.button {
   background-color: var(--color-orange);
   border: none;

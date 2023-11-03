@@ -421,7 +421,7 @@
 				},
 				"typography": {
 					"fontSize": "var(--wp--preset--font-size--large)",
-					"fontWeight": "400"
+					"fontWeight": "600"
 				}
 			},
 			"core/pullquote": {

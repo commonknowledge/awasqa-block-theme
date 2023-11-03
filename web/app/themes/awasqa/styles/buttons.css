@@ -79,3 +79,7 @@
 .button-inverse {
     @apply --button-inverse;
 }
+
+.wp-block-button:not(.is-style-outline) {
+    @apply --button-default;
+}
