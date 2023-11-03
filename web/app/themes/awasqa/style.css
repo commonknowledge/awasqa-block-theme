@@ -47,7 +47,8 @@ strong {
   text-decoration: none;
   text-transform: uppercase;
 }
-.bbp-submit-wrapper button:focus, .bbp-submit-wrapper button:hover {
+.bbp-submit-wrapper button:focus,
+        .bbp-submit-wrapper button:hover {
   background-color: var(--color-green-lightest);
         }
 .button-default {
@@ -63,7 +64,8 @@ strong {
   text-decoration: none;
   text-transform: uppercase;
 }
-.button-default:focus, .button-default:hover {
+.button-default:focus,
+        .button-default:hover {
   background-color: var(--color-orange);
         }
 .button-outline {
@@ -79,7 +81,8 @@ strong {
   text-decoration: none;
   text-transform: uppercase;
 }
-.button-outline:focus, .button-outline:hover {
+.button-outline:focus,
+        .button-outline:hover {
   background-color: var(--color-orange);
         }
 .button-inverse {
@@ -92,7 +95,8 @@ strong {
   padding: 0.5rem 1rem;
   text-decoration: none !important;
 }
-.button-inverse:focus, .button-inverse:hover {
+.button-inverse:focus,
+        .button-inverse:hover {
   background-color: var(--color-green-lightest);
   color: var(--color-green) !important;
   text-decoration: none !important;
@@ -110,8 +114,21 @@ strong {
   text-decoration: none;
   text-transform: uppercase;
 }
-.wp-block-button:not(.is-style-outline):focus, .wp-block-button:not(.is-style-outline):hover {
+.wp-block-button:not(.is-style-outline):focus,
+        .wp-block-button:not(.is-style-outline):hover {
   background-color: var(--color-orange);
+        }
+.wp-block-button:not(.is-style-outline) .wp-element-button,
+    .wp-block-button:not(.is-style-outline) .wp-block-button__link {
+        background-color: transparent;
+        font-family: inherit;
+        line-height: inherit;
+        padding: 0;
+        text-decoration: none;
+    }
+.wp-block-button:not(.is-style-outline) .wp-element-button:hover,.wp-block-button:not(.is-style-outline) .wp-element-button:focus,.wp-block-button:not(.is-style-outline) .wp-block-button__link:hover,.wp-block-button:not(.is-style-outline) .wp-block-button__link:focus {
+            background-color: inherit;
+            color: inherit;
         }
 .gform_button.button {
   background-color: var(--color-orange);
@@ -126,7 +143,8 @@ strong {
   text-decoration: none;
   text-transform: uppercase;
 }
-.gform_button.button:focus, .gform_button.button:hover {
+.gform_button.button:focus,
+        .gform_button.button:hover {
   background-color: var(--color-green-lightest);
         }
 .gform_submission_error {
@@ -236,7 +254,10 @@ h6::after {
   padding: 0.5rem 1rem;
   text-decoration: none;
     }
-.wp-block-button.is-style-outline a:focus, .wp-block-button.is-style-outline a:hover, .wp-block-button.is-style-outline button:focus, .wp-block-button.is-style-outline button:hover {
+.wp-block-button.is-style-outline a:focus,
+        .wp-block-button.is-style-outline a:hover,
+        .wp-block-button.is-style-outline button:focus,
+        .wp-block-button.is-style-outline button:hover {
   background-color: var(--color-green-lightest) !important;
         }
 .wp-block-categories {
@@ -260,7 +281,8 @@ h6::after {
   text-decoration: none;
   text-transform: uppercase;
     }
-.wp-block-categories a:focus, .wp-block-categories a:hover {
+.wp-block-categories a:focus,
+        .wp-block-categories a:hover {
   background-color: var(--color-orange);
         }
 .wp-block-categories a.active {
@@ -276,7 +298,8 @@ h6::after {
   text-decoration: none;
   text-transform: uppercase;
     }
-.wp-block-categories a.active:focus, .wp-block-categories a.active:hover {
+.wp-block-categories a.active:focus,
+        .wp-block-categories a.active:hover {
   background-color: var(--color-green-lightest);
         }
 .wp-block-post-featured-image {
@@ -303,7 +326,8 @@ h6::after {
   padding: 0.5rem 1rem;
   text-decoration: none !important;
 }
-.wp-block-loginout a:focus, .wp-block-loginout a:hover {
+.wp-block-loginout a:focus,
+        .wp-block-loginout a:hover {
   background-color: var(--color-green-lightest);
   color: var(--color-green) !important;
   text-decoration: none !important;
@@ -339,7 +363,8 @@ h6::after {
   padding: 0.5rem 1rem;
   text-decoration: none;
     }
-.awasqa-account-details-form button:focus, .awasqa-account-details-form button:hover {
+.awasqa-account-details-form button:focus,
+        .awasqa-account-details-form button:hover {
   background-color: var(--color-green-lightest) !important;
         }
 .awasqa-account-details-form button {
@@ -494,7 +519,8 @@ footer .wp-block-image img {
   text-decoration: none;
   text-transform: uppercase;
 }
-.awasqa-issue-link:focus, .awasqa-issue-link:hover {
+.awasqa-issue-link:focus,
+        .awasqa-issue-link:hover {
   background-color: var(--color-orange);
         }
 .awasqa-issue-link {
@@ -518,7 +544,8 @@ footer .wp-block-image img {
   padding: 0.5rem 1rem;
   text-decoration: none;
     }
-.awasqa-join-us a:focus, .awasqa-join-us a:hover {
+.awasqa-join-us a:focus,
+        .awasqa-join-us a:hover {
   background-color: var(--color-green-lightest) !important;
         }
 .awasqa-join-us p {
@@ -696,7 +723,8 @@ footer .wp-block-image img {
   padding: 0.5rem 1rem;
   text-decoration: none;
     }
-.awasqa-radical-resilience a:first-child:focus, .awasqa-radical-resilience a:first-child:hover {
+.awasqa-radical-resilience a:first-child:focus,
+        .awasqa-radical-resilience a:first-child:hover {
   background-color: var(--color-green-lightest) !important;
         }
 .awasqa-radical-resilience a:first-child {
@@ -712,7 +740,8 @@ footer .wp-block-image img {
   padding: 0.5rem 1rem;
   text-decoration: none !important;
     }
-.awasqa-radical-resilience a:last-child:focus, .awasqa-radical-resilience a:last-child:hover {
+.awasqa-radical-resilience a:last-child:focus,
+        .awasqa-radical-resilience a:last-child:hover {
   background-color: var(--color-green-lightest);
   color: var(--color-green) !important;
   text-decoration: none !important;
