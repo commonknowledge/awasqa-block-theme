@@ -156,6 +156,10 @@ add_action('carbon_fields_register_fields', function () {
             $organisations = [];
             $author_data = [];
             foreach ($authors as $author) {
+                // Skip admin
+                if ($author->ID == 1) {
+                    continue;
+                }
                 $name = Awasqa\Authors\awasqa_get_author_name($author->ID);
                 $author_data[] = [
                     "link" => get_author_posts_url($author->ID),
@@ -324,6 +328,10 @@ add_action('carbon_fields_register_fields', function () {
             }
             $authors_data = [];
             foreach ($authors as $author) {
+                // Skip admin
+                if ($author->ID == 1) {
+                    continue;
+                }
                 $name = Awasqa\Authors\awasqa_get_author_name($author->ID);
                 $meta = get_user_meta($author->ID);
                 $image_id = $meta['awasqa_profile_pic_id'][0] ?? null;
@@ -335,16 +343,18 @@ add_action('carbon_fields_register_fields', function () {
                     "image_url" => $image_url[0] ?? null
                 ];
             }
-            ?>
-        <div class="awasqa-authors-column">
-            <h6><?= __('Authors', 'awasqa') ?></h6>
-            <?php
-            foreach ($authors_data as $author_data) {
-                Awasqa\Authors\render_author_column($author_data, show_visit_link: true);
+            if ($authors_data) {
+                ?>
+            <div class="awasqa-authors-column">
+                <h6><?= __('Authors', 'awasqa') ?></h6>
+                <?php
+                foreach ($authors_data as $author_data) {
+                    Awasqa\Authors\render_author_column($author_data, show_visit_link: true);
+                }
+                ?>
+            </div>
+                <?php
             }
-            ?>
-        </div>
-            <?php
         });
 
     Block::make('Account Details Form')
