@@ -137,9 +137,4 @@ if (!defined('ABSPATH')) {
     define('ABSPATH', $webroot_dir . '/wp/');
 }
 
-if (!defined('DISABLE_FSE')) {
-    // Disable FSE
-    define('DISABLE_FSE', true);
-}
-
 define('WP_MEMORY_LIMIT', '128M');
