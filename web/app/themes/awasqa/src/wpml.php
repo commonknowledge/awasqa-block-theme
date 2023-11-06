@@ -92,6 +92,7 @@ add_filter('query', function ($query) {
 
 function connect_translations_page()
 {
+    $original_post_links = [];
     if ($_POST) {
         $processed_ids = [];
         foreach ($_POST as $key => $value) {
@@ -157,6 +158,8 @@ function connect_translations_page()
 
             $processed_keys[] = $key;
             $processed_keys[] = $key_b;
+
+            $original_post_links[get_the_permalink($original_id)] = get_the_title($original_id);
         }
     }
     $posts = get_posts(['posts_per_page' => -1, 'post_type' => 'post']);
@@ -170,8 +173,19 @@ function connect_translations_page()
     }
     ?>
     <h1>Connect Translations</h1>
+    <?php if ($original_post_links) : ?>
+        <p><strong>Successfully linked:</strong></p>
+        <ul>
+            <?php foreach ($original_post_links as $link => $title) : ?>
+                <li><a href="<?= $link ?>"><?= $title ?></a></li>
+            <?php endforeach ?>
+        </ul>
+    <?php endif; ?>
     <p>
-        <strong>Mark matching posts with the same number then click the "Connect" button.</strong>
+        <strong>
+            Mark matching posts with the same number then click the
+            "Connect" button at the bottom of the page.
+        </strong>
     </p>
     <form method="POST">
         <ul>
@@ -187,7 +201,7 @@ function connect_translations_page()
                 </li>
             <?php endforeach; ?>
         </ul>
-        <button>Connect</button>
+        <button class="button button-primary save">Connect</button>
     </form>
     <script>
         const selects = document.querySelectorAll('.connect-translation-select')
