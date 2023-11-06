@@ -191,13 +191,13 @@ function connect_translations_page()
         <ul>
             <?php foreach ($untranslated_posts as $post) : ?>
                 <li>
-                    <?= $post->post_name ?> / <?= get_the_title($post) ?>
                     <select class="connect-translation-select" name="post-<?= $post->ID ?>">
                         <option value="0" selected>---</option>
                         <?php for ($i = 1; $i <= 10; ++$i) : ?>
                             <option value="<?= $i ?>"><?= $i ?></option>
                         <?php endfor ?>
                     </select>
+                    <a href="<?= get_the_permalink($post->ID) ?>"><?= get_the_title($post->ID) ?></a>
                 </li>
             <?php endforeach; ?>
         </ul>
