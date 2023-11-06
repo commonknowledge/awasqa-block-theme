@@ -89,3 +89,149 @@ add_filter('query', function ($query) {
     }
     return $query;
 });
+
+function connect_translations_page()
+{
+    if ($_POST) {
+        $processed_ids = [];
+        foreach ($_POST as $key => $value) {
+            if (!$value || $value == 0) {
+                continue;
+            }
+
+            if (in_array($key, $processed_ids)) {
+                continue;
+            }
+
+            $post_id_a = preg_replace('#^post-#', '', $key);
+            $key_b = array_values(array_filter(array_keys($_POST), function ($k) use ($key, $value) {
+                return $k !== $key && $_POST[$k] === $value;
+            }))[0];
+            $post_id_b = preg_replace('#^post-#', '', $key_b);
+            $original_id = $post_id_a < $post_id_b ? $post_id_a : $post_id_b;
+            $translated_id = $original_id === $post_id_a ? $post_id_b : $post_id_a;
+
+            $original_slug = get_post_field('post_name', $original_id);
+            $translated_slug = get_post_field('post_name', $translated_id);
+
+            $trid = apply_filters('wpml_element_trid', null, $original_id, 'post_post');
+            if (!$trid) {
+                echo "NO TRID FOR ORIGINAL POST $original_id: $original_slug\n";
+                return;
+            }
+
+            $original_lang_details = apply_filters('wpml_post_language_details', null, $original_id);
+            $original_language = $original_lang_details['language_code'] ?? null;
+
+            $translated_lang_details = apply_filters('wpml_post_language_details', null, $translated_id);
+            $translated_language = $translated_lang_details['language_code'] ?? null;
+
+            if (!$original_language) {
+                echo "NO LANG FOR ORIGINAL POST $original_id: $original_slug\n";
+                return;
+            }
+
+            if (!$translated_language) {
+                echo "NO LANG FOR TRANSLATED POST $translated_id: $translated_slug\n";
+                return;
+            }
+
+
+            if ($original_language == $translated_language) {
+                echo "BOTH POSTS $original_id: $original_slug AND $translated_id: $translated_slug HAVE LANGUAGE $original_language\n";
+                return;
+            }
+
+            global $wpdb;
+            $wpdb->query("DELETE FROM wp_icl_translations WHERE element_id = $translated_id;");
+
+            $language_args = [
+                'element_id' => $translated_id,
+                'element_type' => 'post_post',
+                'trid' => $trid,
+                'language_code' => $translated_language,
+                'source_language_code' => $original_language,
+            ];
+
+            do_action('wpml_set_element_language_details', $language_args);
+
+            $processed_keys[] = $key;
+            $processed_keys[] = $key_b;
+        }
+    }
+    $posts = get_posts(['posts_per_page' => -1, 'post_type' => 'post']);
+    $untranslated_posts = [];
+    foreach ($posts as $post) {
+        $en_post_id = apply_filters('wpml_object_id', $post->ID, 'post', true, 'en');
+        $es_post_id = apply_filters('wpml_object_id', $post->ID, 'post', true, 'es');
+        if (!$en_post_id || !$es_post_id || $en_post_id === $es_post_id) {
+            $untranslated_posts[] = $post;
+        }
+    }
+    ?>
+    <h1>Connect Translations</h1>
+    <p>
+        <strong>Mark matching posts with the same number then click the "Connect" button.</strong>
+    </p>
+    <form method="POST">
+        <ul>
+            <?php foreach ($untranslated_posts as $post) : ?>
+                <li>
+                    <?= $post->post_name ?> / <?= get_the_title($post) ?>
+                    <select class="connect-translation-select" name="post-<?= $post->ID ?>">
+                        <option value="0" selected>---</option>
+                        <?php for ($i = 1; $i <= 10; ++$i) : ?>
+                            <option value="<?= $i ?>"><?= $i ?></option>
+                        <?php endfor ?>
+                    </select>
+                </li>
+            <?php endforeach; ?>
+        </ul>
+        <button>Connect</button>
+    </form>
+    <script>
+        const selects = document.querySelectorAll('.connect-translation-select')
+        selects.forEach(select => {
+            select.addEventListener('change', function() {
+                const v = select.value
+                if (v === '0') {
+                    return
+                }
+                let count = 0
+                selects.forEach(select => {
+                    if (select.value === v) {
+                        count++
+                    }
+                })
+                selects.forEach(select => {
+                    if (select.value !== v) {
+                        const options = select.querySelectorAll('option')
+                        for (const option of options) {
+                            if (option.value === v) {
+                                if (count > 1) {
+                                    option.setAttribute('disabled', "true")
+                                } else {
+                                    option.removeAttribute('disabled')
+                                }
+                            }
+                        }
+                    }
+                })
+            })
+        })
+    </script>
+    <?php
+}
+
+// Add page to connect pages that are translations of each other
+add_action('admin_menu', function () {
+    add_menu_page(
+        'Connect Translations',
+        'Connect Translations',
+        'manage_options',
+        'connect-translations',
+        'CommonKnowledge\WordPress\Awasqa\WPML\connect_translations_page',
+        'dashicons-admin-site',
+        3
+    );
+});
