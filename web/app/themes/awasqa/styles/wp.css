@@ -59,8 +59,12 @@
     text-transform: uppercase;
 }
 
+.has-xx-large-font-size {
+    font-size: var(--wp--preset--font-size--x-large) !important;
+}
+
 @media (min-width: 782px) {
     .has-xx-large-font-size {
-        font-size: var(--wp--preset--font-size--x-large) !important;
+        font-size: var(--wp--preset--font-size--xx-large) !important;
     }
 }

@@ -1,6 +1,19 @@
 const LOCALE = document.documentElement.lang || 'en-GB'
 const USER_DATA = window.USER_DATA
 
+// Rearrange blocks on mobile
+if (window.innerWidth < 782) {
+    const categories = document.querySelector('.home .wp-block-categories-list')
+    if (categories) {
+        const column = categories.closest('.wp-block-column')
+        const columns = column.parentElement
+        columns.removeChild(column)
+        const group = columns.nextElementSibling
+        group.appendChild(column)
+        column.style.marginBottom = "6rem";
+    }
+}
+
 // Apply orange filter to Radical Resilience block
 document.querySelectorAll(".awasqa-radical-resilience").forEach((block) => {
     const figure = block.querySelector("figure")

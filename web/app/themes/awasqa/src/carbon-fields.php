@@ -81,9 +81,10 @@ add_action('carbon_fields_register_fields', function () {
     Container::make('post_meta', 'Contact')
         ->where('post_type', '=', 'awasqa_organisation')
         ->add_fields(array(
-            Field::make('text', 'email', 'Email address')->set_attribute('type', 'email'),
             Field::make('text', 'twitter', 'Twitter URL')->set_attribute('type', 'url'),
             Field::make('text', 'facebook', 'Facebook URL')->set_attribute('type', 'url'),
+            Field::make('text', 'instagram', 'Instagram URL')->set_attribute('type', 'url'),
+            Field::make('text', 'youtube', 'Youtube URL')->set_attribute('type', 'url'),
         ));
 
     Container::make('post_meta', 'Members')

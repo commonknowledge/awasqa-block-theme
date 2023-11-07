@@ -338,9 +338,12 @@ h6::after {
 .wp-block-site-title {
     text-transform: uppercase;
 }
+.has-xx-large-font-size {
+    font-size: var(--wp--preset--font-size--x-large) !important;
+}
 @media (min-width: 782px) {
     .has-xx-large-font-size {
-        font-size: var(--wp--preset--font-size--x-large) !important;
+        font-size: var(--wp--preset--font-size--xx-large) !important;
     }
 }
 .awasqa-edit-organisation-action ul {
@@ -571,20 +574,30 @@ footer .wp-block-image img {
 .awasqa-org-contact-details__email {
     margin: 1rem 0 2.5rem;
 }
-.awasqa-org-contact-details__facebook::before, .awasqa-org-contact-details__twitter::before {
+.awasqa-org-contact-details__facebook::before, .awasqa-org-contact-details__twitter::before, .awasqa-org-contact-details__instagram::before, .awasqa-org-contact-details__youtube::before {
         content: "";
         background-image: url('/app/themes/awasqa/assets/images/facebook.svg');
         background-position: center;
         background-repeat: no-repeat;
+        background-size: contain;
         height: 24px;
         margin-right: 0.25rem;
         width: 24px;
     }
-.awasqa-org-contact-details__facebook,.awasqa-org-contact-details__twitter {
+.awasqa-org-contact-details__facebook,
+.awasqa-org-contact-details__twitter,
+.awasqa-org-contact-details__instagram,
+.awasqa-org-contact-details__youtube {
     margin: 1rem 0;
 }
 .awasqa-org-contact-details__twitter::before {
         background-image: url('/app/themes/awasqa/assets/images/twitter.svg');
+    }
+.awasqa-org-contact-details__instagram::before {
+        background-image: url('/app/themes/awasqa/assets/images/instagram.svg');
+    }
+.awasqa-org-contact-details__youtube::before {
+        background-image: url('/app/themes/awasqa/assets/images/youtube.svg');
     }
 .awasqa_organisation .wp-block-post-featured-image {
         background-color: #fff;

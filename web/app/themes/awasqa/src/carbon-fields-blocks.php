@@ -222,27 +222,32 @@ add_action('carbon_fields_register_fields', function () {
             } else {
                 $org = get_post();
             }
-            $email = Awasqa\CarbonFields\awasqa_carbon_get_post_meta($org->ID, 'email');
             $twitter = Awasqa\CarbonFields\awasqa_carbon_get_post_meta($org->ID, 'twitter');
             $facebook = Awasqa\CarbonFields\awasqa_carbon_get_post_meta($org->ID, 'facebook');
+            $instagram = Awasqa\CarbonFields\awasqa_carbon_get_post_meta($org->ID, 'instagram');
+            $youtube = Awasqa\CarbonFields\awasqa_carbon_get_post_meta($org->ID, 'youtube');
             ?>
         <div class="awasqa-org-contact-details">
-            <?php if ($email) : ?>
-                <h3><?= __('Email', 'awasqa') ?></h3>
-                <a class="awasqa-org-contact-details__email" href="mailto:<?= $email ?>">
-                    <?= $email ?>
-                </a>
-            <?php endif; ?>
-            <?php if ($twitter || $facebook) : ?>
+            <?php if ($twitter || $facebook || $instagram || $youtube) : ?>
                 <h3><?= __('Social Media', 'awasqa') ?></h3>
                 <?php if ($twitter) : ?>
-                    <a class="awasqa-org-contact-details__twitter" href="<?= $twitter ?>">
+                    <a class="awasqa-org-contact-details__twitter" href="<?= $twitter ?>" target="_blank">
                         Twitter
                     </a>
                 <?php endif; ?>
                 <?php if ($facebook) : ?>
-                    <a class="awasqa-org-contact-details__facebook" href="<?= $facebook ?>">
+                    <a class="awasqa-org-contact-details__facebook" href="<?= $facebook ?>" target="_blank">
                         Facebook
+                    </a>
+                <?php endif; ?>
+                <?php if ($instagram) : ?>
+                    <a class="awasqa-org-contact-details__instagram" href="<?= $instagram ?>" target="_blank">
+                        Instagram
+                    </a>
+                <?php endif; ?>
+                <?php if ($youtube) : ?>
+                    <a class="awasqa-org-contact-details__youtube" href="<?= $youtube ?>" target="_blank">
+                        YouTube
                     </a>
                 <?php endif; ?>
             <?php endif; ?>
