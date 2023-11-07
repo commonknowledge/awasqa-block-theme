@@ -403,6 +403,26 @@ h6::after {
         flex-grow: 1;
         height: 150px;
     }
+.awasqa-all-authors {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    list-style: none;
+    padding: 0;
+}
+@media (min-width: 782px) {
+    .awasqa-all-authors {
+        flex-direction: row;
+        flex-wrap: wrap;
+        gap: 2rem;
+        list-style: none;
+        padding: 0;
+    }
+
+        .awasqa-all-authors li {
+            flex: 1 0 calc(33% - 4rem);
+        }
+}
 .awasqa-author-column p {
         margin: 0 0 0.875rem 0;
     }

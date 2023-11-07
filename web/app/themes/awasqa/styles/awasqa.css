@@ -12,6 +12,7 @@
 
 @import "blocks/account-actions.css";
 @import "blocks/account-details-form.css";
+@import "blocks/all-authors.css";
 @import "blocks/author-column.css";
 @import "blocks/authors-column.css";
 @import "blocks/authors.css";

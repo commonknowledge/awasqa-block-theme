@@ -1,0 +1,21 @@
+.awasqa-all-authors {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    list-style: none;
+    padding: 0;
+}
+
+@media (min-width: 782px) {
+    .awasqa-all-authors {
+        flex-direction: row;
+        flex-wrap: wrap;
+        gap: 2rem;
+        list-style: none;
+        padding: 0;
+
+        li {
+            flex: 1 0 calc(33% - 4rem);
+        }
+    }
+}

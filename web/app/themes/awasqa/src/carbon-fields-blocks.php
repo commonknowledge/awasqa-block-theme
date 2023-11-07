@@ -203,6 +203,37 @@ add_action('carbon_fields_register_fields', function () {
             <?php
         });
 
+    Block::make('All Authors')
+        ->set_icon('groups')
+        ->add_fields(array(
+            Field::make('separator', 'crb_separator', __('All Authors', 'awasqa'))
+        ))
+        ->set_render_callback(function ($fields, $attributes, $inner_blocks) {
+            $user_ids = get_users(['orderby' => 'name', 'fields' => 'ID']);
+            $authors_data = [];
+            foreach ($user_ids as $author_id) {
+                $meta = get_user_meta($author_id);
+                $image_id = $meta['awasqa_profile_pic_id'][0] ?? null;
+                $image_url = $image_id ? wp_get_attachment_image_src($image_id) : null;
+                $name = Awasqa\Authors\awasqa_get_author_name($author_id);
+                $authors_data[] = [
+                    "link" => get_author_posts_url($author_id),
+                    "name" => $name,
+                    "bio" => Awasqa\Authors\get_translated_author_bio($author_id),
+                    "image_url" => $image_url[0] ?? null
+                ];
+            }
+            ?>
+        <ul class="awasqa-all-authors">
+            <?php foreach ($authors_data as $author_data) : ?>
+                <li>
+                    <?= Awasqa\Authors\render_author_column($author_data, show_visit_link: true); ?>
+                </li>
+            <?php endforeach; ?>
+        </ul>
+            <?php
+        });
+
     Block::make('Organisation Contact Details')
         ->set_icon('megaphone')
         ->add_fields(array(
