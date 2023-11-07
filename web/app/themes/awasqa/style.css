@@ -239,6 +239,9 @@ h6::after {
 .awasqa-link-arrow:hover,.awasqa-link-arrow:focus {
   text-decoration: underline;
         }
+.wp-block-navigation-item__content {
+    background-color: var(--color-yellow);
+}
 /* Alter margin-top on first block after the navbar */
 .wp-site-blocks header+* {
         margin-top: 1.25rem;

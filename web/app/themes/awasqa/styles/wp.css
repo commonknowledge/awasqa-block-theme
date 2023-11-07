@@ -1,3 +1,7 @@
+.wp-block-navigation-item__content {
+    background-color: var(--color-yellow);
+}
+
 /* Alter margin-top on first block after the navbar */
 .wp-site-blocks {
     header+* {
