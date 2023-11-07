@@ -275,12 +275,31 @@ add_filter('wpseo_title', function ($title) {
 
 function extra_admin_user_fields($user)
 {
+    global $wpdb;
+
     $user_id = $user->ID;
     $meta = get_user_meta($user_id);
     $image_id = $meta['awasqa_profile_pic_id'][0] ?? 0;
     $image_url = $image_id ? wp_get_attachment_image_src($image_id) : null;
+
+    $sql = $wpdb->prepare(
+        'SELECT id FROM wp_icl_strings WHERE context=%s AND name=%s',
+        "Authors",
+        "description_" . $user_id
+    );
+    $cols = $wpdb->get_col($sql);
+    $string_id = $cols[0] ?? "";
     ?>
     <h2>Awasqa</h2>
+    <table class="form-table">
+        <tr>
+            <th><label for="translated-bio"><?= __('Bio en Ingles', 'awasqa') ?></label></th>
+            <td>
+                <input type="hidden" name="form-translated-bio-string-id" value="<?= $string_id ?>">
+                <textarea id="translated-bio" name="form-translated-bio" rows="5" cols="30"><?= get_translated_author_bio($user_id, 'es') ?></textarea>
+            </td>
+        </tr>
+    </table>
     <table class="form-table">
         <tr>
             <th><label for="profile-pic"><?= __('Profile pic', 'awasqa') ?></label></th>
@@ -306,6 +325,19 @@ function awasqa_save_admin_user_fields($user_id)
 {
     if (current_user_can('edit_user', $user_id)) {
         handle_update_profile_pic($user_id);
+
+        // Add translated bio
+        $spanish_description = $_POST['description'] ?? null;
+        $string_id = $_POST['form-translated-bio-string-id'] ?? null;
+        $english_description = $_POST['form-translated-bio'] ?? null;
+        if ($string_id) {
+            if ($spanish_description) {
+                icl_add_string_translation($string_id, 'es', $spanish_description, ICL_TM_COMPLETE);
+            }
+            if ($english_description) {
+                icl_add_string_translation($string_id, 'en', $english_description, ICL_TM_COMPLETE);
+            }
+        }
     }
 }
 add_action('personal_options_update', 'CommonKnowledge\WordPress\Awasqa\Authors\awasqa_save_admin_user_fields');
@@ -340,7 +372,7 @@ function do_avatar_column($val, $column_name, $user_id)
 }
 add_filter('manage_users_custom_column', 'CommonKnowledge\WordPress\Awasqa\Authors\do_avatar_column', 10, 3);
 
-function get_translated_author_bio($author_id)
+function get_translated_author_bio($author_id, $lang = null)
 {
     global $wpdb;
 
@@ -352,7 +384,7 @@ function get_translated_author_bio($author_id)
         return $description;
     }
 
-    $lang = get_current_language('es');
+    $lang = $lang ?? get_current_language('es');
 
     $translations = icl_get_string_translations_by_id($string_id[0]);
     return $translations[$lang]['value'] ?? $description;
