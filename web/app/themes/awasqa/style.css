@@ -242,6 +242,9 @@ h6::after {
 .wp-block-navigation-item__content {
     background-color: var(--color-yellow);
 }
+.wp-block-navigation .has-child .wp-block-navigation__submenu-container {
+    left: 1px !important;
+}
 /* Alter margin-top on first block after the navbar */
 .wp-site-blocks header+* {
         margin-top: 1.25rem;
