@@ -31,7 +31,7 @@ require_once(__DIR__ . '/src/taxonomies.php');
 // WPML logic
 require_once(__DIR__ . '/src/wpml.php');
 
-$ver = "1.8";
+$ver = "1.9";
 add_action('wp_enqueue_scripts', function () use ($ver) {
     wp_enqueue_style(
         'awasqa',

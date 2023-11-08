@@ -153,5 +153,110 @@ document.querySelectorAll(
     query.previousElementSibling.style.display = "none"
 })
 
+// Set up infinite scroll
+function isElementInViewport(el) {
+    const rect = el.getBoundingClientRect();
+    return (
+        rect.top >= 0 &&
+        rect.left >= 0 &&
+        rect.bottom <= (window.innerHeight || document.documentElement.clientHeight) &&
+        rect.right <= (window.innerWidth || document.documentElement.clientWidth)
+    );
+}
+
+/**
+ * Pass an <a> element, and return the key and value of
+ * the ?query-N-page=M query parameter. Used for pagination.
+ */
+function getLinkPageParam(a) {
+    let href = a.getAttribute('href')
+    if (!href) {
+        return {}
+    }
+    if (!href.startsWith('http')) {
+        href = `${window.location.protocol}//${window.location.host}${href}`
+    }
+    const parsedHref = new URL(href)
+    const queryParams = parsedHref.searchParams
+    let pageParam = null;
+    for (const param of queryParams.keys()) {
+        if (param.match(/query-[0-9]+-page+/)) {
+            pageParam = param
+        }
+    }
+    if (!pageParam) {
+        return {}
+    }
+    let page = queryParams.get(pageParam)
+    return {
+        href: href,
+        param: pageParam,
+        value: page
+    }
+}
+
+document.querySelectorAll('body.single .wp-block-query-pagination').forEach(pagination => {
+    const loading = document.createElement("div")
+    loading.setAttribute('class', 'awasqa-infinite-scroll-loading')
+    pagination.appendChild(loading)
+    pagination.querySelectorAll("*").forEach(el => { el.style.visibility = "hidden" })
+
+    const queryLoopWrapper = pagination.closest('.wp-block-query')
+    const queryLoop = queryLoopWrapper.querySelector('.wp-block-post-template')
+    const next = pagination.querySelector('.wp-block-query-pagination-next')
+    if (!next) {
+        return
+    }
+
+    let { href: nextHref, param: paginationParam } = getLinkPageParam(next)
+
+    let pagesFetched = []
+
+    function doInfiniteScroll() {
+        if (!nextHref) {
+            return
+        }
+        if (!isElementInViewport(pagination)) {
+            return
+        }
+        if (pagesFetched.includes(nextHref)) {
+            return
+        }
+        loading.style.visibility = "visible"
+        pagesFetched.push(nextHref)
+        window.fetch(nextHref).then(response => response.text()).then(html => {
+            let body = html.split(/<body[^>]*>/)[1]
+            body = body.split('</body>')[0]
+            const dummy = document.createElement('div')
+            dummy.innerHTML = body
+            dummy.querySelectorAll('.wp-block-query-pagination a').forEach(pageLink => {
+                const { param } = getLinkPageParam(pageLink)
+                let appended = false
+                if (!appended && param === paginationParam) {
+                    const fetchedQueryLoop = pageLink.closest('.wp-block-query')
+                    fetchedQueryLoop.querySelectorAll('.wp-block-post').forEach(post => {
+                        queryLoop.appendChild(post)
+                    })
+                    const next = fetchedQueryLoop.querySelector('.wp-block-query-pagination-next')
+                    if (next) {
+                        nextHref = getLinkPageParam(next).href
+                    } else {
+                        nextHref = null
+                        window.removeEventListener('scroll', doInfiniteScroll)
+                    }
+                    appended = true
+                }
+            })
+            loading.style.visibility = "hidden"
+            // In case the pagination is still visible after load, load again
+            doInfiniteScroll()
+        })
+    }
+
+    window.addEventListener('scroll', doInfiniteScroll)
+
+    doInfiniteScroll()
+})
+
 // Display content (hidden by pre-script.js)
 document.body.style.visibility = "visible"

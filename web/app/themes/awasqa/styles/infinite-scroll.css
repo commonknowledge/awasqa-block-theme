@@ -1,0 +1,16 @@
+.awasqa-infinite-scroll-loading {
+    animation: spin 1s linear infinite;
+    height: 25px;
+    border: 2px solid var(--color-green);
+    border-left: 0;
+    border-top: 0;
+    border-radius: 100%;
+    visibility: visible;
+    width: 25px;
+}
+
+@keyframes spin {
+    100% {
+        transform: rotate(360deg);
+    }
+}
