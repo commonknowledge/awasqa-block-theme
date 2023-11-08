@@ -289,8 +289,19 @@ function extra_admin_user_fields($user)
     );
     $cols = $wpdb->get_col($sql);
     $string_id = $cols[0] ?? "";
+    $hide_user = (bool) get_user_meta($user_id, 'awasqa-hide-user', true);
+    $hide_user_checked = $hide_user ? 'checked="checked"' : '';
     ?>
     <h2>Awasqa</h2>
+    <table class="form-table">
+        <tr>
+            <th>Ocultar Autor</th>
+            <td>
+                <input id="awasqa-hide-user" type="checkbox" name="awasqa-hide-user" value="1" <?= $hide_user_checked ?>>
+                <label for="awasqa-hide-user">Ocultar Autor</label>
+            </td>
+        </tr>
+    </table>
     <table class="form-table">
         <tr>
             <th><label for="translated-bio"><?= __('Bio en Ingles', 'awasqa') ?></label></th>
@@ -325,6 +336,10 @@ function awasqa_save_admin_user_fields($user_id)
 {
     if (current_user_can('edit_user', $user_id)) {
         handle_update_profile_pic($user_id);
+
+        // Hide author
+        $hide_user = $_POST['awasqa-hide-user'] ?? 0;
+        update_user_meta($user_id, 'awasqa-hide-user', $hide_user);
 
         // Add translated bio
         $spanish_description = $_POST['description'] ?? null;
@@ -389,3 +404,7 @@ function get_translated_author_bio($author_id, $lang = null)
     $translations = icl_get_string_translations_by_id($string_id[0]);
     return $translations[$lang]['value'] ?? $description;
 }
+
+add_filter('coauthors_edit_author_cap', function ($capabilities) {
+    return 'read';
+});

@@ -249,3 +249,8 @@ add_action('admin_menu', function () {
         3
     );
 });
+
+// Disable WPML notifications by default
+add_action('user_register', function ($user_id, $userdata) {
+    update_user_meta($user_id, \WPML_User_Jobs_Notification_Settings::BLOCK_NEW_NOTIFICATION_FIELD, 1);
+}, 10, 2);
