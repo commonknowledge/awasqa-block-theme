@@ -213,6 +213,10 @@ add_action('carbon_fields_register_fields', function () {
             $authors_data = [];
             foreach ($user_ids as $author_id) {
                 $meta = get_user_meta($author_id);
+                $hide_user = (bool) get_user_meta($author_id, 'awasqa-hide-user', true);
+                if ($hide_user) {
+                    continue;
+                }
                 $image_id = $meta['awasqa_profile_pic_id'][0] ?? null;
                 $image_url = $image_id ? wp_get_attachment_image_src($image_id) : null;
                 $name = Awasqa\Authors\awasqa_get_author_name($author_id);
