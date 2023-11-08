@@ -120,3 +120,12 @@ add_action('after_setup_theme', function () {
 
     \Carbon_Fields\Carbon_Fields::boot();
 });
+
+add_filter('carbon_fields_association_field_options_members_user', function ($args) {
+    $search_term = $args['search'] ?? '';
+    if (!$search_term) {
+        return $args;
+    }
+    $args['search'] = '*' . $search_term . '*';
+    return $args;
+});

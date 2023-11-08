@@ -404,3 +404,7 @@ function get_translated_author_bio($author_id, $lang = null)
     $translations = icl_get_string_translations_by_id($string_id[0]);
     return $translations[$lang]['value'] ?? $description;
 }
+
+add_filter('coauthors_edit_author_cap', function ($capabilities) {
+    return 'read';
+});
