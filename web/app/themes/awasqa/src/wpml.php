@@ -254,3 +254,15 @@ add_action('admin_menu', function () {
 add_action('user_register', function ($user_id, $userdata) {
     update_user_meta($user_id, \WPML_User_Jobs_Notification_Settings::BLOCK_NEW_NOTIFICATION_FIELD, 1);
 }, 10, 2);
+
+add_filter('get_block_templates', function ($query_result, $query, $template_type) {
+    if ($template_type !== "wp_template") {
+        return;
+    }
+    $not_found_text = __('Not found: %1$s (%2$s)');
+    $not_found_part = explode(":", $not_found_text)[0] . ": ";
+    foreach ($query_result as $result) {
+        $result->title = str_replace($not_found_part, "", $result->title);
+    }
+    return $query_result;
+}, 10, 3);
