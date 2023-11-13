@@ -216,6 +216,14 @@ add_action('template_redirect', function () {
  * Use custom login page
  */
 add_filter('login_url', function ($login_url, $redirect, $force_reauth) {
+    $path = $_SERVER['REQUEST_URI'] ?? "/";
+    $is_admin = $_GET['admin'] ?? false;
+    if ($path === "/wp/wp-login.php" && $is_admin) {
+        return $login_url;
+    }
+    if (str_contains($redirect, "wp-admin")) {
+        return $login_url;
+    }
     $log_in = Awasqa\WPML\get_translated_page_by_slug('log-in', Awasqa\WPML\get_current_language('en'));
     if (!$log_in) {
         return $login_url;
@@ -224,6 +232,41 @@ add_filter('login_url', function ($login_url, $redirect, $force_reauth) {
     $login_url = add_query_arg('redirect_to', urlencode($redirect), $login_url);
     return $login_url;
 }, 10, 3);
+
+/**
+ * Add message to tell users they have to log in at this URL
+ * because they have 2FA enabled.
+ */
+add_filter('login_message', function ($message) {
+    if (empty($message)) {
+        return "<p>" . __(
+            "As you are an admin or have 2FA enabled, you must use this form to log in. " .
+                'Bookmark it at <a href="https://awasqa.org/wp/wp-login.php?admin=true">' .
+                'https://awasqa.org/wp/wp-login.php?admin=true</a>',
+            "awasqa"
+        ) . "</p>";
+    } else {
+        return $message;
+    }
+});
+
+/**
+ * Detect 2FA errors and redirect to standard WP login page
+ * (the gravity forms page does not work with 2FA).
+ */
+add_filter('authenticate', function ($user, $username, $password) {
+    if ($user instanceof \WP_Error) {
+        if ($user->get_error_code() === 'wfls_twofactor_required') {
+            $redirect = $_GET["redirect_to"] ?? "/";
+            $login_url = "/wp/wp-login.php?admin=true";
+            $login_url = add_query_arg('redirect_to', urlencode($redirect), $login_url);
+            wp_redirect($login_url);
+            exit;
+        }
+    }
+    return $user;
+}, 26, 3);
+
 
 /**
  * Use custom register page
