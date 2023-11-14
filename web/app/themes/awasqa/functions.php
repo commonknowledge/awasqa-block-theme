@@ -158,3 +158,10 @@ add_filter('bbp_get_displayed_user_field', function ($value, $field, $filter) {
     }
     return $value;
 }, 10, 3);
+
+// Remove breadcrumbs from yoast site schema as Google thinks they are invalid
+add_filter('wpseo_schema_graph_pieces', function ($pieces, $context) {
+    return \array_filter($pieces, function ($piece) {
+        return ! $piece instanceof \Yoast\WP\SEO\Generators\Schema\Breadcrumb;
+    });
+}, 11, 2);

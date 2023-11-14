@@ -257,7 +257,7 @@ add_action('user_register', function ($user_id, $userdata) {
 
 add_filter('get_block_templates', function ($query_result, $query, $template_type) {
     if ($template_type !== "wp_template") {
-        return;
+        return $query_result;
     }
     $not_found_text = __('Not found: %1$s (%2$s)');
     $not_found_part = explode(":", $not_found_text)[0] . ": ";
