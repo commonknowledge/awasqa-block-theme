@@ -636,79 +636,78 @@ function import_post($slug, $post_xmls)
     ]);
 
     if ($post) {
-        return;
-    }
+        wp_update_post(["ID" => $post[0]->ID, "post_content" => $post_content]);
+    } else {
+        $post_id = wp_insert_post([
+            "post_title" => $post_title,
+            "post_name" => $post_name,
+            "post_content" => $post_content,
+            "post_type" => $post_type,
+            "post_status" => "publish"
+        ]);
 
-    $post_id = wp_insert_post([
-        "post_title" => $post_title,
-        "post_name" => $post_name,
-        "post_content" => $post_content,
-        "post_type" => $post_type,
-        "post_status" => "publish"
-    ]);
+        $attachment_id = null;
+        $featured_image_id = get_post_meta($original_post, "_thumbnail_id");
+        if ($featured_image_id) {
+            $attachment_id = $attachment_ids_by_orig_id[$featured_image_id];
+            add_post_meta($post_id, "_thumbnail_id", $attachment_id, true);
+            update_post_meta($post_id, "_thumbnail_id", $attachment_id);
+        }
 
-    $attachment_id = null;
-    $featured_image_id = get_post_meta($original_post, "_thumbnail_id");
-    if ($featured_image_id) {
-        $attachment_id = $attachment_ids_by_orig_id[$featured_image_id];
-        add_post_meta($post_id, "_thumbnail_id", $attachment_id, true);
-        update_post_meta($post_id, "_thumbnail_id", $attachment_id);
-    }
+        $orig_language = get_category($original_post, "language");
 
-    $orig_language = get_category($original_post, "language");
+        // Update the language of the original post
+        $trid = apply_filters('wpml_element_trid', null, $post_id, 'post_' . $post_type);
+        $language_args = [
+            'element_id' => $post_id,
+            'element_type' => 'post_' . $post_type,
+            'trid' => $trid,
+            'language_code' => $orig_language,
+            'source_language_code' => null,
+        ];
 
-    // Update the language of the original post
-    $trid = apply_filters('wpml_element_trid', null, $post_id, 'post_' . $post_type);
-    $language_args = [
-        'element_id' => $post_id,
-        'element_type' => 'post_' . $post_type,
-        'trid' => $trid,
-        'language_code' => $orig_language,
-        'source_language_code' => null,
-    ];
+        do_action('wpml_set_element_language_details', $language_args);
 
-    do_action('wpml_set_element_language_details', $language_args);
-
-    global $user_ids_by_guest_author_id;
-    global $user_ids_by_wp_user_id;
-    global $org_ids_by_guest_author_id;
-    global $coauthors_plus;
-    $authors = get_post_meta($original_post, "_molongui_author", single: false);
-    foreach ($authors as $author) {
-        if (str_starts_with($author, "user-")) {
-            $id = explode("user-", $author)[1];
-            $new_author_id = $user_ids_by_wp_user_id[$id];
-            $coauthors_plus->add_coauthors($post_id, [$new_author_id], false, "id");
-        } elseif (str_starts_with($author, "guest-")) {
-            $id = explode("guest-", $author)[1];
-            $new_author_id = $user_ids_by_guest_author_id[$id] ?? null;
-            $new_org_id = $org_ids_by_guest_author_id[$id] ?? null;
-
-            if ($new_author_id) {
+        global $user_ids_by_guest_author_id;
+        global $user_ids_by_wp_user_id;
+        global $org_ids_by_guest_author_id;
+        global $coauthors_plus;
+        $authors = get_post_meta($original_post, "_molongui_author", single: false);
+        foreach ($authors as $author) {
+            if (str_starts_with($author, "user-")) {
+                $id = explode("user-", $author)[1];
+                $new_author_id = $user_ids_by_wp_user_id[$id];
                 $coauthors_plus->add_coauthors($post_id, [$new_author_id], false, "id");
-            }
-            if ($new_org_id) {
-                $orgs = carbon_get_post_meta($post_id, "related_organisations") ?? [];
-                $orgs[] = [
-                    "value" => "post:awasqa_organisation:" . $new_org_id,
-                    "type" => "post",
-                    "subtype" => "awasqa_organisation",
-                    "id" => $new_org_id
-                ];
-                carbon_set_post_meta($post_id, "related_organisations", $orgs);
-            }
-            if ($new_author_id && $new_org_id) {
-                echo "Error: could not determine if author is person or org.";
-                exit(1);
+            } elseif (str_starts_with($author, "guest-")) {
+                $id = explode("guest-", $author)[1];
+                $new_author_id = $user_ids_by_guest_author_id[$id] ?? null;
+                $new_org_id = $org_ids_by_guest_author_id[$id] ?? null;
+
+                if ($new_author_id) {
+                    $coauthors_plus->add_coauthors($post_id, [$new_author_id], false, "id");
+                }
+                if ($new_org_id) {
+                    $orgs = carbon_get_post_meta($post_id, "related_organisations") ?? [];
+                    $orgs[] = [
+                        "value" => "post:awasqa_organisation:" . $new_org_id,
+                        "type" => "post",
+                        "subtype" => "awasqa_organisation",
+                        "id" => $new_org_id
+                    ];
+                    carbon_set_post_meta($post_id, "related_organisations", $orgs);
+                }
+                if ($new_author_id && $new_org_id) {
+                    echo "Error: could not determine if author is person or org.";
+                    exit(1);
+                }
             }
         }
-    }
 
-    $categories = get_post_category_ids($original_post, $orig_language)[0];
-    if ($categories) {
-        wp_set_post_categories($post_id, $categories);
+        $categories = get_post_category_ids($original_post, $orig_language)[0];
+        if ($categories) {
+            wp_set_post_categories($post_id, $categories);
+        }
     }
-
     if ($translated_post) {
         $trans_post_title = (string) $translated_post->title;
         $trans_language = get_category($translated_post, "language");
@@ -719,33 +718,42 @@ function import_post($slug, $post_xmls)
 
         $translated_content = fix_content((string) $translated_post->children(XMLNS_CONTENT)->encoded);
 
-        $trans_post_id = wp_insert_post([
-            "post_title" => $trans_post_title,
-            "post_name" => $trans_slug,
-            "post_content" => $translated_content,
-            "post_type" => $post_type,
-            "post_status" => "publish"
+        $post = get_posts([
+            "post_type" => "post",
+            "name" => $trans_slug
         ]);
 
-        if ($attachment_id) {
-            $attachment_id = $attachment_ids_by_orig_id[$featured_image_id];
-            add_post_meta($trans_post_id, "_thumbnail_id", $attachment_id, true);
-            update_post_meta($trans_post_id, "_thumbnail_id", $attachment_id);
+        if ($post) {
+            wp_update_post(["ID" => $post[0]->ID, "post_content" => $post_content]);
+        } else {
+            $trans_post_id = wp_insert_post([
+                "post_title" => $trans_post_title,
+                "post_name" => $trans_slug,
+                "post_content" => $translated_content,
+                "post_type" => $post_type,
+                "post_status" => "publish"
+            ]);
+
+            if ($attachment_id) {
+                $attachment_id = $attachment_ids_by_orig_id[$featured_image_id];
+                add_post_meta($trans_post_id, "_thumbnail_id", $attachment_id, true);
+                update_post_meta($trans_post_id, "_thumbnail_id", $attachment_id);
+            }
+
+            // Update the language of the translated post
+            $language_args = [
+                'element_id' => $trans_post_id,
+                'element_type' => 'post_' . $post_type,
+                'trid' => $trid,
+                'language_code' => $trans_language,
+                'source_language_code' => $orig_language,
+            ];
+
+            do_action('wpml_set_element_language_details', $language_args);
+
+            $categories = get_post_category_ids($translated_post, $trans_language);
+            wp_set_post_categories($trans_post_id, $categories);
         }
-
-        // Update the language of the translated post
-        $language_args = [
-            'element_id' => $trans_post_id,
-            'element_type' => 'post_' . $post_type,
-            'trid' => $trid,
-            'language_code' => $trans_language,
-            'source_language_code' => $orig_language,
-        ];
-
-        do_action('wpml_set_element_language_details', $language_args);
-
-        $categories = get_post_category_ids($translated_post, $trans_language);
-        wp_set_post_categories($trans_post_id, $categories);
     }
 
     echo "Imported " . $post_name . "\n";
