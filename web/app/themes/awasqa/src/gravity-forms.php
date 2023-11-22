@@ -479,6 +479,11 @@ add_filter('gform_validation', function ($validation_result) {
     });
 
     // get virus patterns from WordFence
+    if (!class_exists("wfScanEngine")) {
+        return $validation_result;
+    }
+
+    // get virus patterns from WordFence
     $scan_engine = new \wfScanEngine();
     $wp_version = \wfUtils::getWPVersion();
     $apiKey = \wfConfig::get('apiKey');
