@@ -11,6 +11,8 @@ use CommonKnowledge\WordPress\Awasqa;
  */
 function get_org_post_ids($org_id)
 {
+    $en_id = apply_filters('wpml_object_id', $org_id, 'awasqa_organisation', true, 'en');
+    $es_id = apply_filters('wpml_object_id', $org_id, 'awasqa_organisation', true, 'es');
     $query = new \WP_Query([
         'post_type' => 'post',
         'posts_per_page' => -1
@@ -19,8 +21,8 @@ function get_org_post_ids($org_id)
     $org_post_ids = [];
     foreach ($posts as $post) {
         $orgs = Awasqa\CarbonFields\awasqa_carbon_get_post_meta($post->ID, 'related_organisations') ?? [];
-        $matching_org = array_filter($orgs, function ($org) use ($org_id) {
-            return (string) $org['id'] === (string) $org_id;
+        $matching_org = array_filter($orgs, function ($org) use ($en_id, $es_id) {
+            return (string) $org['id'] === (string) $en_id || (string) $org['id'] === (string) $es_id;
         });
         if ($matching_org) {
             $org_post_ids[] = $post->ID;
