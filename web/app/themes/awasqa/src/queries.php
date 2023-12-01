@@ -109,7 +109,15 @@ add_filter("query_loop_block_query_vars", function ($query) {
         if (!$org_ids) {
             $org_ids = [0];
         }
-        $query['post__in'] = $org_ids;
+        // Add these in for better reliability, sometimes WPML fails to do this itself
+        $translated_post_ids = [];
+        foreach ($org_ids as $org_id) {
+            $en_id = apply_filters('wpml_object_id', $org_id, 'awasqa_organisation', true, 'en');
+            $es_id = apply_filters('wpml_object_id', $org_id, 'awasqa_organisation', true, 'es');
+            $translated_post_ids[] = $en_id;
+            $translated_post_ids[] = $es_id;
+        }
+        $query['post__in'] = array_merge($org_ids, $translated_post_ids);
         # Prevent sticky posts from always appearing
         $query['ignore_sticky_posts'] = 1;
         return $query;
