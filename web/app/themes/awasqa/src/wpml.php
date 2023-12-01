@@ -266,3 +266,11 @@ add_filter('get_block_templates', function ($query_result, $query, $template_typ
     }
     return $query_result;
 }, 10, 3);
+
+add_action('init', function () {
+    // Bug in WPML means that these roles break creating a Translation Manager
+    $role = get_role('wpseo_manager');
+    $role->remove_cap('edit_private_posts');
+    $role = get_role('wpseo_editor');
+    $role->remove_cap('edit_private_posts');
+});
