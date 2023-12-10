@@ -239,6 +239,10 @@ add_filter('login_url', function ($login_url, $redirect, $force_reauth) {
  */
 add_filter('login_message', function ($message) {
     if (empty($message)) {
+        $checkemail = array_key_exists("checkemail", $_GET);
+        if ($checkemail) {
+            return $message;
+        }
         return "<p>" . __(
             "As you are an admin or have 2FA enabled, you must use this form to log in. " .
                 'Bookmark it at <a href="https://awasqa.org/wp/wp-login.php?admin=true">' .
