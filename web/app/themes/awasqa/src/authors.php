@@ -234,27 +234,6 @@ add_filter('login_url', function ($login_url, $redirect, $force_reauth) {
 }, 10, 3);
 
 /**
- * Add message to tell users they have to log in at this URL
- * because they have 2FA enabled.
- */
-add_filter('login_message', function ($message) {
-    if (empty($message)) {
-        $checkemail = array_key_exists("checkemail", $_GET);
-        if ($checkemail) {
-            return $message;
-        }
-        return "<p>" . __(
-            "As you are an admin or have 2FA enabled, you must use this form to log in. " .
-                'Bookmark it at <a href="https://awasqa.org/wp/wp-login.php?admin=true">' .
-                'https://awasqa.org/wp/wp-login.php?admin=true</a>',
-            "awasqa"
-        ) . "</p>";
-    } else {
-        return $message;
-    }
-});
-
-/**
  * Detect 2FA errors and redirect to standard WP login page
  * (the gravity forms page does not work with 2FA).
  */
@@ -298,7 +277,10 @@ add_action('admin_init', function () {
 });
 
 add_action('after_setup_theme', function () {
-    if (!current_user_can('administrator') && !is_admin()) {
+    $roles = (array) wp_get_current_user()->roles;
+    $allowed_roles = ['administrator', 'editor', 'author', 'contributor'];
+
+    if (!array_intersect($allowed_roles, $roles) && !is_admin()) {
         show_admin_bar(false);
     }
 });
