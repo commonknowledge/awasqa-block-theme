@@ -1277,12 +1277,17 @@ function fix_links()
                                 $new_path .= "?lang=$lang";
                             }
                         }
-                        echo "Replacing $url with $new_path\n";
+                        echo "Replacing in {$post->ID}: $url with $new_path\n";
                         $found = @file_get_contents($new_path);
                         if (!$found) {
                             echo "MISSING PAGE $url $new_path\n";
                             //exit(1);
                         }
+                        $content = str_replace($url, $new_path, $content);
+                        wp_update_post([
+                            "ID" => $post->ID,
+                            "post_content" => $content
+                        ]);
                     }
                 }
             }
