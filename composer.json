@@ -34,7 +34,8 @@
     "wpackagist-plugin/pdfjs-viewer-shortcode": "2.1.8",
     "wpackagist-plugin/disable-full-site-editing": "1.2.0",
     "wpackagist-plugin/bbp-style-pack": "^5.6",
-    "wpackagist-plugin/redirection": "^5.3"
+    "wpackagist-plugin/redirection": "^5.3",
+    "wpackagist-plugin/broken-link-checker": "^2.2"
   },
   "require-dev": {
     "squizlabs/php_codesniffer": "^3.7.2",

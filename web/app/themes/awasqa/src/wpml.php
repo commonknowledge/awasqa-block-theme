@@ -48,6 +48,9 @@ function get_translated_page_by_slug($slug, $lang)
 // Clear SitePress state after it has parsed any query
 add_action("parse_query", function () {
     global $wpml_query_filter;
+    if (empty($wpml_query_filter)) {
+        return;
+    }
     $r = new \ReflectionObject($wpml_query_filter);
     $p = $r->getProperty('name_filter');
     $p->setAccessible(true);

@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "9b39a24b0c507e9a9d9257fa85a792f8",
+    "content-hash": "78971b3586c87a48fa4e241e80fcf552",
     "packages": [
         {
             "name": "composer/installers",
@@ -1349,6 +1349,24 @@
             },
             "type": "wordpress-plugin",
             "homepage": "https://wordpress.org/plugins/bbpress/"
+        },
+        {
+            "name": "wpackagist-plugin/broken-link-checker",
+            "version": "2.2.3",
+            "source": {
+                "type": "svn",
+                "url": "https://plugins.svn.wordpress.org/broken-link-checker/",
+                "reference": "tags/2.2.3"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://downloads.wordpress.org/plugin/broken-link-checker.2.2.3.zip"
+            },
+            "require": {
+                "composer/installers": "^1.0 || ^2.0"
+            },
+            "type": "wordpress-plugin",
+            "homepage": "https://wordpress.org/plugins/broken-link-checker/"
         },
         {
             "name": "wpackagist-plugin/co-authors-plus",

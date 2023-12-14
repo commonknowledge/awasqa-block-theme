@@ -1223,3 +1223,71 @@ function fix_post_categories($slug, $post_xmls)
 }
 
 \WP_CLI::add_command('fix_categories', 'CommonKnowledge\WordPress\Awasqa\Import\fix_categories');
+
+
+function fix_links()
+{
+    $replacements = [
+        'perus-constitutional-courts-racist-disregard-for-ilo-169' => 'perus-constitutional-courts-racist-disregard-for-the-right-to-consultation-and-the-ilo-convention-no-169-2',
+        '3910' => 'pensar-el-mundo-desde-bolivia',
+        'indigenous-rights-and-wisdom' => '',
+        'derechos-y-sabiduria-indigenas' => '',
+        'en' => '',
+        'es' => '',
+        'post.php' => ''
+    ];
+    $skips = [
+        'about:blank'
+    ];
+    $posts = get_posts([
+        'post_type' => 'post',
+        'posts_per_page' => -1
+    ]);
+    foreach ($posts as $post) {
+        $content = $post->post_content;
+        preg_match_all('#<a[^h]*href="([^"]*)"[^>]*>#', $content, $matches);
+        if ($matches) {
+            $urls = $matches[1] ?? [];
+            foreach ($urls as $url) {
+                $url = trim($url);
+                if (str_starts_with($url, 'mailto:')) {
+                    continue;
+                }
+                if (in_array($url, $skips)) {
+                    continue;
+                }
+                if (str_starts_with($url, 'www')) {
+                    $url = 'https://' . $url;
+                }
+                $parsed_url = parse_url($url);
+                $host = $parsed_url['host'] ?? '';
+                if (!$host || $host === 'awasqa.org' || $host === 'greennetworkproject.org') {
+                    $found = @file_get_contents($url);
+                    if (!$found) {
+                        $path = trim($parsed_url['path'] ?? '', '/');
+                        $parts = explode('/', $path);
+                        $lang = in_array($parts[0], ['en', 'es']) ? $parts[0] : '';
+                        $slug = array_pop($parts);
+                        $slug = $replacements[$slug] ?? $slug;
+                        if (str_ends_with($slug, '.pdf')) {
+                            $new_path = "https://awasqa.org/wp-content/uploads/$slug";
+                        } else {
+                            $new_path = $slug ? "https://awasqa.org/$slug/" : "https://awasqa.org/";
+                            if ($lang) {
+                                $new_path .= "?lang=$lang";
+                            }
+                        }
+                        echo "Replacing $url with $new_path\n";
+                        $found = @file_get_contents($new_path);
+                        if (!$found) {
+                            echo "MISSING PAGE $url $new_path\n";
+                            //exit(1);
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+\WP_CLI::add_command('fix_links', 'CommonKnowledge\WordPress\Awasqa\Import\fix_links');
