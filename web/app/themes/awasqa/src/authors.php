@@ -262,29 +262,6 @@ add_filter('register_url', function ($register_url) {
     return get_permalink($register);
 });
 
-// Prevent subscribers from accessing the WP backend
-add_action('admin_init', function () {
-    if (!is_user_logged_in()) {
-        return;
-    }
-
-    $roles = (array) wp_get_current_user()->roles;
-    $allowed_roles = ['administrator', 'editor', 'author', 'contributor'];
-
-    if (!array_intersect($allowed_roles, $roles)) {
-        wp_die('Sorry, you are not allowed to access this page.');
-    }
-});
-
-add_action('after_setup_theme', function () {
-    $roles = (array) wp_get_current_user()->roles;
-    $allowed_roles = ['administrator', 'editor', 'author', 'contributor'];
-
-    if (!array_intersect($allowed_roles, $roles) && !is_admin()) {
-        show_admin_bar(false);
-    }
-});
-
 // Improve title on Author archives page
 add_filter('wpseo_title', function ($title) {
     if (is_author()) {
